@@ -92,6 +92,14 @@
             <version>1.2.11</version>
         </dependency>
 
+
+<!--        api-->
+        <dependency>
+            <groupId>io.github.yedaxia</groupId>
+            <artifactId>japidocs</artifactId>
+            <version>1.4.4</version>
+        </dependency>
+
     </dependencies>
 
     <build>

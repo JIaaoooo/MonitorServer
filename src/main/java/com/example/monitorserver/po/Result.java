@@ -1,9 +1,12 @@
 package com.example.monitorserver.po;
 
 
+import com.example.monitorserver.constant.ResultEnum;
+import com.example.monitorserver.constant.StatusCode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * @program: monitor server
@@ -15,13 +18,48 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Result<T> {
+@ToString
+public class Result {
 
     /**编号*/
     private Integer code;
+
     /**信息*/
     private String msg;
 
     /**数据*/
-    private T data;
+    private Object data;
+
+
+    /**
+     * 没有返回值,
+     * @param statusCode :状态
+     */
+    public Result(StatusCode statusCode) {
+        this.code = statusCode.getCode();
+        this.msg = statusCode.getMsg();
+    }
+
+    /**
+     * 有返回值
+     * @param statusCode :状态
+     * @param data :数据
+     */
+    public Result(StatusCode statusCode,Object data) {
+        this.code = statusCode.getCode();
+        this.msg = statusCode.getMsg();
+        this.data = data;
+    }
+
+
+    /**
+     * 成功直接传入data数据即可.
+     * @param data :data数据
+     */
+    public Result(Object data) {
+        this.code = ResultEnum.REQUEST_SUCCESS.getCode();
+        this.msg = ResultEnum.REQUEST_SUCCESS.getMsg();
+        this.data = data;
+    }
+
 }

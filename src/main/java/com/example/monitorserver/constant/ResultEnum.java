@@ -1,4 +1,7 @@
-package com.example.monitorserver.emum;
+package com.example.monitorserver.constant;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * @program: monitor server
@@ -6,12 +9,14 @@ package com.example.monitorserver.emum;
  * @author: Jiao
  * @create: 2022-08-08 10：39
  */
-public enum ResultEnum {
+@Getter
+@AllArgsConstructor
+public enum ResultEnum implements StatusCode{
 
     /**
      * 登陆成功
      */
-    LOGIN_SUCCESS(200,"登陆成功"),
+    LOGIN_SUCCESS(201,"登陆成功"),
     LOGIN_INFORMATION_FALSE(4011,"登录信息错误"),
     LOGIN_USER_FROZEN(4012,"用户被冻结"),
     REGISTER_NAME_DOUBLE(4001,"用户名重复"),
@@ -32,27 +37,17 @@ public enum ResultEnum {
     INSERT_SUCCESS(2004,"存入成功"),
     SELECT_SUCCESS(2006,"查询成功"),
 
-    APPLICATION_MESSAGE(2007,"申请表信息")
+    APPLICATION_MESSAGE(2007,"申请表信息"),
+
+
+    REQUEST_SUCCESS(200,"请求成功")
     ;
     /**
      * 编号
      */
-    private Integer code;
+    private int code;
     /**
      * 信息
      */
     private String msg;
-
-    ResultEnum(Integer code, String msg) {
-        this.code = code;
-        this.msg = msg;
-    }
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
 }

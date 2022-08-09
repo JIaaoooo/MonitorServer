@@ -3,13 +3,11 @@ package com.example.monitorserver.service.Impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.Mapper.ProjectMapper;
-import com.example.monitorserver.emum.ResultEnum;
+import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
-import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +46,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
             page = projectMapper.selectPage(page,wrapper);
         }
         List<Project> records = page.getRecords();
-        return new Result(ResultEnum.SELECT_PAGE.getCode(),ResultEnum.SELECT_PAGE.getMsg(),records);
+        return new Result(ResultEnum.SELECT_PAGE,records);
     }
 
     @Override
@@ -59,13 +57,13 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
         log.debug(key);
         wrapper.like(key,map.get(key));
         List<Project> projects = projectMapper.selectList(wrapper);
-        return new Result(ResultEnum.SELECT_LIKE.getCode(), ResultEnum.REGISTER_EMAIL_DOUBLE.getMsg(), projects);
+        return new Result(ResultEnum.SELECT_LIKE,projects);
     }
 
     @Override
     public Result saveProject(Project project) {
         projectMapper.insert(project);
-        return new Result(ResultEnum.INSERT_SUCCESS.getCode(), ResultEnum.INSERT_SUCCESS.getMsg(), null);
+        return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
@@ -73,7 +71,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Project::getProjectId,project.getProjectId());
         projectMapper.update(project,wrapper);
-        return new Result(ResultEnum.UPDATE_SUCCESS.getCode(), ResultEnum.UPDATE_SUCCESS.getMsg(), null);
+        return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
 

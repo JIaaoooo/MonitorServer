@@ -22,7 +22,7 @@ public interface UserService extends IService<User> {
      * @param user user对象
      * @return 除了密码之外的User信息
      */
-    Result<User> login(User user);
+    Result login(User user);
 
     /**
      * 注册

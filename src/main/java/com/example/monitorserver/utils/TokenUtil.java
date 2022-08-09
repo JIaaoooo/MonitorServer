@@ -2,11 +2,10 @@ package com.example.monitorserver.utils;
 
 
 import cn.hutool.core.bean.BeanUtil;
-import com.example.monitorserver.emum.RedisEnum;
+import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.po.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.security.NoSuchAlgorithmException;

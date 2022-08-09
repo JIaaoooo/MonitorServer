@@ -1,4 +1,4 @@
-package com.example.monitorserver.emum;
+package com.example.monitorserver.constant;
 /**
  * @program: monitor server
  * @description: redis默认值

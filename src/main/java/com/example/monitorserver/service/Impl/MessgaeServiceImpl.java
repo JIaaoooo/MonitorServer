@@ -3,12 +3,13 @@ package com.example.monitorserver.service.Impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.Mapper.MessageMapper;
-import com.example.monitorserver.emum.ResultEnum;
+import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Message;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.Map;
  * @author: Jiao
  * @create: 2022-08-09 17:17
  */
+@Service
 public class MessgaeServiceImpl extends ServiceImpl<MessageMapper, Message> implements MessageService {
 
 
@@ -47,6 +49,6 @@ public class MessgaeServiceImpl extends ServiceImpl<MessageMapper, Message> impl
             map.put("Application"+count,data);
         }
 
-        return new Result(ResultEnum.APPLICATION_MESSAGE.getCode(),ResultEnum.APPLICATION_MESSAGE.getMsg(), map);
+        return new Result(ResultEnum.APPLICATION_MESSAGE, map);
     }
 }

@@ -1,7 +1,7 @@
 package com.example.monitorserver.interceptor;
 
 import cn.hutool.json.JSONUtil;
-import com.example.monitorserver.emum.RedisEnum;
+import com.example.monitorserver.constant.RedisEnum;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.servlet.HandlerInterceptor;
 

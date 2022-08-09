@@ -2,7 +2,7 @@ package com.example.monitorserver.service.Impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.Mapper.UserProjectMapper;
-import com.example.monitorserver.emum.ResultEnum;
+import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.UserProjectService;
@@ -27,6 +27,6 @@ public class UserProjectServiceImpl extends ServiceImpl<UserProjectMapper, UserP
     @Override
     public Result add(UserProject userProject) {
         userProjectMapper.insert(userProject);
-        return new Result(ResultEnum.INSERT_SUCCESS.getCode(),ResultEnum.REGISTER_SUCCESS.getMsg(), null);
+        return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 }

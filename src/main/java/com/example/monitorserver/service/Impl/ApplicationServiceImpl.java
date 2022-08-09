@@ -3,7 +3,7 @@ package com.example.monitorserver.service.Impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.Mapper.ApplicationMapper;
-import com.example.monitorserver.emum.ResultEnum;
+import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Application;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ApplicationService;
@@ -31,7 +31,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     @Override
     public Result releaseApp(Application application) {
         applicationMapper.insert(application);
-        return new Result(ResultEnum.INSERT_SUCCESS.getCode(), ResultEnum.INSERT_SUCCESS.getMsg(), null);
+        return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
 
         //TODO 2.  删除
         int type  = application.getType();
-        return new Result(ResultEnum.UPDATE_SUCCESS.getCode(), ResultEnum.UPDATE_SUCCESS.getMsg(), null);
+        return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
         LambdaQueryWrapper<Application> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Application::getApplicantId,applicationId);
         Application selectOne = applicationMapper.selectOne(wrapper);
-        return new Result(ResultEnum.SELECT_SUCCESS.getCode(), ResultEnum.SELECT_SUCCESS.getMsg(), selectOne);
+        return new Result(ResultEnum.REQUEST_SUCCESS, selectOne);
     }
 
 

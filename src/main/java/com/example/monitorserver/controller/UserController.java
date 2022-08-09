@@ -1,8 +1,7 @@
 package com.example.monitorserver.controller;
 
 
-import cn.hutool.core.bean.BeanUtil;
-import com.example.monitorserver.emum.ResultEnum;
+import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.UserService;
@@ -42,9 +41,9 @@ public class UserController {
     private TokenUtil tokenUtil;
 
     @PostMapping("/login")
-    public Result<User> login(@RequestBody User user){
+    public Result login(@RequestBody User user){
         //TODO 1.登录认证
-        Result<User> result = userService.login(user);
+        Result result = userService.login(user);
         if(result.getCode()==200){
             //TODO 2.登陆成功，生成Token,并存入redis缓存
             String token = tokenUtil.createToken(user);
