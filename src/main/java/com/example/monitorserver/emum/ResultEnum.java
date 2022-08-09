@@ -22,7 +22,17 @@ public enum ResultEnum {
 
     LOGOUT_SUCCESS(2001,"退出成功"),
 
-    SELECT_PAGE(2001,"分页查询")
+    SELECT_PAGE(2001,"分页查询"),
+
+
+    UPDATE_SUCCESS(2002,"更新修改成功"),
+
+    SELECT_LIKE(2003,"条件查询"),
+
+    INSERT_SUCCESS(2004,"存入成功"),
+    SELECT_SUCCESS(2006,"查询成功"),
+
+    APPLICATION_MESSAGE(2007,"申请表信息")
     ;
     /**
      * 编号

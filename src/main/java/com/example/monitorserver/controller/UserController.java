@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 
 /**
@@ -71,6 +72,21 @@ public class UserController {
         return new Result(ResultEnum.LOGOUT_SUCCESS.getCode(), ResultEnum.LOGOUT_SUCCESS.getMsg(), null);
     }
 
+    //用户修改个人信息
+    @PutMapping
+    public Result update(@RequestBody User user){
+
+        return userService.update(user);
+    }
+
+    @GetMapping()  //用户邀请其他用户
+    public Result getUserByCondition(Map<String,Object> map){
+        return userService.getByCondition(map);
+    }
 
 
+    @GetMapping() //超级管理员权限   position为9
+    public Result getPageUser(int currentPage,int max){
+        return userService.getPageUser(currentPage,max);
+    }
 }

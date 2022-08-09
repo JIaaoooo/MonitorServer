@@ -5,6 +5,8 @@ import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * @program: monitor server
  * @description: 用户服务层
@@ -30,4 +32,25 @@ public interface UserService extends IService<User> {
     Result register(User user);
 
 
+    /**
+     * 用户更新信息
+     * @param user 新的用户信息
+     * @return 返回更新结果
+     */
+    Result update(User user);
+
+    /**
+     * 分页获取用户信息
+     * @param current 当前页
+     * @param max 每页最多展示条数
+     * @return user结果
+     */
+    Result getPageUser(int current,int max);
+
+    /**
+     * 通过条件查询（可以模糊查询）
+     * @param map   键值对的方式
+     * @return  返回查询结果
+     */
+    Result getByCondition(Map<String,Object> map);
 }
