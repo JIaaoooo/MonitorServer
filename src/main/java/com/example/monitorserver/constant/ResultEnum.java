@@ -19,12 +19,14 @@ public enum ResultEnum implements StatusCode{
     LOGIN_SUCCESS(201,"登陆成功"),
 
     REQUEST_FALSE(400,"请求失败"),
+    PARAMETER_NOT_VALID(400,"参数不合法"),
 
     LOGIN_INFORMATION_FALSE(4011,"登录信息错误"),
     LOGIN_USER_FROZEN(4012,"用户被冻结"),
     REGISTER_NAME_DOUBLE(4001,"用户名重复"),
     REGISTER_PHONE_DOUBLE(4002,"电话号码重复"),
     REGISTER_EMAIL_DOUBLE(4003,"邮箱重复"),
+    SERVER_INTERNAL_ERROR(500,"服务器正在忙碌中,请稍后试试吧"),
 
     REGISTER_SUCCESS(500,"注册成功"),
 

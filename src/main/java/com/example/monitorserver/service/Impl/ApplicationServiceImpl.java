@@ -90,7 +90,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
         LambdaQueryWrapper<Application> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Application::getApplicantId,applicationId);
         Application selectOne = applicationMapper.selectOne(wrapper);
-        return new Result(ResultEnum.REQUEST_SUCCESS, selectOne);
+        return new Result(selectOne);
     }
 
 

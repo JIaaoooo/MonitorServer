@@ -10,6 +10,7 @@ import com.example.monitorserver.utils.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -47,7 +48,7 @@ public class UserController {
      * @return 返回除了密码之后的信息
      */
     @PostMapping("/login")
-    public Result login(@RequestBody User user){
+    public Result login(@RequestBody @Validated User user){
         //TODO 1.登录认证
         Result result = userService.login(user);
         if(result.getCode()==200){
@@ -66,7 +67,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/register")
-    public Result register(@RequestBody User user){
+    public Result register(@RequestBody @Validated User user){
         //生成唯一id
         String ID = IdUtil.simpleUUID();
         user.setUserId(ID);

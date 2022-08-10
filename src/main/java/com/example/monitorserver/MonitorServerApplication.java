@@ -12,8 +12,8 @@ public class MonitorServerApplication {
 
     public static void main(String[] args) {
 
-        //TODO API接口文档
-
+//        //TODO API接口文档
+//
 //        DocsConfig config = new DocsConfig();
 //
 //        // 项目根目录
