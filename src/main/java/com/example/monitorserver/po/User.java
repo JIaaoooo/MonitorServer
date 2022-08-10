@@ -1,8 +1,6 @@
 package com.example.monitorserver.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.monitorserver.constant.Constants;
 import lombok.AllArgsConstructor;
@@ -10,9 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
-import java.util.Date;
+import javax.validation.constraints.Pattern;
 
 /**
  * @program: monitor server
@@ -53,10 +50,11 @@ public class User {
     private int position;
 
     /** 注册时间 **/
-    private Date registerDate;
+    private LocalDateTime registerDate;
 
     /** 解封日期 **/
-    private Date unsealDate;
+    private LocalDateTime unsealDate;
+
 
     /** 该用户是否有信息 **/
     private int message;

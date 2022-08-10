@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -44,6 +45,6 @@ public class Project {
     private int status;
 
     /** 解封日期 **/
-    private Date unsealDate;
+    private LocalDateTime unsealDate;
 
 }

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         //返回结果不为空，并且要求用户不被冻结，即为登陆成功
         if(result!=null){
             if(result.getPosition()!=-1){
+                log.debug(result.toString());
                 return new Result(ResultEnum.REQUEST_SUCCESS, result);
             }
             else{
@@ -75,9 +77,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
         //无重复后注册
         //获取当前时间作为注册时间
-        Date date = new Date();
-        Timestamp t = new Timestamp(date.getTime());
-        user.setRegisterDate(t);
+        user.setRegisterDate(LocalDateTime.now());
         userMapper.insert(user);
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }

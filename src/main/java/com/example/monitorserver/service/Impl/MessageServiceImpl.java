@@ -55,7 +55,11 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
             Object data = result.getData();
             map.put("Application"+count,data);
         }
-        // TODO 3.
+        // TODO 3 将用户表中message数据重置为0
+        Result result = userService.getByUserID(userId);
+        User user = (User) result.getData();
+        user.setMessage(0);
+        userService.update(user);
         return new Result(ResultEnum.APPLICATION_MESSAGE, map);
     }
 
@@ -66,11 +70,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         //TODO 2.在对应用户信息中，message信息+1
         //TODO 2.1通过用户ID获取用户对象
         HashMap<String, Object> map = new HashMap<>();
-        map.put("user_id",message.getUserId());
-        Result result = userService.getByCondition(map);
-        List<User> users = (List<User>) result.getData();
         // TODO 2.2 返回的List集合中仅有一个user对象，获取该对象，修改其message值
-        User user = users.iterator().next();
+        Result result = userService.getByUserID(message.getUserId());
+        User user = (User) result.getData();
         int messageCount = user.getMessage();
         user.setMessage(messageCount++);
         //TODO 2.3 更新user

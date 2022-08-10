@@ -1,4 +1,4 @@
-package com.example.monitorserver.controller;
+package com.example.monitorserver.interceptor;
 
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.exception.BusinessException;
@@ -48,10 +48,9 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
         int i = str.length;
         String as1[] = new String[i];
         for (int j = 0; j < i; j++) {
-            //System.out.println("getParameterValues:"+str[j]);
             as1[j] = cleanXSS(cleanSQLInject(str[j]));
         }
-        log.info("XssHttpServletRequestWraper净化后的请求为：==========" + as1);
+        log.info("XssHttpServletRequestWrapper净化后的请求为：==========" + as1);
         return as1;
     }
 
@@ -63,7 +62,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
             return null;
         } else {
             String s2 = cleanXSS(cleanSQLInject(s1));
-            log.info("XssHttpServletRequestWraper净化后的请求为：==========" + s2);
+            log.info("XssHttpServletRequestWrapper净化后的请求为：==========" + s2);
             return s2;
         }
     }

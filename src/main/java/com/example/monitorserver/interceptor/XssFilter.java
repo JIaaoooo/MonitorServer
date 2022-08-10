@@ -1,4 +1,4 @@
-package com.example.monitorserver.controller;
+package com.example.monitorserver.interceptor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
