@@ -24,7 +24,7 @@ import javax.validation.constraints.Pattern;
 @TableName(value="t_user")
 @ToString(callSuper = true)
 //TODO 加密有问题,继承的父类属性添加到了查询里
-public class User {
+public class User extends HttpSecretCode{
 
     /**  用户唯一id **/
     //TODO 分组校验还没加入,等等

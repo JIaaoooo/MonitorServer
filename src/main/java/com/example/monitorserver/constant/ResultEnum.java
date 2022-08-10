@@ -47,7 +47,15 @@ public enum ResultEnum implements StatusCode{
     FREEZE_SUCCESS(2008,"冻结成功"),
     DELETE_SUCCESS(2009,"删除成功"),
 
-    REQUEST_SUCCESS(200,"请求成功")
+    REQUEST_SUCCESS(200,"请求成功"),
+
+
+    //异常
+
+    //系统异常
+    // 通信异常,0为加密,1为解密,因为不能把详细信息进行暴露
+    HTTP_EX_0(10000,"Http通信异常"),
+    HTTP_EX_1(10010,"Http通信异常"),
 
     ;
     /**

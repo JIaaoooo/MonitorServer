@@ -1,5 +1,6 @@
 package com.example.monitorserver.po;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,9 @@ import lombok.ToString;
 @ToString
 public class HttpSecretCode {
 
+    @TableField(select = false)
     private String encryptStr;
 
+    @TableField(select = false)
     private String encryptKey;
 }

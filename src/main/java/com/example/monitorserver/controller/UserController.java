@@ -2,6 +2,7 @@ package com.example.monitorserver.controller;
 
 
 import cn.hutool.core.util.IdUtil;
+import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
@@ -48,6 +49,7 @@ public class UserController {
      * @return 返回除了密码之后的信息
      */
     @PostMapping("/login")
+    @Secret
     public Result login(@RequestBody @Validated User user){
         //TODO 1.登录认证
         Result result = userService.login(user);
