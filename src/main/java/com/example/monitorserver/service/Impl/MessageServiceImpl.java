@@ -20,8 +20,9 @@ import java.util.Map;
  * @author: Jiao
  * @create: 2022-08-09 17:17
  */
+
 @Service
-public class MessgaeServiceImpl extends ServiceImpl<MessageMapper, Message> implements MessageService {
+public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> implements MessageService {
 
 
     @Autowired

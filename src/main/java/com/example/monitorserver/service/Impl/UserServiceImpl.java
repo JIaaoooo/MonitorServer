@@ -35,15 +35,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         //通过用户名与密码与数据库匹配查询
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         //返回用户ID，权限，用户名，电话，邮箱，解封时间，发布的项目ID，监控的项目ID
-        wrapper.select(User::getUsername,
-                        User::getPhone,
-                        User::getEmail,
-                        User::getUserId,
-                        User::getPosition,
-                        User::getPosition,
-                        User::getUnsealDate,
-                        User::getMessageExist)
-                .eq(User::getUsername,user.getUsername());
+        wrapper.eq(User::getUsername,user.getUsername());
         User result = userMapper.selectOne(wrapper);
         //返回结果不为空，并且要求用户不被冻结，即为登陆成功
         if(result!=null){

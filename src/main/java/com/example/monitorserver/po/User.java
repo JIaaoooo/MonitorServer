@@ -1,6 +1,7 @@
 package com.example.monitorserver.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public class User {
     private String username;
 
     /** 密码 **/
+    @TableField(select = false)
     private String password;
 
     /** 绑定的电话 **/

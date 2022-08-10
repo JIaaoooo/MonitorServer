@@ -7,6 +7,7 @@ import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Application;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ApplicationService;
+import com.example.monitorserver.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     @Autowired
     private ApplicationMapper applicationMapper;
 
+    @Autowired
+    private ProjectService projectService;
+
     @Override
     public Result releaseApp(Application application) {
         applicationMapper.insert(application);
@@ -44,6 +48,12 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
 
         //TODO 2.  删除
         int type  = application.getType();
+        if(type==3){
+            if(application.getStatus()==0){
+                //删除项目
+                projectService.deleteProject(application.getProjectId());
+            }
+        }
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 

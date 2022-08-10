@@ -78,7 +78,7 @@ public class UserController {
         return userService.update(user);
     }
 
-    @GetMapping()  //用户邀请其他用户
+    @GetMapping("/getUserByCondition")  //用户邀请其他用户
     public Result getUserByCondition(Map<String,Object> map){
         return userService.getByCondition(map);
     }

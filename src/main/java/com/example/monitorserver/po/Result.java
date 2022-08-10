@@ -61,5 +61,8 @@ public class Result {
         this.msg = ResultEnum.REQUEST_SUCCESS.getMsg();
         this.data = data;
     }
-
+    public Result(int code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
 }
