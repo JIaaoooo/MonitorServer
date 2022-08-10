@@ -17,6 +17,9 @@ public enum ResultEnum implements StatusCode{
      * 登陆成功
      */
     LOGIN_SUCCESS(201,"登陆成功"),
+
+    REQUEST_FALSE(400,"请求失败"),
+
     LOGIN_INFORMATION_FALSE(4011,"登录信息错误"),
     LOGIN_USER_FROZEN(4012,"用户被冻结"),
     REGISTER_NAME_DOUBLE(4001,"用户名重复"),
@@ -39,8 +42,11 @@ public enum ResultEnum implements StatusCode{
 
     APPLICATION_MESSAGE(2007,"申请表信息"),
 
+    FREEZE_SUCCESS(2008,"冻结成功"),
+    DELETE_SUCCESS(2009,"删除成功"),
 
     REQUEST_SUCCESS(200,"请求成功")
+
     ;
     /**
      * 编号

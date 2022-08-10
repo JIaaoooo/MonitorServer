@@ -33,5 +33,5 @@ public interface ApplicationService extends IService<Application> {
      * @param applicationId 申请id
      * @return 返回申请信息
      */
-    Result selectApp(Long applicationId);
+    Result selectApp(String applicationId);
 }

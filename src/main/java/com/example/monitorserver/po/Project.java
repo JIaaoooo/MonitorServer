@@ -22,8 +22,8 @@ import java.util.Date;
 @TableName(value="t_project")
 public class Project {
 
-    @TableId
-    private long projectId;
+    /** 项目唯一id **/
+    private String projectId;
 
     /** 项目名 **/
     private String projectName;

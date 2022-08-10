@@ -75,11 +75,11 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     }
 
     @Override
-    public Result deleteProject(Long projectId) {
+    public Result deleteProject(String projectId) {
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Project::getProjectId,projectId);
         projectMapper.delete(wrapper);
-        return new Result(null,null,null);
+        return new Result(ResultEnum.DELETE_SUCCESS);
     }
 
 

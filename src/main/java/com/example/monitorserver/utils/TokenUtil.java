@@ -33,7 +33,6 @@ public class TokenUtil {
             //对用户信息进行加密
             try {
                 sb.append(Md5Utils.getMD5(user.getPassword()));
-                sb.append(Md5Utils.getMD5(user.getEmail()));
                 sb.append(Md5Utils.getMD5(user.getPhone()));
                 //将token只存入redis缓存,key的格式为： login:token:xxxxxxxx  value类型为map(存储的是user对象)
                 redisTemplate.opsForHash().putAll(RedisEnum.LOGIN_TOKEN.getMsg()+sb, BeanUtil.beanToMap(user));

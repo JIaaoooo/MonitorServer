@@ -43,7 +43,7 @@ public interface UserService extends IService<User> {
      * 分页获取用户信息
      * @param current 当前页
      * @param max 每页最多展示条数
-     * @return user结果
+     * @return user List集合
      */
     Result getPageUser(int current,int max);
 
@@ -53,4 +53,19 @@ public interface UserService extends IService<User> {
      * @return  返回查询结果
      */
     Result getByCondition(Map<String,Object> map);
+
+
+    /**
+     * 通过用户的Id获取user对象
+     * @param userId 用户id
+     * @return 返回用户对象
+     */
+    Result getByUserID(String userId);
+
+    /**
+     * 冻结用户
+     * @param userId  用户Id
+     * @return 返回操作结果
+     */
+    Result freezeUser(String userId);
 }

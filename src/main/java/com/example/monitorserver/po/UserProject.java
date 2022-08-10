@@ -20,12 +20,10 @@ import lombok.NoArgsConstructor;
 @TableName(value="t_project_user")
 public class UserProject {
 
-    @TableId
-    private Long id;
 
-    private Long userId;
+    private String userId;
 
-    private Long projectId;
+    private String projectId;
 
     /**  用户对应这个项目的权限  1是发布者  2是监控者  **/
     private int type;

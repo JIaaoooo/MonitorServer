@@ -23,7 +23,12 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
-    public Result getApplication(Long userId){
+    /**
+     * 当前用户作为接收方，查询信息库中要发给我的消息（该操作在用户点击进入消息队列后执行）
+     * @param userId 当前用户的ID
+     * @return 返回其消息  ：返回格式： Application1：xxxx    Application2:xxxx
+     */
+    public Result getApplication(String userId){
         return messageService.getApplication(userId);
     }
 }

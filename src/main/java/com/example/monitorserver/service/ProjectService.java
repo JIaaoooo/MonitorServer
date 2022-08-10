@@ -53,5 +53,5 @@ public interface ProjectService extends IService<Project> {
      * @param projectId  项目id
      * @return 返回结果集
      */
-    Result deleteProject(Long projectId);
+    Result deleteProject(String projectId);
 }

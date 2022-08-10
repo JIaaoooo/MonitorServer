@@ -1,7 +1,9 @@
 package com.example.monitorserver.service.Impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.Mapper.UserMapper;
@@ -13,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +32,7 @@ import java.util.Map;
 @Transactional(rollbackFor = Exception.class)
 public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements UserService {
 
+
     @Autowired
     private UserMapper userMapper;
 
@@ -39,7 +45,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         User result = userMapper.selectOne(wrapper);
         //返回结果不为空，并且要求用户不被冻结，即为登陆成功
         if(result!=null){
-            if(result.getPosition()==0){
+            if(result.getPosition()!=-1){
                 return new Result(ResultEnum.REQUEST_SUCCESS, result);
             }
             else{
@@ -65,14 +71,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         if(userMapper.selectOne(wrapper2) !=null){
             return new Result(ResultEnum.REGISTER_PHONE_DOUBLE);
         }
-        //邮箱查重
-        LambdaQueryWrapper<User> wrapper3 = new LambdaQueryWrapper<>();
-        wrapper3.eq(User::getEmail,user.getEmail());
-        if(userMapper.selectOne(wrapper3) !=null){
-            return new Result(ResultEnum.REGISTER_EMAIL_DOUBLE);
-        }
+
 
         //无重复后注册
+        //获取当前时间作为注册时间
+        Date date = new Date();
+        Timestamp t = new Timestamp(date.getTime());
+        user.setRegisterDate(t);
         userMapper.insert(user);
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
@@ -101,4 +106,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         List<User> users = userMapper.selectList(wrapper);
         return new Result(ResultEnum.SELECT_LIKE, users);
     }
+
+    @Override
+    public Result getByUserID(String userId) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id",userId);
+        User user = userMapper.selectOne(wrapper);
+        return new Result(user);
+    }
+
+
+    @Override
+    public Result freezeUser(String userId) {
+        //获取当前时间
+        Date date = new Date();
+        Timestamp t = new Timestamp(date.getTime());
+        UpdateWrapper<User> wrapper = new UpdateWrapper<>();
+        wrapper.eq("user_id",userId)
+                .set("position",-1)
+                .set("unseal_date",t);
+        userMapper.update(null,wrapper);
+        return new Result(ResultEnum.FREEZE_SUCCESS);
+    }
+
+
 }

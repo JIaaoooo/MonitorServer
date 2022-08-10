@@ -18,12 +18,11 @@ import lombok.NoArgsConstructor;
 @TableName(value="t_message")
 public class Message {
 
-    @TableId
-    private long messageId;
+
 
     /** 接收方Id **/
-    private long applicationId;
+    private String applicationId;
 
     /** 用户Id **/
-    private long userId;
+    private String userId;
 }

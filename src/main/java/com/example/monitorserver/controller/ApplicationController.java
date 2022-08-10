@@ -1,5 +1,6 @@
 package com.example.monitorserver.controller;
 
+import cn.hutool.core.util.IdUtil;
 import com.example.monitorserver.po.Application;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ApplicationService;
@@ -31,6 +32,8 @@ public class ApplicationController {
      * @return 申请处理结果
      */
     public Result  releaseApp(Application application){
+        String ID = IdUtil.simpleUUID();
+        application.setApplicationId(ID);
         return applicationService.releaseApp(application);
     }
 
@@ -43,7 +46,12 @@ public class ApplicationController {
         return applicationService.updateApp(application);
     }
 
-    public Result selectApp(Long applicationId){
+    /**
+     * 查询获取申请信息
+     * @param applicationId 申请列表的id
+     * @return 返回该申请信息
+     */
+    public Result selectApp(String applicationId){
         return applicationService.selectApp(applicationId);
     }
 

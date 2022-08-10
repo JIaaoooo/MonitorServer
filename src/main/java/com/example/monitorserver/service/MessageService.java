@@ -16,9 +16,16 @@ import org.springframework.stereotype.Service;
 public interface MessageService extends IService<Message> {
 
     /**
-     * 通过当前登录用户的Id，获取他的消息
+     * 通过当前登录用户的Id，获取他的消息,并将其user表中message消息重置
      * @param userId 用户Id
      * @return 返回申请信息，给予判断是否同意
      */
-    Result getApplication(Long userId);
+    Result getApplication(String userId);
+
+    /**
+     * 将用户ID与申请ID绑定
+     * @param message 信息对象
+     * @return 返回操作结果
+     */
+    Result addMessage(Message message);
 }

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Iterator;
 import java.util.List;
 
 @SpringBootTest
@@ -17,14 +18,14 @@ class MonitorServerApplicationTests {
 
     @Test
     void contextLoads() {
+        List<User> users = userMapper.selectList(null);
+        Iterator<User> iterator = users.iterator();
+        while(iterator.hasNext()){
+            User user = iterator.next();
+            String userId = user.getUserId();
+            System.out.println(userId);
+        }
 
-       /* Page<T> page = new Page<>(1,3);
-        page = userMapper.selectPage(page, null);
-        List<T> records = page.getRecords();
-        System.out.println(records);
-        for (T record : records) {
-            System.out.println(record);
-        }*/
     }
 
 }

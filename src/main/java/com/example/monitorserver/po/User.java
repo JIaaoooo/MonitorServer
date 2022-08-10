@@ -23,8 +23,8 @@ import java.util.Date;
 @TableName(value="t_user")
 public class User {
 
-    @TableId(value="user_id",type = IdType.AUTO)
-    private long userId;
+    /**  用户唯一id **/
+    private String userId;
 
     /** 用户名 **/
     private String username;
@@ -36,8 +36,6 @@ public class User {
     /** 绑定的电话 **/
     private String phone;
 
-    /** 绑定的邮箱 **/
-    private String email;
 
     /**用户状态 0->正常用户 -1被冻结用户**/
     private int position;
@@ -50,5 +48,5 @@ public class User {
 
 
     /** 该用户是否有信息 **/
-    private int messageExist;
+    private int message;
 }
