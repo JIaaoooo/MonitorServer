@@ -1,22 +1,21 @@
 package com.example.monitorserver.service.Impl;
 
-import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.monitorserver.Mapper.UserMapper;
+import com.example.monitorserver.mapper.UserMapper;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.UserService;
+import com.example.monitorserver.utils.DynamicTableNameConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +33,9 @@ import java.util.Map;
 public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements UserService {
 
 
+    static {
+        DynamicTableNameConfig.setDynamicTableName("user");
+    }
     @Autowired
     private UserMapper userMapper;
 
@@ -61,6 +63,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
     @Override
     public Result register(User user) {
+
         //用户名查重
         LambdaQueryWrapper<User> wrapper1 = new LambdaQueryWrapper<>();
         wrapper1.eq(User::getUsername,user.getUsername());

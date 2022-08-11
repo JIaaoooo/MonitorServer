@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.monitorserver.Mapper.ProjectMapper;
+import com.example.monitorserver.mapper.ProjectMapper;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ProjectService;
+import com.example.monitorserver.utils.DynamicTableNameConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ import java.util.Map;
 @Transactional(rollbackFor = Exception.class)
 public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> implements ProjectService {
 
+    static {
+        DynamicTableNameConfig.setDynamicTableName("project");
+    }
     @Autowired
     private ProjectMapper projectMapper;
 

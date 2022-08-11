@@ -1,3 +1,4 @@
+/*
 package com.example.monitorserver.aop;//package cn.stopyc.aop;
 
 import com.alibaba.fastjson.JSON;
@@ -30,12 +31,14 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+*/
 /**
  * @program: aop_annotation
  * @description:
  * @author: stop.yc
  * @create: 2022-08-08 17:58
- **/
+ **//*
+
 @Aspect
 @Component
 public class SecretAop {
@@ -219,3 +222,4 @@ public class SecretAop {
         return json;
     }
 }
+*/

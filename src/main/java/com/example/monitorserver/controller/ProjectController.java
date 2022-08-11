@@ -1,7 +1,6 @@
 package com.example.monitorserver.controller;
 
 import cn.hutool.core.util.IdUtil;
-import com.example.monitorserver.Mapper.ProjectMapper;
 import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ProjectService;

@@ -2,7 +2,7 @@ package com.example.monitorserver.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.monitorserver.Mapper.ApplicationMapper;
+import com.example.monitorserver.mapper.ApplicationMapper;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Application;
 import com.example.monitorserver.po.Result;
@@ -10,6 +10,7 @@ import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
+import com.example.monitorserver.utils.DynamicTableNameConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,9 @@ import java.util.List;
 public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Application> implements ApplicationService {
 
 
+    static {
+        DynamicTableNameConfig.setDynamicTableName("application");
+    }
     @Autowired
     private ApplicationMapper applicationMapper;
 

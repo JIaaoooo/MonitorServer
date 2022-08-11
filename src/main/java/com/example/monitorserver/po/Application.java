@@ -15,8 +15,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName(value="t_application")
 public class Application {
+    @TableId
+    private Integer id;
 
     /** 申请表唯一ID **/
     private String applicationId;

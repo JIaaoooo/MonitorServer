@@ -2,11 +2,12 @@ package com.example.monitorserver.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.monitorserver.Mapper.UserProjectMapper;
+import com.example.monitorserver.mapper.UserProjectMapper;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.UserProjectService;
+import com.example.monitorserver.utils.DynamicTableNameConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ public class UserProjectServiceImpl extends ServiceImpl<UserProjectMapper, UserP
     @Autowired
     private UserProjectMapper userProjectMapper;
 
+    static {
+        DynamicTableNameConfig.setDynamicTableName("project_user");
+    }
     @Override
     public Result add(UserProject userProject) {
         userProjectMapper.insert(userProject);

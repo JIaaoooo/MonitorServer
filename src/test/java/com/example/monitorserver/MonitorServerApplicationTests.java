@@ -1,8 +1,11 @@
 package com.example.monitorserver;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.monitorserver.Mapper.UserMapper;
+import com.example.monitorserver.mapper.UserMapper;
+import com.example.monitorserver.controller.ProjectController;
+import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
+import com.example.monitorserver.service.ProjectService;
+import com.example.monitorserver.utils.DynamicTableNameConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,8 +19,15 @@ class MonitorServerApplicationTests {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private ProjectService projectService;
+
+    @Autowired
+    private ProjectController projectController;
+
     @Test
-    void contextLoads() {
+    void userTest() {
+//        DynamicTableNameConfig.setDynamicTableName("user");
         List<User> users = userMapper.selectList(null);
         Iterator<User> iterator = users.iterator();
         while(iterator.hasNext()){
@@ -25,7 +35,16 @@ class MonitorServerApplicationTests {
             String userId = user.getUserId();
             System.out.println(userId);
         }
-
     }
 
+    @Test
+    void projectTest(){
+        /*Project project = new Project();
+        project.setProjectName("Jiao");
+        project.setProjectDesc("Jiao");
+        project.setProjectUrl("Jiao");
+        Result result = projectController.saveProject(project);*/
+        Result result = projectService.getPageProject(1, 5, 9);
+        System.out.println(result.toString());
+    }
 }

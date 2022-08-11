@@ -15,8 +15,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName(value="t_message")
 public class Message {
+    @TableId
+    private Integer id;
 
 
 

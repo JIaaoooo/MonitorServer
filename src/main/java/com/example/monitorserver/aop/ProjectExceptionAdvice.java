@@ -1,3 +1,4 @@
+/*
 package com.example.monitorserver.aop;
 
 import com.alibaba.fastjson.JSONException;
@@ -22,23 +23,29 @@ import javax.validation.ValidationException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+*/
 /**
  * @program: Software-management-platform
  * @description: 异常处理器
  * @author: stop.yc
  * @create: 2022-07-24 19:10
- **/
+ **//*
+
 @RestControllerAdvice
 @Slf4j
 @Order(1)
 public class ProjectExceptionAdvice {
 
-    /**
+    */
+/**
      * 日志打印
-     */
+     *//*
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectExceptionAdvice.class);
 
-    /**处理自定义异常SystemException*/
+    */
+/**处理自定义异常SystemException*//*
+
     @ExceptionHandler(SystemException.class)
     public Result doSystemException(SystemException ex){
         //记录日志
@@ -48,7 +55,9 @@ public class ProjectExceptionAdvice {
         LOGGER.error("发生了异常:{}",(Throwable) ex);
         return new Result(ex.getCode(),ex.getMessage(),null);
     }
-    /**处理自定义异常BusinessException*/
+    */
+/**处理自定义异常BusinessException*//*
+
     @ExceptionHandler(BusinessException.class)
     public Result doBusinessException(BusinessException ex){
         System.out.println("业务异常了"+ex.getMessage());
@@ -56,7 +65,9 @@ public class ProjectExceptionAdvice {
         return new Result(ex.getCode(),ex.getMessage(),null);
     }
 
-    /**处理数据参数异常*/
+    */
+/**处理数据参数异常*//*
+
     @ExceptionHandler(value = {BindException.class, ValidationException.class, MethodArgumentNotValidException.class})
     public Result doMethodArgumentNotValidException(Exception  e){
 
@@ -89,7 +100,9 @@ public class ProjectExceptionAdvice {
         return null;
     }
 
-    /**除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常*/
+    */
+/**除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常*//*
+
     @ExceptionHandler(Exception.class)
     public Result doOtherException(Exception ex){
         //记录日志
@@ -109,3 +122,4 @@ public class ProjectExceptionAdvice {
         return new Result(ResultEnum.SERVER_INTERNAL_ERROR.getCode(),ResultEnum.SERVER_INTERNAL_ERROR.getMsg(),null);
     }
 }
+*/

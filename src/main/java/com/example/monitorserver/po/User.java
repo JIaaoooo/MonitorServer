@@ -1,6 +1,7 @@
 package com.example.monitorserver.po;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.monitorserver.constant.Constants;
 import lombok.AllArgsConstructor;
@@ -21,10 +22,11 @@ import javax.validation.constraints.Pattern;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName(value="t_user")
 @ToString(callSuper = true)
 //TODO 加密有问题,继承的父类属性添加到了查询里
 public class User extends HttpSecretCode{
+    @TableId
+    private Integer id;
 
     /**  用户唯一id **/
     //TODO 分组校验还没加入,等等

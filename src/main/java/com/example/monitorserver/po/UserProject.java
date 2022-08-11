@@ -17,8 +17,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName(value="t_project_user")
 public class UserProject {
+    @TableId
+    private Integer id;
 
 
     private String userId;

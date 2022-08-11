@@ -20,8 +20,9 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName(value="t_project")
 public class Project {
+    @TableId
+    private Integer id;
 
     /** 项目唯一id **/
     private String projectId;
@@ -35,11 +36,7 @@ public class Project {
     /** 发布地址 **/
     private String projectUrl;
 
-    /** 发布者id **/
-    private String publisherId;
 
-    /** 监控着id **/
-    private String monitorId;
 
     /** 审核状态 0为审核 1正常 -1审核不通过，不给予展示**/
     private int status;

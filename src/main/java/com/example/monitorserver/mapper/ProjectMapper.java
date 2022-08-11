@@ -1,4 +1,4 @@
-package com.example.monitorserver.Mapper;
+package com.example.monitorserver.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.monitorserver.po.Project;
