@@ -1,9 +1,14 @@
 package com.example.monitorserver.server;
 
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
+import com.example.monitorserver.po.Log;
+import com.example.monitorserver.service.LogService;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -18,14 +23,15 @@ import java.util.Map;
 @Slf4j
 public  class TcpHandler extends SimpleChannelInboundHandler<String> {
 
-    private static Map<String,Channel> channels=null;
 
+
+    @Autowired
+    private LogService logService;
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         String channelID = ctx.channel().id().asLongText();
         log.debug(channelID+"加入连接");
-        channels.put("连接"+channelID,ctx.channel());
     }
 
 
@@ -43,7 +49,10 @@ public  class TcpHandler extends SimpleChannelInboundHandler<String> {
      */
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String s) throws Exception {
-
+        logService.createTable();
+        log.debug(s);
+        Log log = JSON.parseObject(s, Log.class);
+        logService.insert(log);
 
     }
 

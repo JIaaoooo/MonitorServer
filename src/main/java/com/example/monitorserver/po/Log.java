@@ -25,8 +25,10 @@ public class Log {
     /** 访问者的ip  **/
     private String ip;
 
-    /**  项目的id **/
-    private String project_id;
+    private String uri;
+
+    /**  项目的url **/
+    private String projectUrl;
 
     /** 调用方法  **/
     private String method;
@@ -44,13 +46,13 @@ public class Log {
     private String exception;
 
     /** 访问特征 **/
-    private String trait;
+    private String traits;
 
     /** 访问日期 **/
     private LocalDateTime visitDate;
 
     /** 响应时间 **/
-    private String responseTime;
+    private int responseTime;
 
 
 }

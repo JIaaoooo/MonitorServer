@@ -52,6 +52,17 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
     }
 
     @Override
+    public Result insert(Log log) {
+        Date date = new Date();
+        String today = sdf.format(date);
+        String table = "t_visit_"+today;
+        MybatisConfig.setDynamicTableName(table);
+        logMapper.insert(log);
+        return new Result(ResultEnum.INSERT_SUCCESS);
+    }
+
+
+    @Override
     public Result select(HashMap<String,Object> map) {
         QueryWrapper<Log> wrapper = new QueryWrapper();
         //查询的表名
@@ -73,7 +84,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
     @Override
     public Result selectProject(LocalDateTime startTime, LocalDateTime endTime) {
         QueryWrapper<Log> wrapper = new QueryWrapper<>();
-        wrapper.select("DISTINCT project_id");
+        wrapper.select("DISTINCT project_url");
         if(startTime!=null && endTime !=null){
             wrapper.between("visit_date",startTime,endTime);
         }
@@ -122,6 +133,38 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
     }
 
 
+    public Result getProjectPackage(LocalDateTime startTime,LocalDateTime endTime,String project_url){
+        QueryWrapper<Log> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("DISTINCT package_name")
+                .eq("project_url",project_url);
+        if(startTime!=null&&endTime!=null){
+            queryWrapper.between("visit_date",startTime,endTime);
+        }
+        List<Log> logs = logMapper.selectList(queryWrapper);
+        Iterator<Log> iterator = logs.iterator();
+        List<String> packages =  new ArrayList<>();
+        while (iterator.hasNext()){
+            packages.add(iterator.next().getPackageName());
+        }
+        return new Result(ResultEnum.SELECT_SUCCESS,packages);
+    }
+
+
+    public Result getProjectMethod(LocalDateTime startTime,LocalDateTime endTime,String project_url){
+        QueryWrapper<Log> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("DISTINCT method")
+                .eq("project_url",project_url);
+        if(startTime!=null&&endTime!=null){
+            queryWrapper.between("visit_date",startTime,endTime);
+        }
+        List<Log> logs = logMapper.selectList(queryWrapper);
+        Iterator<Log> iterator = logs.iterator();
+        List<String> methods =  new ArrayList<>();
+        while (iterator.hasNext()){
+            methods.add(iterator.next().getPackageName());
+        }
+        return new Result(ResultEnum.SELECT_SUCCESS,methods);
+    }
 
 
     private void saveVisit(LocalDateTime startTime,LocalDateTime endTime,String table){
@@ -132,22 +175,16 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         //TODO 1.1获取project_id
         while(iterator.hasNext()){
             Log log1 = iterator.next();
-            String project_id = log1.getProject_id();
+            String projectUrl = log1.getProjectUrl();
             // TODO 2.1.1通过project_id 作为主要条件，获取该项目的包名
-            QueryWrapper<Log> PackageQw = new QueryWrapper<>();
-            PackageQw.select("DISTINCT package_name")
-                    .eq("project_id",project_id);
-            if(startTime!=null&&endTime!=null){
-                PackageQw.between("visit_date",startTime,endTime);
-            }
-            List<Log> packageName_list = logMapper.selectList(PackageQw);
+            Result projectPackage = getProjectPackage(startTime, endTime, projectUrl);
+            List<String> packages = (List<String>) projectPackage.getData();
             // TODO 2.1.2以project_id 和 packName去获取访问量，访问人次
-            Iterator<Log> package_iter = packageName_list.iterator();
-            while(package_iter.hasNext()){
+            for (int i = 0; i < packages.size(); i++) {
                 //包名
-                String packageName = package_iter.next().getPackageName();
+                String packageName = packages.get(i);
                 QueryWrapper<Log> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("project_id",project_id)
+                queryWrapper.eq("project_id",projectUrl)
                         .eq("package_name",packageName);
                 if(startTime!=null&&endTime!=null){
                     queryWrapper.between("visit_date",startTime,endTime);
@@ -160,7 +197,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
 
                 // TODO 3.将project_id 、package 写入statistics表中记录
                 Statistics statistics = new Statistics();
-                statistics.setProject_id(project_id)
+                statistics.setProject_id(projectUrl)
                         .setPackageName(packageName)
                         .setPage_view(packageVisits)
                         .setVisits(packageIP);
@@ -168,21 +205,17 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
                 statisticsMapper.insert(statistics);
             }
 
+
             //TODO 2.2.1 用project_id 获取该项目下的方法名
-            QueryWrapper<Log> MethodQW = new QueryWrapper();
-            MethodQW.select("DISTINCT package_name")
-                    .eq("project_id",project_id);
-            if(startTime!=null&&endTime!=null){
-                MethodQW.between("visit_date",startTime,endTime);
-            }
-            List<Log> MethodList = logMapper.selectList(MethodQW);
-            Iterator<Log> Method_iter = MethodList.iterator();
-            while(Method_iter.hasNext()){
+            Result projectMethod = getProjectMethod(startTime, endTime, projectUrl);
+            List<String> methods = (List<String>) projectMethod.getData();
+
+            for (int i = 0; i < methods.size(); i++) {
                 //获得的到方法名
-                String method = Method_iter.next().getMethod();
+                String method = methods.get(i);
                 //TODO 2.2.2查询该项目  该方法名下的访问量
                 QueryWrapper<Log> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("project_id",project_id)
+                queryWrapper.eq("project_id",projectUrl)
                         .eq("method",method);
                 if(startTime!=null&&endTime!=null){
                     queryWrapper.between("visit_date",startTime,endTime);
@@ -195,13 +228,15 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
 
                 //TODO 3.将数据存入statistic表
                 Statistics statistics = new Statistics();
-                statistics.setProject_id(project_id)
+                statistics.setProject_id(projectUrl)
                         .setMethod(method)
                         .setPage_view(MethodVisits)
                         .setVisits(MethodIP);
                 MybatisConfig.setDynamicTableName(table);
                 statisticsMapper.insert(statistics);
+
             }
+
         }
     }
 }

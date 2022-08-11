@@ -94,7 +94,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     public Result updateProject(Project project) {
         MybatisConfig.setDynamicTableName("project");
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Project::getProjectId,project.getProjectId());
+        wrapper.eq(Project::getProjectUrl,project.getProjectUrl());
         //更新项目信息后要重新获得管理员的批准
         project.setStatus(0);
         //删除redis首页缓存
@@ -106,10 +106,10 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     }
 
     @Override
-    public Result deleteProject(String projectId) {
+    public Result deleteProject(String projectUrl) {
         MybatisConfig.setDynamicTableName("project");
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Project::getProjectId,projectId);
+        wrapper.eq(Project::getProjectUrl,projectUrl);
         projectMapper.delete(wrapper);
         return new Result(ResultEnum.DELETE_SUCCESS);
     }

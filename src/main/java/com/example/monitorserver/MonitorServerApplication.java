@@ -1,8 +1,10 @@
 package com.example.monitorserver;
 
+import com.example.monitorserver.server.TcpServer;
 import io.github.yedaxia.apidocs.Docs;
 import io.github.yedaxia.apidocs.DocsConfig;
 import io.github.yedaxia.apidocs.plugin.markdown.MarkdownDocPlugin;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -10,7 +12,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MonitorServerApplication {
 
 
-    public static void main(String[] args) {
+
+
+    public static void main(String[] args) throws Exception {
 
 //        //TODO API接口文档
 //
@@ -31,6 +35,7 @@ public class MonitorServerApplication {
 //        Docs.buildHtmlDocs(config);
 
         SpringApplication.run(MonitorServerApplication.class, args);
+        new TcpServer().run();
     }
 
 }

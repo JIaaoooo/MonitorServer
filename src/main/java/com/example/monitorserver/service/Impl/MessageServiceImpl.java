@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.mapper.MessageMapper;
 import com.example.monitorserver.constant.ResultEnum;
+import com.example.monitorserver.po.Application;
 import com.example.monitorserver.po.Message;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
@@ -14,6 +15,7 @@ import com.example.monitorserver.utils.MybatisConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,21 +50,21 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                 .select(Message::getApplicationId);
         List<Message> messages = messageMapper.selectList(wrapper);
         //TODO 2.通过applicationId去调用Application获取申请信息,用一个Map集合存储，后返回
-        Map<String,Object> map = new HashMap<>();
+        List<Application> applicaiotns = new ArrayList<>();
         int count =0;
         for (Message message : messages) {
             count++;
             String applicationId = message.getApplicationId();
             Result result = applicationService.selectApp(applicationId);
-            Object data = result.getData();
-            map.put("Application"+count,data);
+            Application data = (Application) result.getData();
+            applicaiotns.add(data);
         }
         // TODO 3 将用户表中message数据重置为0
         Result result = userService.getByUserID(userId);
         User user = (User) result.getData();
         user.setMessage(0);
         userService.update(user);
-        return new Result(ResultEnum.APPLICATION_MESSAGE, map);
+        return new Result(ResultEnum.APPLICATION_MESSAGE, applicaiotns);
     }
 
     @Override

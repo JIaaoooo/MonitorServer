@@ -20,12 +20,14 @@ public interface LogMapper extends BaseMapper<Log> {
      */
     @Update("CREATE TABLE IF NOT EXISTS ${table} (\n" +
             "`id` BIGINT NOT NULL AUTO_INCREMENT,\n" +
-            "`project_id` VARCHAR(100) NOT NULL,\n" +
-            "`interface_name` VARCHAR(100) NOT NULL,\n" +
-            "`in_args` VARCHAR(50) NOT NULL,\n" +
-            "`out_args` VARCHAR(50) NOT NULL,\n" +
-            "`exception` VARCHAR(100) NOT NULL,\n" +
-            "`trait` VARCHAR(10) NOT NULL,\n" +
+            "`ip` VARCHAR(100) NOT NULL ,\n" +
+            "`project_url` VARCHAR(100) NOT NULL,\n" +
+            "`package_name` VARCHAR(100) NOT NULL,\n" +
+            "`method` VARCHAR(100) NOT NULL,\n" +
+            "`in_parameters` VARCHAR(50) NOT NULL,\n" +
+            "`out_parameters` VARCHAR(500) NOT NULL,\n" +
+            "`exception` VARCHAR(100) ,\n" +
+            "`traits` VARCHAR(10) NOT NULL,\n" +
             "`visit_date` DATETIME NOT NULL,\n" +
             "`response_time` INT NOT NULL,\n" +
             "PRIMARY KEY (`id`)\n" +

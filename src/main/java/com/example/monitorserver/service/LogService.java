@@ -19,6 +19,8 @@ public interface LogService extends IService<Log> {
 
     Result createTable();
 
+    Result insert(Log log);
+
     Result select(HashMap<String,Object> map);
 
     /**
@@ -40,7 +42,22 @@ public interface LogService extends IService<Log> {
     @Scheduled(fixedRate = 24 * 3600 * 1000)
     void DayAutoSum();
 
+    /**
+     * 获得某个时间段下的项目 被访问的包
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @param project_id 项目id
+     * @return 返回List集合 存有packages
+     */
+    Result getProjectPackage(LocalDateTime startTime,LocalDateTime endTime,String project_id);
 
-
+    /**
+     * 获得某个时间段下的项目 被访问的方法
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @param project_id 项目id
+     * @return 返回List集合 存有Methods数据
+     */
+    Result getProjectMethod(LocalDateTime startTime,LocalDateTime endTime,String project_id);
 
 }

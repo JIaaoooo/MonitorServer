@@ -71,7 +71,7 @@ public class ProjectController {
 
     /**
      * 更新项目信息 （管理员更新项目的审批情况，以及发布者自己修改项目时使用）
-     * @param project 根据项目ID，更新
+     * @param project 根据项目URL，更新
      * @return 返回操作结果
      */
     public Result update(Project project){
