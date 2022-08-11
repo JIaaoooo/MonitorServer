@@ -29,7 +29,10 @@ public class Log {
     private String project_id;
 
     /** 调用方法  **/
-    private String interfaceName;
+    private String method;
+
+    /** 调用的包  **/
+    private String packageName;
 
     /** 入参  **/
     private String inArgs;

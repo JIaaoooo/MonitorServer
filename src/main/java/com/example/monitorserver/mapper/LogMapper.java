@@ -32,4 +32,13 @@ public interface LogMapper extends BaseMapper<Log> {
             ");")
     void createTable(@Param("table")String table);
 
+
+
+
+    /**
+     * 创建月统计表
+     * @param table 表名
+     */
+    void createMonthSumTable(@Param("table")String table);
+
 }
