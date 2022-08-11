@@ -10,7 +10,7 @@ import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.service.UserService;
-import com.example.monitorserver.utils.DynamicTableNameConfig;
+import com.example.monitorserver.utils.MybatisConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,9 +28,7 @@ import java.util.Map;
 public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> implements MessageService {
 
 
-    static {
-        DynamicTableNameConfig.setDynamicTableName("message");
-    }
+
     @Autowired
     private MessageMapper messageMapper;
 
@@ -43,7 +41,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Override
     public Result getApplication(String userId) {
-
+        MybatisConfig.setDynamicTableName("message");
         //TODO 1.userId是作为接收方 ， 查询该用户下的申请信息ID
         LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Message::getApplicationId,userId)
@@ -69,6 +67,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Override
     public Result addMessage(Message message) {
+        MybatisConfig.setDynamicTableName("message");
         //TODO 1.将关联信息存入表中
         messageMapper.insert(message);
         //TODO 2.在对应用户信息中，message信息+1

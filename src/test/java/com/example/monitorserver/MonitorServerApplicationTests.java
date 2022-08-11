@@ -4,8 +4,8 @@ import com.example.monitorserver.mapper.UserMapper;
 import com.example.monitorserver.controller.ProjectController;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
+import com.example.monitorserver.service.LogService;
 import com.example.monitorserver.service.ProjectService;
-import com.example.monitorserver.utils.DynamicTableNameConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,5 +46,14 @@ class MonitorServerApplicationTests {
         Result result = projectController.saveProject(project);*/
         Result result = projectService.getPageProject(1, 5, 9);
         System.out.println(result.toString());
+    }
+
+    @Autowired
+    private LogService logService;
+    @Test
+    void LogTest(){
+        logService.createTable();
+
+        //logService.select(null);
     }
 }

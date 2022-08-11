@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Application {
     @TableId
-    private Integer id;
+    private long id;
 
     /** 申请表唯一ID **/
     private String applicationId;

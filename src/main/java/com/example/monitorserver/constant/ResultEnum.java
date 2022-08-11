@@ -47,6 +47,7 @@ public enum ResultEnum implements StatusCode{
     FREEZE_SUCCESS(2008,"冻结成功"),
     DELETE_SUCCESS(2009,"删除成功"),
 
+    CREATE_SUCCESS(2010,"创建成功"),
     REQUEST_SUCCESS(200,"请求成功"),
 
 

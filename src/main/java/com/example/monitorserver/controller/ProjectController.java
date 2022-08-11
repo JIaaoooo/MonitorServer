@@ -1,13 +1,17 @@
 package com.example.monitorserver.controller;
 
 import cn.hutool.core.util.IdUtil;
+import com.example.monitorserver.constant.RedisEnum;
+import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,6 +27,8 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
 
     /**
      * 获取项目信息（在用户登陆后，展示已经审批、未冻结通过的项目）
@@ -32,7 +38,14 @@ public class ProjectController {
      * @return
      */
     public Result getPageProject(int current,int max,int position){
-        return projectService.getPageProject(current,max,position);
+        //判断缓存是否存在首页
+        List<Project> projects = null;
+        if(current==1&& Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.TOKEN_EXITS.getMsg()))){
+            //前端要获取首页并且，首页信息加载在缓存，直接再换存中获取
+            projects = (List<Project>) redisTemplate.opsForList().rightPop(RedisEnum.TOKEN_EXITS.getMsg());
+            return new Result(ResultEnum.SELECT_PAGE,projects);
+        }
+        return projectService.getPageProject(current, max, position);
     }
 
     /**

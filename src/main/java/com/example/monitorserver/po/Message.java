@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Message {
     @TableId
-    private Integer id;
+    private long id;
 
 
 

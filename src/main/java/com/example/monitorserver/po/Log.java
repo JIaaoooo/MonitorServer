@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * @program: monitor server
  * @description: 监控日志
@@ -17,10 +19,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Log {
     @TableId
-    private Integer id;
+    private long id;
+
 
     /** 访问者的ip  **/
     private String ip;
+
+    /**  项目的id **/
+    private String project_id;
 
     /** 调用方法  **/
     private String interfaceName;
@@ -38,7 +44,7 @@ public class Log {
     private String trait;
 
     /** 访问日期 **/
-    private String visitDate;
+    private LocalDateTime visitDate;
 
     /** 响应时间 **/
     private String responseTime;

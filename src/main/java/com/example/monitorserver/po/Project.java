@@ -22,7 +22,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class Project {
     @TableId
-    private Integer id;
+    private long id;
 
     /** 项目唯一id **/
     private String projectId;

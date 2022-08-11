@@ -26,7 +26,7 @@ import javax.validation.constraints.Pattern;
 //TODO 加密有问题,继承的父类属性添加到了查询里
 public class User extends HttpSecretCode{
     @TableId
-    private Integer id;
+    private Long id;
 
     /**  用户唯一id **/
     //TODO 分组校验还没加入,等等

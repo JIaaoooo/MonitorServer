@@ -4,14 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.mapper.ProjectMapper;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ProjectService;
-import com.example.monitorserver.utils.DynamicTableNameConfig;
+import com.example.monitorserver.utils.MybatisConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,14 +32,16 @@ import java.util.Map;
 @Transactional(rollbackFor = Exception.class)
 public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> implements ProjectService {
 
-    static {
-        DynamicTableNameConfig.setDynamicTableName("project");
-    }
+
     @Autowired
     private ProjectMapper projectMapper;
 
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
+
     @Override
     public Result getPageProject(int currentPage, int maxMessage,int position) {
+        MybatisConfig.setDynamicTableName("project");
         Page<Project> page = new Page(currentPage, maxMessage);
         if (position!=0){
             //超级管理员，没有项目状态限制
@@ -55,7 +59,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result getByCondition(Map<String, Object> map) {
-
+        MybatisConfig.setDynamicTableName("project");
         QueryWrapper<Project> wrapper = new QueryWrapper<>();
         String key = map.keySet().iterator().next();
         log.debug(key);
@@ -66,20 +70,44 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result saveProject(Project project) {
+        //　TODO 1.查项目名是否重复
+        // TODO 1.1 查项目名是否重复
+        QueryWrapper<Project> wrapper = new QueryWrapper<>();
+        wrapper.eq("project_name",project.getProjectName());
+        Long count = projectMapper.selectCount(wrapper);
+        if (count!=0){
+            return new Result(ResultEnum.REQUEST_FALSE);
+        }
+        // TODO 1.2 查url是否重复
+        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("project_url",project.getProjectUrl());
+        Long count1 = projectMapper.selectCount(queryWrapper);
+        if (count1!=0){
+            return new Result(ResultEnum.REQUEST_FALSE);
+        }
+        MybatisConfig.setDynamicTableName("project");
         projectMapper.insert(project);
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
     public Result updateProject(Project project) {
+        MybatisConfig.setDynamicTableName("project");
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Project::getProjectId,project.getProjectId());
+        //更新项目信息后要重新获得管理员的批准
+        project.setStatus(0);
+        //删除redis首页缓存
+        if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))){
+            redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
+        }
         projectMapper.update(project,wrapper);
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
     public Result deleteProject(String projectId) {
+        MybatisConfig.setDynamicTableName("project");
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Project::getProjectId,projectId);
         projectMapper.delete(wrapper);

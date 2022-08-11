@@ -2,6 +2,7 @@ package com.example.monitorserver.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.mapper.ApplicationMapper;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Application;
@@ -10,9 +11,10 @@ import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
-import com.example.monitorserver.utils.DynamicTableNameConfig;
+import com.example.monitorserver.utils.MybatisConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,10 +34,9 @@ import java.util.List;
 @Transactional(rollbackFor = Exception.class)
 public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Application> implements ApplicationService {
 
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
 
-    static {
-        DynamicTableNameConfig.setDynamicTableName("application");
-    }
     @Autowired
     private ApplicationMapper applicationMapper;
 
@@ -47,7 +48,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
 
     @Override
     public Result releaseApp(Application application) {
-
+        MybatisConfig.setDynamicTableName("application");
         // TODO 1.将申请信息存入
         applicationMapper.insert(application);
         // TODO 2.信息推送 当类型为请求监控、删除项目时都需要向项目发布者发送消息通知也做同意
@@ -72,7 +73,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
 
     @Override
     public Result updateApp(Application application) {
-
+        MybatisConfig.setDynamicTableName("application");
         //TODO 1.更新Application表中的数据
         LambdaQueryWrapper<Application> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Application::getApplicantId,application.getApplicantId());
@@ -84,6 +85,10 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
             if(application.getStatus()==0){
                 //删除项目
                 projectService.deleteProject(application.getProjectId());
+                //删除redis首页缓存
+                if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))){
+                    redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
+                }
             }
         }
         return new Result(ResultEnum.REQUEST_SUCCESS);
@@ -91,6 +96,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
 
     @Override
     public Result selectApp(String applicationId) {
+        MybatisConfig.setDynamicTableName("application");
         LambdaQueryWrapper<Application> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Application::getApplicantId,applicationId);
         Application selectOne = applicationMapper.selectOne(wrapper);

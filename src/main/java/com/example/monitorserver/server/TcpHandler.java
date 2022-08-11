@@ -18,7 +18,6 @@ import java.util.Map;
 @Slf4j
 public  class TcpHandler extends SimpleChannelInboundHandler<String> {
 
-    private static String message;
     private static Map<String,Channel> channels=null;
 
 
@@ -37,8 +36,8 @@ public  class TcpHandler extends SimpleChannelInboundHandler<String> {
     }
 
     /**
-     * 硬件发来消息
-     * @param ctx 硬件上下文
+     * 发来消息
+     * @param ctx channel上下文
      * @param s 消息内容
      * @throws Exception
      */
@@ -53,15 +52,6 @@ public  class TcpHandler extends SimpleChannelInboundHandler<String> {
         ctx.channel().close();
     }
 
-    public static void sendMessage(String message){
-
-        
-    }
-
-    //可以获取硬件发送的消息
-    public static String getMessage() {
-        return message;
-    }
 
 
 }

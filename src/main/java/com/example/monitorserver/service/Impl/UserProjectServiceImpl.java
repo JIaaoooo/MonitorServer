@@ -7,7 +7,7 @@ import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.UserProjectService;
-import com.example.monitorserver.utils.DynamicTableNameConfig;
+import com.example.monitorserver.utils.MybatisConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,17 +30,17 @@ public class UserProjectServiceImpl extends ServiceImpl<UserProjectMapper, UserP
     @Autowired
     private UserProjectMapper userProjectMapper;
 
-    static {
-        DynamicTableNameConfig.setDynamicTableName("project_user");
-    }
+
     @Override
     public Result add(UserProject userProject) {
+        MybatisConfig.setDynamicTableName("project_user");
         userProjectMapper.insert(userProject);
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
     public Result select(Map<String, Object> map) {
+        MybatisConfig.setDynamicTableName("project_user");
         QueryWrapper<UserProject> wrapper = new QueryWrapper<>();
         Iterator<String> iterator = map.keySet().iterator();
         while(iterator.hasNext()){

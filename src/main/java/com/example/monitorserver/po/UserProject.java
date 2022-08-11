@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserProject {
     @TableId
-    private Integer id;
+    private long id;
 
 
     private String userId;
