@@ -1,6 +1,7 @@
 package com.example.monitorserver;
 
 import com.example.monitorserver.server.NettyServer;
+import com.example.monitorserver.service.Impl.LogServiceImpl;
 import io.github.yedaxia.apidocs.Docs;
 import io.github.yedaxia.apidocs.DocsConfig;
 import io.github.yedaxia.apidocs.plugin.markdown.MarkdownDocPlugin;
@@ -8,9 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import javax.annotation.PostConstruct;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 @SpringBootApplication
 public class MonitorServerApplication {
-
 
 
 
@@ -36,6 +41,7 @@ public class MonitorServerApplication {
 
         SpringApplication.run(MonitorServerApplication.class, args);
         new NettyServer().run();
+
     }
 
 }

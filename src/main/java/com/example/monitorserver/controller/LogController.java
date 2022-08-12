@@ -28,4 +28,5 @@ public class LogController {
     public Result getByCondition(HashMap<String, Object> condition){
         return logService.select(condition);
     }
+
 }

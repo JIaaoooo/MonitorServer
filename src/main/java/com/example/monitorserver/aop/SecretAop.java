@@ -31,13 +31,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-*/
-/**
- * @program: aop_annotation
- * @description:
- * @author: stop.yc
- * @create: 2022-08-08 17:58
- **//*
 
 @Aspect
 @Component

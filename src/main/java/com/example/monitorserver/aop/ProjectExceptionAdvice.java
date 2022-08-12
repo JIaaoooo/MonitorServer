@@ -1,4 +1,3 @@
-/*
 package com.example.monitorserver.aop;
 
 import com.alibaba.fastjson.JSONException;
@@ -23,55 +22,50 @@ import javax.validation.ValidationException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-*/
 /**
  * @program: Software-management-platform
  * @description: 异常处理器
  * @author: stop.yc
  * @create: 2022-07-24 19:10
- **//*
+ **/
 
 @RestControllerAdvice
 @Slf4j
 @Order(1)
 public class ProjectExceptionAdvice {
 
-    */
 /**
-     * 日志打印
-     *//*
+      日志打印
+**/
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectExceptionAdvice.class);
 
-    */
-/**处理自定义异常SystemException*//*
+/**处理自定义异常SystemException **/
 
     @ExceptionHandler(SystemException.class)
     public Result doSystemException(SystemException ex){
         //记录日志
         //发送消息给运维
         //发送邮件给开发人员,ex对象发送给开发人员
-        System.out.println("系统异常了"+ex.getMessage());
+        /*System.out.println("系统异常了"+ex.getMessage());
         LOGGER.error("发生了异常:{}",(Throwable) ex);
         return new Result(ex.getCode(),ex.getMessage(),null);
     }
-    */
-/**处理自定义异常BusinessException*//*
+//处理自定义异常BusinessException
 
     @ExceptionHandler(BusinessException.class)
     public Result doBusinessException(BusinessException ex){
         System.out.println("业务异常了"+ex.getMessage());
-        LOGGER.error("发生了异常:{}",(Throwable) ex);
+        LOGGER.error("发生了异常:{}",(Throwable) ex);*/
         return new Result(ex.getCode(),ex.getMessage(),null);
     }
 
-    */
-/**处理数据参数异常*//*
+//处理数据参数异常
 
     @ExceptionHandler(value = {BindException.class, ValidationException.class, MethodArgumentNotValidException.class})
     public Result doMethodArgumentNotValidException(Exception  e){
 
-        LOGGER.error("发生了异常:{}",(Throwable) e);
+        /*LOGGER.error("发生了异常:{}",(Throwable) e);
 
         if (e instanceof MethodArgumentNotValidException) {
 
@@ -95,13 +89,12 @@ public class ProjectExceptionAdvice {
                     ex.getAllErrors().stream()
                             .map(ObjectError::getDefaultMessage)
                             .collect(Collectors.joining("; ")));
-        }
+        }*/
 
         return null;
     }
 
-    */
-/**除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常*//*
+/** 除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常 **/
 
     @ExceptionHandler(Exception.class)
     public Result doOtherException(Exception ex){
@@ -109,7 +102,7 @@ public class ProjectExceptionAdvice {
         //发送消息给运维
         //发送邮件给开发人员,ex对象发送给开发人员
 
-        LOGGER.error("在这里发生了异常:{}",ex);
+        /*LOGGER.error("在这里发生了异常:{}",ex);
         System.out.println("错误");
         if (ex instanceof HttpMessageNotReadableException) {
             HttpMessageNotReadableException e = (HttpMessageNotReadableException)ex;
@@ -117,9 +110,8 @@ public class ProjectExceptionAdvice {
         }else if (ex instanceof JSONException){
             return new Result(ResultEnum.PARAMETER_NOT_VALID.getCode(),
                     ex.getMessage());
-        }
+        }*/
 
         return new Result(ResultEnum.SERVER_INTERNAL_ERROR.getCode(),ResultEnum.SERVER_INTERNAL_ERROR.getMsg(),null);
     }
 }
-*/

@@ -3,8 +3,7 @@ package com.example.monitorserver.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.monitorserver.po.Log;
 import com.example.monitorserver.po.Result;
-import org.apache.tomcat.jni.Local;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -15,6 +14,7 @@ import java.util.HashMap;
  * @author: Jiao
  * @create: 2022-08-10 10：00
  */
+@Service
 public interface LogService extends IService<Log> {
 
     Result createTable();
@@ -30,17 +30,12 @@ public interface LogService extends IService<Log> {
      * @return
      */
     Result selectProject(LocalDateTime startTime , LocalDateTime endTime);
-    /**
-     * 每小时自动执行统计
-     */
-    @Scheduled(fixedRate = 3600 * 1000)
-    void HourAutoSum();
 
     /**
-     * 每天自动执行统计
+     * 一分钟重复检测，是否需要执行自动日志处理任务
      */
-    @Scheduled(fixedRate = 24 * 3600 * 1000)
-    void DayAutoSum();
+
+    void schedule();
 
     /**
      * 获得某个时间段下的项目 被访问的包

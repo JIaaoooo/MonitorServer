@@ -32,6 +32,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
 
     private final static SimpleDateFormat sdf =  new SimpleDateFormat("yyyyMMdd");
 
+    private String TodayTable = null;
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
@@ -45,9 +46,9 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
     public Result createTable() {
         Date date = new Date();
         String today = sdf.format(date);
-        String table = "t_visit_"+today;
+        TodayTable = "t_visit_"+today;
         MybatisConfig.setDynamicTableName("IF");
-        logMapper.createTable(table);
+        logMapper.createTable(TodayTable);
         return new Result(ResultEnum.CREATE_SUCCESS);
     }
 
@@ -91,12 +92,12 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         return new Result(ResultEnum.SELECT_SUCCESS,logMapper.selectList(wrapper));
     }
 
-    @Override
     public void HourAutoSum() {
         //TODO 1.创建表
         Date date = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HH");
         String table = "t_statistics_" + simpleDateFormat.format(date);
+        MybatisConfig.setDynamicTableName("IF");
         statisticsMapper.createTable(table);
         //TODO 2.获取该时间段，有哪些项目在运作
         String today = sdf.format(date);
@@ -116,13 +117,13 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         saveVisit(startTimeL,endTimeL,table);
     }
 
-    @Override
     public void DayAutoSum() {
         //TODO 1.创建表
         Date date = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
         // 统计信息表名
         String table = "t_statistics_" + simpleDateFormat.format(date);
+        MybatisConfig.setDynamicTableName("IF");
         statisticsMapper.createTable(table);
         //TODO 2.获取当天，有哪些项目在运作
         String today = sdf.format(date);
@@ -140,6 +141,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         if(startTime!=null&&endTime!=null){
             queryWrapper.between("visit_date",startTime,endTime);
         }
+        MybatisConfig.setDynamicTableName(TodayTable);
         List<Log> logs = logMapper.selectList(queryWrapper);
         Iterator<Log> iterator = logs.iterator();
         List<String> packages =  new ArrayList<>();
@@ -157,6 +159,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         if(startTime!=null&&endTime!=null){
             queryWrapper.between("visit_date",startTime,endTime);
         }
+        MybatisConfig.setDynamicTableName(TodayTable);
         List<Log> logs = logMapper.selectList(queryWrapper);
         Iterator<Log> iterator = logs.iterator();
         List<String> methods =  new ArrayList<>();
@@ -190,9 +193,11 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
                     queryWrapper.between("visit_date",startTime,endTime);
                 }
                 //获取得到访问量
+                MybatisConfig.setDynamicTableName(TodayTable);
                 Long packageVisits = logMapper.selectCount(queryWrapper);
                 //获取包访问的访问人次
                 queryWrapper.select("DISTINCT ip");
+                MybatisConfig.setDynamicTableName(TodayTable);
                 Long packageIP = logMapper.selectCount(queryWrapper);
 
                 // TODO 3.将project_id 、package 写入statistics表中记录
@@ -221,9 +226,11 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
                     queryWrapper.between("visit_date",startTime,endTime);
                 }
                 //获取访问量
+                MybatisConfig.setDynamicTableName(TodayTable);
                 Long MethodVisits = logMapper.selectCount(queryWrapper);
                 //获取访问人次
                 queryWrapper.select("DISTINCT ip");
+                MybatisConfig.setDynamicTableName(TodayTable);
                 Long MethodIP = logMapper.selectCount(queryWrapper);
 
                 //TODO 3.将数据存入statistic表
@@ -238,6 +245,27 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
             }
 
         }
+    }
+
+    /**
+     * 定时器判断是否执行自动小时存储
+     */
+    public  void schedule(){
+        Date now = new Date();
+        log.debug("执行判断");
+        //指定每小时触发  ,判断分钟是否在 58分 - 02分之间
+        SimpleDateFormat sdfMin = new SimpleDateFormat("mm");
+        SimpleDateFormat sdfHour = new SimpleDateFormat("HH");
+        Integer min = Integer.valueOf(sdfMin.format(now));
+        if (min>58||min<2){
+            HourAutoSum();
+        }
+        //当时刻表到24时 55分后执行
+        Integer hour = Integer.valueOf(sdfHour.format(now));
+        if(hour == 24 && min > 55){
+            DayAutoSum();
+        }
+
     }
 }
 
