@@ -41,7 +41,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result getPageProject(int currentPage, int maxMessage,int position) {
-        MybatisConfig.setDynamicTableName("project");
+        MybatisConfig.setDynamicTableName("t_project");
         Page<Project> page = new Page(currentPage, maxMessage);
         if (position!=0){
             //超级管理员，没有项目状态限制
@@ -59,7 +59,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result getByCondition(Map<String, Object> map) {
-        MybatisConfig.setDynamicTableName("project");
+        MybatisConfig.setDynamicTableName("t_project");
         QueryWrapper<Project> wrapper = new QueryWrapper<>();
         String key = map.keySet().iterator().next();
         log.debug(key);
@@ -85,14 +85,14 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
         if (count1!=0){
             return new Result(ResultEnum.REQUEST_FALSE);
         }
-        MybatisConfig.setDynamicTableName("project");
+        MybatisConfig.setDynamicTableName("t_project");
         projectMapper.insert(project);
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
     public Result updateProject(Project project) {
-        MybatisConfig.setDynamicTableName("project");
+        MybatisConfig.setDynamicTableName("t_project");
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Project::getProjectUrl,project.getProjectUrl());
         //更新项目信息后要重新获得管理员的批准
@@ -107,7 +107,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result deleteProject(String projectUrl) {
-        MybatisConfig.setDynamicTableName("project");
+        MybatisConfig.setDynamicTableName("t_project");
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Project::getProjectUrl,projectUrl);
         projectMapper.delete(wrapper);

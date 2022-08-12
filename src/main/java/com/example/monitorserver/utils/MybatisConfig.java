@@ -27,7 +27,7 @@ public class MybatisConfig {
         DynamicTableNameInnerInterceptor dynamicTableNameInnerInterceptor = new DynamicTableNameInnerInterceptor();
         HashMap<String, TableNameHandler> map = new HashMap<String, TableNameHandler>(2) {{
             put(common, (sql, tableName) -> {
-                return common+table.get();
+                return table.get();
             });
         }};
         dynamicTableNameInnerInterceptor.setTableNameHandler(map.get(common));

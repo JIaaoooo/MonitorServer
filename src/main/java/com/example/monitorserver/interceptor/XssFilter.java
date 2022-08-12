@@ -1,5 +1,6 @@
 package com.example.monitorserver.interceptor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -37,7 +38,7 @@ public class XssFilter implements Filter{
         String uri = req.getRequestURI();
         //注入xss过滤器实例
         XssHttpServletRequestWrapper reqW = new XssHttpServletRequestWrapper(req);
-        System.out.println("用了过滤器了");
+        log.debug("用了过滤器");
         //过滤掉不需要的Xss校验的地址
         for (String str : excludeUrls) {
             if (uri.indexOf(str) >= 0) {

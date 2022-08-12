@@ -33,14 +33,14 @@ public class UserProjectServiceImpl extends ServiceImpl<UserProjectMapper, UserP
 
     @Override
     public Result add(UserProject userProject) {
-        MybatisConfig.setDynamicTableName("project_user");
+        MybatisConfig.setDynamicTableName("t_project_user");
         userProjectMapper.insert(userProject);
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
     public Result select(Map<String, Object> map) {
-        MybatisConfig.setDynamicTableName("project_user");
+        MybatisConfig.setDynamicTableName("t_project_user");
         QueryWrapper<UserProject> wrapper = new QueryWrapper<>();
         Iterator<String> iterator = map.keySet().iterator();
         while(iterator.hasNext()){

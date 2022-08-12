@@ -47,7 +47,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
     @Override
     public Result login(User user) {
-        MybatisConfig.setDynamicTableName("user");
+        MybatisConfig.setDynamicTableName("t_user");
         //通过用户名与密码与数据库匹配查询
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         //返回用户ID，权限，用户名，电话，邮箱，解封时间，发布的项目ID，监控的项目ID
@@ -79,7 +79,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
     @Override
     public Result register(User user) {
-        MybatisConfig.setDynamicTableName("user");
+        MybatisConfig.setDynamicTableName("t_user");
         //用户名查重
         LambdaQueryWrapper<User> wrapper1 = new LambdaQueryWrapper<>();
         wrapper1.eq(User::getUsername,user.getUsername());
@@ -103,7 +103,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
     @Override
     public Result update(User user) {
-        MybatisConfig.setDynamicTableName("user");
+        MybatisConfig.setDynamicTableName("t_user");
         LambdaQueryWrapper<User> wrapper  = new LambdaQueryWrapper<>();
         wrapper.eq(User::getUserId,user.getUserId());
         userMapper.update(user, wrapper);
@@ -120,7 +120,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
     @Override
     public Result getByCondition(Map<String,Object>  map){
-        MybatisConfig.setDynamicTableName("user");
+        MybatisConfig.setDynamicTableName("t_user");
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         String key = map.keySet().iterator().next();
         log.debug(key);
@@ -131,7 +131,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
     @Override
     public Result getByUserID(String userId) {
-        MybatisConfig.setDynamicTableName("user");
+        MybatisConfig.setDynamicTableName("t_user");
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id",userId);
         User user = userMapper.selectOne(wrapper);
@@ -141,7 +141,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
     @Override
     public Result freezeUser(String userId) {
-        MybatisConfig.setDynamicTableName("user");
+        MybatisConfig.setDynamicTableName("t_user");
         //获取当前时间
         Date date = new Date();
         Timestamp t = new Timestamp(date.getTime());
