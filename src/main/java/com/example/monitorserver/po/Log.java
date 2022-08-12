@@ -37,10 +37,10 @@ public class Log {
     private String packageName;
 
     /** 入参  **/
-    private String inArgs;
+    private String inParameters;
 
     /** 出参  **/
-    private String outArgs;
+    private String outParameters;
 
     /**  异常、报错的堆栈信息 **/
     private String exception;

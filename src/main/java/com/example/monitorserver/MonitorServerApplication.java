@@ -1,6 +1,6 @@
 package com.example.monitorserver;
 
-import com.example.monitorserver.server.TcpServer;
+import com.example.monitorserver.server.NettyServer;
 import io.github.yedaxia.apidocs.Docs;
 import io.github.yedaxia.apidocs.DocsConfig;
 import io.github.yedaxia.apidocs.plugin.markdown.MarkdownDocPlugin;
@@ -35,7 +35,7 @@ public class MonitorServerApplication {
 //        Docs.buildHtmlDocs(config);
 
         SpringApplication.run(MonitorServerApplication.class, args);
-        new TcpServer().run();
+        new NettyServer().run();
     }
 
 }
