@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/user",produces = "application/json;charset=UTF-8")
 @Slf4j
+@CrossOrigin("http://localhost:3000")
 public class UserController {
     @Autowired
     HttpServletRequest request;
@@ -56,12 +58,37 @@ public class UserController {
         if(result.getCode()==200){
             //TODO 2.登陆成功，生成Token,并存入redis缓存
             String token = tokenUtil.createToken(user);
-            response.setHeader("Authorization",token);
-            log.debug(result.toString());
+            //response.setHeader("Authorization",token);
+            response.addHeader("Authorization",token);
+            response.setHeader("Access-Control-Expose-Headers","Authorization");
+            log.debug(token);
         }
+
         return result;
     }
 
+    /**
+     * 管理员口令登录
+     * @param  user 用户对象
+     * @return 返回执行操作结果
+     */
+    @PostMapping("/admin/login")
+    @Secret
+    public Result ManageLogin(@RequestBody @Validated User user){
+        user.setUsername("root");
+        //TODO 1.登录认证
+        Result result = userService.login(user);
+        if(result.getCode()==200){
+            //TODO 2.登陆成功，生成Token,并存入redis缓存
+            String token = tokenUtil.createToken(user);
+            //response.setHeader("Authorization",token);
+            response.addHeader("Authorization",token);
+            response.setHeader("Access-Control-Expose-Headers","Authorization");
+            log.debug(token);
+        }
+
+        return result;
+    }
 
     /**
      * 注册
@@ -118,7 +145,7 @@ public class UserController {
      * @param max 每页最多显示的数量
      * @return 返回该页下的用户
      */
-    @GetMapping() //超级管理员权限   position为9
+    @GetMapping("/manage") //超级管理员权限   position为9
     public Result getPageUser(int currentPage,int max){
         return userService.getPageUser(currentPage,max);
     }
@@ -130,5 +157,10 @@ public class UserController {
      */
     public Result freezeUser(String userId){
         return userService.freezeUser(userId);
+    }
+
+
+    public Result onLiveUser(){
+        return null;
     }
 }

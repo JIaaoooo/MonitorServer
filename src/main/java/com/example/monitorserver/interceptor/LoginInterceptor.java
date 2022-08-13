@@ -33,6 +33,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //获取token
         token = request.getHeader("Authorization");
+        System.out.println(token);
         Map<Object, Object> map = redisTemplate.opsForHash().entries(token);
         if(token!=null && map!=null){
             //已登录,并且刷新token

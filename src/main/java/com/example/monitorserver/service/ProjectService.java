@@ -27,6 +27,15 @@ public interface ProjectService extends IService<Project> {
      */
     Result getPageProject(int currentPage, int maxMessage,int position);
 
+    Result getAllProject();
+
+    /**
+     * 通过项目的url获取项目名
+     * @param projectUrl 项目url
+     * @return 返回项目名
+     */
+    String getProjectName(String projectUrl);
+
     /**
      * 通过条件查询项目数据（可模糊查询）
      * @param map 通过键值对的方式

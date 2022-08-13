@@ -20,6 +20,8 @@ import java.util.HashMap;
 @Service
 public interface StatisticsService extends IService<Statistics>  {
 
+    void createTable(String table);
+
     void insert(Statistics statistics);
 
     /**
@@ -28,4 +30,6 @@ public interface StatisticsService extends IService<Statistics>  {
      * @return
      */
     Result getMax(String project_id);
+
+    Result getHoursData(String project_name);
 }

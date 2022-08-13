@@ -1,6 +1,7 @@
 package com.example.monitorserver.po;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,17 +23,26 @@ public class Statistics {
     @TableId
     private Long id;
 
-    private String project_id;
+    private String projectUrl;
+
+    private String projectName;
 
     /** 访问量 **/
-    private Long page_view;
+    private Long views;
 
     /** 访问人次 **/
     private Long visits;
+
+    /** 访问失败次数 **/
+    private Long defeat;
 
     /** 方法名 **/
     private String method;
 
     /** 包名 **/
     private String packageName;
+
+    /** 成功率 **/
+    @TableField(exist = false)
+    private double SuccessRate;
 }

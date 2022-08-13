@@ -16,38 +16,38 @@ public enum ResultEnum implements StatusCode{
     /**
      * 登陆成功
      */
-    LOGIN_SUCCESS(201,"登陆成功"),
+    LOGIN_SUCCESS(200,"登陆成功"),
 
     REQUEST_FALSE(400,"请求失败"),
     PARAMETER_NOT_VALID(400,"参数不合法"),
 
-    LOGIN_INFORMATION_FALSE(4011,"登录信息错误"),
-    LOGIN_USER_FROZEN(4012,"用户被冻结"),
-    REGISTER_NAME_DOUBLE(4001,"用户名重复"),
-    REGISTER_PHONE_DOUBLE(4002,"电话号码重复"),
-    REGISTER_EMAIL_DOUBLE(4003,"邮箱重复"),
+    LOGIN_INFORMATION_FALSE(400,"登录信息错误"),
+    LOGIN_USER_FROZEN(400,"用户被冻结"),
+    REGISTER_NAME_DOUBLE(400,"用户名重复"),
+    REGISTER_PHONE_DOUBLE(400,"电话号码重复"),
+    REGISTER_EMAIL_DOUBLE(400,"邮箱重复"),
     SERVER_INTERNAL_ERROR(500,"服务器正在忙碌中,请稍后试试吧"),
 
-    REGISTER_SUCCESS(500,"注册成功"),
+    REGISTER_SUCCESS(200,"注册成功"),
 
-    LOGOUT_SUCCESS(2001,"退出成功"),
+    LOGOUT_SUCCESS(200,"退出成功"),
 
-    SELECT_PAGE(2001,"分页查询"),
+    SELECT_PAGE(200,"分页查询"),
 
 
-    UPDATE_SUCCESS(2002,"更新修改成功"),
+    UPDATE_SUCCESS(200,"更新修改成功"),
 
-    SELECT_LIKE(2003,"条件查询"),
+    SELECT_LIKE(200,"条件查询"),
 
-    INSERT_SUCCESS(2004,"存入成功"),
-    SELECT_SUCCESS(2006,"查询成功"),
+    INSERT_SUCCESS(200,"存入成功"),
+    SELECT_SUCCESS(200,"查询成功"),
 
-    APPLICATION_MESSAGE(2007,"申请表信息"),
+    APPLICATION_MESSAGE(200,"申请表信息"),
 
-    FREEZE_SUCCESS(2008,"冻结成功"),
-    DELETE_SUCCESS(2009,"删除成功"),
+    FREEZE_SUCCESS(200,"冻结成功"),
+    DELETE_SUCCESS(200,"删除成功"),
 
-    CREATE_SUCCESS(2010,"创建成功"),
+    CREATE_SUCCESS(200,"创建成功"),
     REQUEST_SUCCESS(200,"请求成功"),
 
 

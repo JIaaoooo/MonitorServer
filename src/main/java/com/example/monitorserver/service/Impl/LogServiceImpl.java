@@ -3,14 +3,17 @@ package com.example.monitorserver.service.Impl;
 
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.mapper.LogMapper;
-import com.example.monitorserver.mapper.StatisticsMapper;
 import com.example.monitorserver.po.Log;
+import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.Statistics;
 import com.example.monitorserver.service.LogService;
+import com.example.monitorserver.service.ProjectService;
+import com.example.monitorserver.service.StatisticsService;
 import com.example.monitorserver.utils.MybatisConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,8 +34,13 @@ import java.util.*;
 public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogService {
 
     private final static SimpleDateFormat sdf =  new SimpleDateFormat("yyyyMMdd");
+    private static String TodayTable = null;
 
-    private String TodayTable = null;
+    static {
+        Date date = new Date();
+        String today = sdf.format(date);
+        TodayTable = "t_visit_"+today;
+    }
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
@@ -40,7 +48,10 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
     private LogMapper logMapper;
 
     @Autowired
-    private StatisticsMapper statisticsMapper;
+    private StatisticsService statisticsService;
+
+    @Autowired
+    private ProjectService projectService;
 
     @Override
     public Result createTable() {
@@ -89,6 +100,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         if(startTime!=null && endTime !=null){
             wrapper.between("visit_date",startTime,endTime);
         }
+        MybatisConfig.setDynamicTableName(TodayTable);
         return new Result(ResultEnum.SELECT_SUCCESS,logMapper.selectList(wrapper));
     }
 
@@ -98,7 +110,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HH");
         String table = "t_statistics_" + simpleDateFormat.format(date);
         MybatisConfig.setDynamicTableName("IF");
-        statisticsMapper.createTable(table);
+        statisticsService.createTable(table);
         //TODO 2.获取该时间段，有哪些项目在运作
         String today = sdf.format(date);
         // 日志表名
@@ -117,6 +129,8 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         saveVisit(startTimeL,endTimeL,table);
     }
 
+
+
     public void DayAutoSum() {
         //TODO 1.创建表
         Date date = new Date();
@@ -124,7 +138,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         // 统计信息表名
         String table = "t_statistics_" + simpleDateFormat.format(date);
         MybatisConfig.setDynamicTableName("IF");
-        statisticsMapper.createTable(table);
+        statisticsService.createTable(table);
         //TODO 2.获取当天，有哪些项目在运作
         String today = sdf.format(date);
         // 日志表名
@@ -179,6 +193,8 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         while(iterator.hasNext()){
             Log log1 = iterator.next();
             String projectUrl = log1.getProjectUrl();
+            // 获取url对应的项目名
+            String projectName = projectService.getProjectName(projectUrl);
             // TODO 2.1.1通过project_id 作为主要条件，获取该项目的包名
             Result projectPackage = getProjectPackage(startTime, endTime, projectUrl);
             List<String> packages = (List<String>) projectPackage.getData();
@@ -199,15 +215,25 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
                 queryWrapper.select("DISTINCT ip");
                 MybatisConfig.setDynamicTableName(TodayTable);
                 Long packageIP = logMapper.selectCount(queryWrapper);
+                //后去包的报错次数
 
+                QueryWrapper<Log> qw = new QueryWrapper<>();
+                qw.select("exception");
+                if(startTime!=null&&endTime!=null){
+                    queryWrapper.between("visit_date",startTime,endTime);
+                }
+                MybatisConfig.setDynamicTableName(TodayTable);
+                Long exception = logMapper.selectCount(qw);
                 // TODO 3.将project_id 、package 写入statistics表中记录
                 Statistics statistics = new Statistics();
-                statistics.setProject_id(projectUrl)
+                statistics.setProjectUrl(projectUrl)
                         .setPackageName(packageName)
-                        .setPage_view(packageVisits)
-                        .setVisits(packageIP);
+                        .setViews(packageVisits)
+                        .setVisits(packageIP)
+                        .setDefeat(exception)
+                        .setProjectName(projectName);
                 MybatisConfig.setDynamicTableName(table);
-                statisticsMapper.insert(statistics);
+                statisticsService.insert(statistics);
             }
 
 
@@ -235,12 +261,13 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
 
                 //TODO 3.将数据存入statistic表
                 Statistics statistics = new Statistics();
-                statistics.setProject_id(projectUrl)
+                statistics.setProjectUrl(projectUrl)
                         .setMethod(method)
-                        .setPage_view(MethodVisits)
-                        .setVisits(MethodIP);
+                        .setViews(MethodVisits)
+                        .setVisits(MethodIP)
+                        .setProjectName(projectName);
                 MybatisConfig.setDynamicTableName(table);
-                statisticsMapper.insert(statistics);
+                statisticsService.insert(statistics);
 
             }
 
@@ -252,20 +279,31 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
      */
     public  void schedule(){
         Date now = new Date();
-        log.debug("执行判断");
         //指定每小时触发  ,判断分钟是否在 58分 - 02分之间
         SimpleDateFormat sdfMin = new SimpleDateFormat("mm");
         SimpleDateFormat sdfHour = new SimpleDateFormat("HH");
         Integer min = Integer.valueOf(sdfMin.format(now));
         if (min>58||min<2){
+            log.debug("执行小时记录");
             HourAutoSum();
         }
         //当时刻表到24时 55分后执行
         Integer hour = Integer.valueOf(sdfHour.format(now));
-        if(hour == 24 && min > 55){
+        if(hour == 24 && min > 54){
+            log.debug("执行每日记录");
             DayAutoSum();
         }
+    }
 
+    @Override
+    public Result getCurrentLog(int currentPage,String project_url) {
+        QueryWrapper<Log> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("project_url",project_url);
+        Page< Log > page = new Page(currentPage, 1);
+        MybatisConfig.setDynamicTableName(TodayTable);
+        page = logMapper.selectPage(page, queryWrapper);
+        List<Log> logOne = page.getRecords();
+        return new Result(ResultEnum.SELECT_SUCCESS,logOne);
     }
 }
 

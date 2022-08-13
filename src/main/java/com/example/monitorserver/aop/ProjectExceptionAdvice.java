@@ -47,7 +47,7 @@ public class ProjectExceptionAdvice {
         //记录日志
         //发送消息给运维
         //发送邮件给开发人员,ex对象发送给开发人员
-        /*System.out.println("系统异常了"+ex.getMessage());
+        System.out.println("系统异常了"+ex.getMessage());
         LOGGER.error("发生了异常:{}",(Throwable) ex);
         return new Result(ex.getCode(),ex.getMessage(),null);
     }
@@ -56,7 +56,7 @@ public class ProjectExceptionAdvice {
     @ExceptionHandler(BusinessException.class)
     public Result doBusinessException(BusinessException ex){
         System.out.println("业务异常了"+ex.getMessage());
-        LOGGER.error("发生了异常:{}",(Throwable) ex);*/
+        LOGGER.error("发生了异常:{}",(Throwable) ex);
         return new Result(ex.getCode(),ex.getMessage(),null);
     }
 
@@ -65,7 +65,7 @@ public class ProjectExceptionAdvice {
     @ExceptionHandler(value = {BindException.class, ValidationException.class, MethodArgumentNotValidException.class})
     public Result doMethodArgumentNotValidException(Exception  e){
 
-        /*LOGGER.error("发生了异常:{}",(Throwable) e);
+        LOGGER.error("发生了异常:{}",(Throwable) e);
 
         if (e instanceof MethodArgumentNotValidException) {
 
@@ -89,7 +89,7 @@ public class ProjectExceptionAdvice {
                     ex.getAllErrors().stream()
                             .map(ObjectError::getDefaultMessage)
                             .collect(Collectors.joining("; ")));
-        }*/
+        }
 
         return null;
     }
@@ -102,7 +102,7 @@ public class ProjectExceptionAdvice {
         //发送消息给运维
         //发送邮件给开发人员,ex对象发送给开发人员
 
-        /*LOGGER.error("在这里发生了异常:{}",ex);
+        LOGGER.error("在这里发生了异常:{}",ex);
         System.out.println("错误");
         if (ex instanceof HttpMessageNotReadableException) {
             HttpMessageNotReadableException e = (HttpMessageNotReadableException)ex;
@@ -110,7 +110,7 @@ public class ProjectExceptionAdvice {
         }else if (ex instanceof JSONException){
             return new Result(ResultEnum.PARAMETER_NOT_VALID.getCode(),
                     ex.getMessage());
-        }*/
+        }
 
         return new Result(ResultEnum.SERVER_INTERNAL_ERROR.getCode(),ResultEnum.SERVER_INTERNAL_ERROR.getMsg(),null);
     }

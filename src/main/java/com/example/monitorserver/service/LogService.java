@@ -41,10 +41,10 @@ public interface LogService extends IService<Log> {
      * 获得某个时间段下的项目 被访问的包
      * @param startTime 开始时间
      * @param endTime 结束时间
-     * @param project_id 项目id
+     * @param project_url 项目url
      * @return 返回List集合 存有packages
      */
-    Result getProjectPackage(LocalDateTime startTime,LocalDateTime endTime,String project_id);
+    Result getProjectPackage(LocalDateTime startTime,LocalDateTime endTime,String project_url);
 
     /**
      * 获得某个时间段下的项目 被访问的方法
@@ -54,5 +54,9 @@ public interface LogService extends IService<Log> {
      * @return 返回List集合 存有Methods数据
      */
     Result getProjectMethod(LocalDateTime startTime,LocalDateTime endTime,String project_id);
+
+    public void HourAutoSum();
+
+    public Result getCurrentLog(int currentPage,String project_url);
 
 }

@@ -58,6 +58,23 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     }
 
     @Override
+    public Result getAllProject() {
+        MybatisConfig.setDynamicTableName("t_project");
+        projectMapper.selectList(null);
+        return new Result(ResultEnum.REQUEST_SUCCESS,projectMapper.selectList(null));
+    }
+
+    @Override
+    public String getProjectName(String projectUrl) {
+        MybatisConfig.setDynamicTableName("t_project");
+        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("project_name")
+                .eq("project_url",projectUrl);
+        Project project = projectMapper.selectOne(queryWrapper);
+        return project.getProjectName();
+    }
+
+    @Override
     public Result getByCondition(Map<String, Object> map) {
         MybatisConfig.setDynamicTableName("t_project");
         QueryWrapper<Project> wrapper = new QueryWrapper<>();

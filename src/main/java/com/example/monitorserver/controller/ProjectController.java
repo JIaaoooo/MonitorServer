@@ -8,8 +8,7 @@ import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -33,21 +32,25 @@ public class ProjectController {
     /**
      * 获取项目信息（在用户登陆后，展示已经审批、未冻结通过的项目）
      * @param current 当前页
-     * @param max 每页最大显示
      * @param position 当前用户的权限 若为0，普通用户，不能查看审核未通过项目   若为9，超级管理员，则可以全部显示  （如果不传position也可以直接传整个user信息）
      * @return
      */
-    public Result getPageProject(int current,int max,int position){
+    @GetMapping("/pageProject/{current}/{position}")
+    public Result getPageProject(@PathVariable int current, @PathVariable int position){
         //判断缓存是否存在首页
         List<Project> projects = null;
-        if(current==1&& Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.TOKEN_EXITS.getMsg()))){
+        if(current==1&& Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.TOKEN_EXITS.getMsg()))&&position==0){
             //前端要获取首页并且，首页信息加载在缓存，直接再换存中获取
             projects = (List<Project>) redisTemplate.opsForList().rightPop(RedisEnum.TOKEN_EXITS.getMsg());
             return new Result(ResultEnum.SELECT_PAGE,projects);
         }
-        return projectService.getPageProject(current, max, position);
+        return projectService.getPageProject(current, 20, position);
     }
 
+    @PostMapping("/allProject")
+    public Result getAllProject(){
+        return projectService.getAllProject();
+    }
     /**
      * 模糊、条件查询项目信息
      * @param map 条件集合（可为json）

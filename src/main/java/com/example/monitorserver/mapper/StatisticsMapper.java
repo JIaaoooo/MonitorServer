@@ -23,10 +23,12 @@ public interface StatisticsMapper extends BaseMapper<Statistics> {
     @Update("CREATE TABLE IF NOT EXISTS ${table}(  \n" +
             "  `id` BIGINT NOT NULL AUTO_INCREMENT,\n" +
             "  `project_id` VARCHAR(100) NOT NULL,\n" +
+            "  `project_name` VARCHAR(100) NOT NULL,\n" +
             "  `package_name` VARCHAR(50),\n" +
             "  `method` VARCHAR(20),\n" +
-            "  `page_view` BIGINT NOT NULL,\n" +
+            "  `views` BIGINT NOT NULL,\n" +
             "  `visits` BIGINT NOT NULL,\n" +
+            "  `defeat` BIGINT ,\n" +
             "  PRIMARY KEY (`id`)\n" +
             ");")
     void createTable(@Param("table")String table);

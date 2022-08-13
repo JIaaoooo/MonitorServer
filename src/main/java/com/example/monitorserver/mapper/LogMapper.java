@@ -21,6 +21,7 @@ public interface LogMapper extends BaseMapper<Log> {
     @Update("CREATE TABLE IF NOT EXISTS ${table} (\n" +
             "`id` BIGINT NOT NULL AUTO_INCREMENT,\n" +
             "`ip` VARCHAR(100) NOT NULL ,\n" +
+            "`uri` VARCHAR(100) NOT NULL ,\n" +
             "`project_url` VARCHAR(100) NOT NULL,\n" +
             "`package_name` VARCHAR(100) NOT NULL,\n" +
             "`method` VARCHAR(100) NOT NULL,\n" +

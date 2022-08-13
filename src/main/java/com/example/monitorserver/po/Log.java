@@ -1,6 +1,7 @@
 package com.example.monitorserver.po;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -53,6 +54,7 @@ public class Log {
 
     /** 响应时间 **/
     private int responseTime;
+
 
 
 }

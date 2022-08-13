@@ -21,12 +21,31 @@ public class LogController {
     private LogService logService;
 
     /**
-     * 根据不同的条件返回值  功能繁多：查看该项目的
-     * @param condition   键值对  key：条件名   value ：值
+     * 获得项目运行的包名
+     * @param project_url 项目url
      * @return 返回获取的监控信息
      */
-    public Result getByCondition(HashMap<String, Object> condition){
-        return logService.select(condition);
+    public Result getProjectPackageName(String project_url){
+        return logService.getProjectPackage(null, null, project_url);
+    }
+
+    /**
+     * 获得项目运行的接口名
+     * @param project_url
+     * @return
+     */
+    public Result getProjectMethod(String project_url){
+        return logService.getProjectMethod(null,null,project_url);
+    }
+
+    /**
+     * 获取后台代码的日志下信息  （弄成分页）
+     * @param currentPage 当前页
+     * @param project_name 项目的name
+     * @return 返回日志信息
+     */
+    public Result getCurrentLog(int currentPage,String project_name){
+        return logService.getCurrentLog(currentPage, project_name);
     }
 
 }

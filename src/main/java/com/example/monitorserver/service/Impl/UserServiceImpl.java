@@ -58,7 +58,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         if(result!=null){
             if(result.getPosition()!=-1){
                 //登陆成功，判断redis中是否有index缓存
-                if(Boolean.FALSE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))){
+                if(!redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg())){
                     //缓存中无此数据，获取
                     Result pageProject = projectService.getPageProject(1, 20, 0);
                     List<Project> data = (List<Project>) pageProject.getData();

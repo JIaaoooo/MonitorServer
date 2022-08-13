@@ -15,8 +15,8 @@ public class ScheduleApplication {
     @Resource
     private LogService logService;
 
-    @Scheduled(fixedRate = 5000)
-    public void  Scheduled(){
+    @Scheduled(fixedRate = 5 * 60 * 1000)
+    public void Scheduled() {
         logService.schedule();
     }
 

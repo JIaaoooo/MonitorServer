@@ -32,7 +32,7 @@ public class TokenUtil {
 
         public String createToken(User user){
             log.debug(user.toString());
-            StringBuffer sb=new StringBuffer("token:");
+            StringBuffer sb=new StringBuffer();
             //对用户信息进行加密
             try {
                 sb.append(Md5Utils.getMD5(user.getPassword()));

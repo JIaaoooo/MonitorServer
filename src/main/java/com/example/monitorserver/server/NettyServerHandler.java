@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
     @Autowired
-    private LogService logService;
+    private Option option;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -33,8 +33,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         Log logs = JSON.parseObject(str, Log.class);
         log.info(logs.toString());
         //创建表
-        logService.createTable();
-        logService.insert(logs);
+        Option.MessageHandle(str);
     }
 
 
