@@ -1,5 +1,7 @@
 package com.example.monitorserver.service.Impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.map.MapUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -13,17 +15,17 @@ import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserService;
+import com.example.monitorserver.utils.MapBeanUtil;
 import com.example.monitorserver.utils.MybatisConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.beans.BeanMap;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -110,12 +112,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
     @Override
-    public Result  getPageUser(int currentPage, int maxMessage) {
-        MybatisConfig.setDynamicTableName("user");
-        Page<User> page = new Page(currentPage, maxMessage);
-        page = userMapper.selectPage(page,null);
-        List<User> records = page.getRecords();
-        return new Result(ResultEnum.SELECT_PAGE,records);
+    public Result  getAllUser() {
+        MybatisConfig.setDynamicTableName("t_user");
+        List<User> users =null;
+        // TODO 1.查看已登录，并赋予onLive标签
+        Set<String> keys = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg());
+        Iterator<String> iterator = keys.iterator();
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        while(iterator.hasNext()){
+            String key = iterator.next();
+            Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
+            User user = (User) MapBeanUtil.map2Object(entries, User.class);
+            user.setOnLive(1);
+            queryWrapper.ne("username",user.getUsername());
+            users.add(user);
+        }
+        // TODO 2.查询余下为登录用户，并存入users集合中
+        List<User> selectList = userMapper.selectList(queryWrapper);
+        for (int i = 0; i < selectList.size(); i++) {
+            users.add(selectList.get(i));
+        }
+        return new Result(ResultEnum.SELECT_SUCCESS, users);
     }
 
     @Override
@@ -140,15 +157,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
 
     @Override
-    public Result freezeUser(String userId) {
+    public Result freezeUser(String userId,LocalDateTime endTime) {
         MybatisConfig.setDynamicTableName("t_user");
-        //获取当前时间
-        Date date = new Date();
-        Timestamp t = new Timestamp(date.getTime());
         UpdateWrapper<User> wrapper = new UpdateWrapper<>();
         wrapper.eq("user_id",userId)
                 .set("position",-1)
-                .set("unseal_date",t);
+                .set("unseal_date",endTime);
         userMapper.update(null,wrapper);
         return new Result(ResultEnum.FREEZE_SUCCESS);
     }

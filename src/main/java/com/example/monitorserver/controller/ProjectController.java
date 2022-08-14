@@ -47,7 +47,7 @@ public class ProjectController {
         return projectService.getPageProject(current, 20, position);
     }
 
-    @PostMapping("/allProject")
+    @GetMapping("/allProject")
     public Result getAllProject(){
         return projectService.getAllProject();
     }

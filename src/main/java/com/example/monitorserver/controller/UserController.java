@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 
@@ -52,7 +53,7 @@ public class UserController {
      */
     @PostMapping("/login")
     @Secret
-    public Result login(@RequestBody @Validated User user){
+    public Result login(@RequestBody  User user){
         //TODO 1.登录认证
         Result result = userService.login(user);
         if(result.getCode()==200){
@@ -67,28 +68,6 @@ public class UserController {
         return result;
     }
 
-    /**
-     * 管理员口令登录
-     * @param  user 用户对象
-     * @return 返回执行操作结果
-     */
-    @PostMapping("/admin/login")
-    @Secret
-    public Result ManageLogin(@RequestBody @Validated User user){
-        user.setUsername("root");
-        //TODO 1.登录认证
-        Result result = userService.login(user);
-        if(result.getCode()==200){
-            //TODO 2.登陆成功，生成Token,并存入redis缓存
-            String token = tokenUtil.createToken(user);
-            //response.setHeader("Authorization",token);
-            response.addHeader("Authorization",token);
-            response.setHeader("Access-Control-Expose-Headers","Authorization");
-            log.debug(token);
-        }
-
-        return result;
-    }
 
     /**
      * 注册
@@ -140,27 +119,22 @@ public class UserController {
 
 
     /**
-     * 分页查看用户
-     * @param currentPage 当前页
-     * @param max 每页最多显示的数量
-     * @return 返回该页下的用户
+     * 管理员冻结用户
+     * @param userId  用户的Id
+     * @param endTime  解封时间
+     * @return 返回操作执行结果
      */
-    @GetMapping("/manage") //超级管理员权限   position为9
-    public Result getPageUser(int currentPage,int max){
-        return userService.getPageUser(currentPage,max);
+    @PostMapping("/freezeUser")
+    public Result freezeUser(String userId, LocalDateTime endTime){
+        return userService.freezeUser(userId,endTime);
     }
 
     /**
-     * 管理员冻结用户
-     * @param userId  用户的Id
-     * @return 返回操作执行结果
+     * 查看所有用户信息
+     * @return 返回用户信息
      */
-    public Result freezeUser(String userId){
-        return userService.freezeUser(userId);
-    }
-
-
-    public Result onLiveUser(){
-        return null;
+    @GetMapping("/getAllUser")
+    public Result getAllUser(){
+        return userService.getAllUser();
     }
 }

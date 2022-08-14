@@ -29,6 +29,7 @@ public interface StatisticsMapper extends BaseMapper<Statistics> {
             "  `views` BIGINT NOT NULL,\n" +
             "  `visits` BIGINT NOT NULL,\n" +
             "  `defeat` BIGINT ,\n" +
+            "  `type` VARCHAR(20) not null ,\n" +
             "  PRIMARY KEY (`id`)\n" +
             ");")
     void createTable(@Param("table")String table);

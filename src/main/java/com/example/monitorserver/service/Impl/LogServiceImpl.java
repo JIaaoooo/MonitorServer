@@ -125,7 +125,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         LocalDateTime endTimeL = LocalDateTime.parse(endTime,dtf);
         String startTime = df.format(date);
         LocalDateTime startTimeL = LocalDateTime.parse(startTime,dtf);
-        // TODO 3.存储访问量，访问人次信息
+        // TODO 3.存储访问量，
         saveVisit(startTimeL,endTimeL,table);
     }
 
@@ -231,6 +231,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
                         .setViews(packageVisits)
                         .setVisits(packageIP)
                         .setDefeat(exception)
+                        .setType("api")
                         .setProjectName(projectName);
                 MybatisConfig.setDynamicTableName(table);
                 statisticsService.insert(statistics);
@@ -265,6 +266,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
                         .setMethod(method)
                         .setViews(MethodVisits)
                         .setVisits(MethodIP)
+                        .setType("api")
                         .setProjectName(projectName);
                 MybatisConfig.setDynamicTableName(table);
                 statisticsService.insert(statistics);

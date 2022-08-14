@@ -60,4 +60,8 @@ public class User extends HttpSecretCode{
 
     /** 该用户是否有信息 **/
     private int message;
+
+    /**  用户是否在线  **/
+    @TableField(exist = false)
+    private int onLive;
 }

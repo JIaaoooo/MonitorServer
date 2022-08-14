@@ -1,5 +1,6 @@
 package com.example.monitorserver;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.monitorserver.mapper.StatisticsMapper;
@@ -12,16 +13,17 @@ import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.LogService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserService;
+import com.example.monitorserver.utils.MapBeanUtil;
 import com.example.monitorserver.utils.MybatisConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+
+import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
 
 @SpringBootTest
 class MonitorServerApplicationTests {
@@ -35,16 +37,25 @@ class MonitorServerApplicationTests {
     @Autowired
     private ProjectController projectController;
 
+
+
     @Test
     void userTest() {
 //        DynamicTableNameConfig.setDynamicTableName("user");
-        List<User> users = userMapper.selectList(null);
+        /*List<User> users = userMapper.selectList(null);
         Iterator<User> iterator = users.iterator();
         while(iterator.hasNext()){
             User user = iterator.next();
             String userId = user.getUserId();
             System.out.println(userId);
-        }
+        }*/
+        MybatisConfig.setDynamicTableName("t_user");
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username","jiaojiao");
+        User one = userMapper.selectOne(queryWrapper);
+        Map<String, Object> map = BeanUtil.beanToMap(one);
+        User user = (User) MapBeanUtil.map2Object(map, User.class);
+        System.out.println(user.getUsername());
     }
 
     @Test

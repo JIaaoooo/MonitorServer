@@ -2,6 +2,8 @@ package com.example.monitorserver.interceptor;
 
 import cn.hutool.json.JSONUtil;
 import com.example.monitorserver.constant.RedisEnum;
+import com.example.monitorserver.po.User;
+import com.example.monitorserver.utils.MapBeanUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -9,48 +11,37 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @program: monitor server
- * @description: 接口拦截器
+ * @description: 监控项目拦截器
  * @author: Jiao
  * @create: 2022-08-08 14：55
  */
-public class LoginInterceptor implements HandlerInterceptor {
-
+public class ManagerInterceptor implements HandlerInterceptor {
 
     private String token;
 
     private RedisTemplate<String,Object> redisTemplate;
 
     /**由于在MvcConfig中，这个类是通过new出来的，所以不能通过@AutoWired的方法注入**/
-    public LoginInterceptor(RedisTemplate<String, Object> redisTemplate) {
+    public ManagerInterceptor(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        //获取token
+
         token = request.getHeader("Authorization");
-        System.out.println(token);
-        if(token!=null){
-            Map<Object, Object> map = redisTemplate.opsForHash().entries(token);
-            if(map!=null){
-                //已登录,并且刷新token
-                redisTemplate.expire(token,RedisEnum.TOKEN_EXITS.getCode(), TimeUnit.HOURS);
-                return true;
-             }
+        //TODO 1.通过token获取user对象
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
+        User user = (User) MapBeanUtil.map2Object(entries, User.class);
+        int position = user.getPosition();
+        if (position==9){
+            return true;
         }
-        //错误给予返回提示信息
         HashMap<String,String> result = new HashMap<>();
-        result.put("cause","无权限访问，请登录");
+        result.put("cause","无权限访问");
         response.getWriter().write(JSONUtil.toJsonStr(result));
         return false;
-    }
-
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-            redisTemplate.delete(RedisEnum.LOGIN_TOKEN.getMsg() + token);
     }
 }

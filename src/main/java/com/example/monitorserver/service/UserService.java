@@ -5,6 +5,7 @@ import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -41,11 +42,9 @@ public interface UserService extends IService<User> {
 
     /**
      * 分页获取用户信息
-     * @param current 当前页
-     * @param max 每页最多展示条数
      * @return user List集合
      */
-    Result getPageUser(int current,int max);
+    Result getAllUser();
 
     /**
      * 通过条件查询（可以模糊查询）
@@ -67,5 +66,5 @@ public interface UserService extends IService<User> {
      * @param userId  用户Id
      * @return 返回操作结果
      */
-    Result freezeUser(String userId);
+    Result freezeUser(String userId, LocalDateTime endTime);
 }

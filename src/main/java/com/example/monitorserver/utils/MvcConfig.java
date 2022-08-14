@@ -1,6 +1,7 @@
 package com.example.monitorserver.utils;
 
 import com.example.monitorserver.interceptor.LoginInterceptor;
+import com.example.monitorserver.interceptor.ManagerInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,8 +28,13 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(new LoginInterceptor(redisTemplate))
                 .excludePathPatterns(
                         "/user/login",
-                        "/user/register",
-                        "/user/admin/login"
+                        "/user/register"
+                );
+        registry.addInterceptor(new ManagerInterceptor(redisTemplate))
+                .addPathPatterns(
+                        "/user/getAllUser",
+                        "/user/freezeUser",
+                        "/project/allProject"
                 );
     }
 }

@@ -27,6 +27,8 @@ public class Statistics {
 
     private String projectName;
 
+    private String type;
+
     /** 访问量 **/
     private Long views;
 
