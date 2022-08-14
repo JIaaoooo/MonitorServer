@@ -1,6 +1,7 @@
 package com.example.monitorserver.controller;
 
 import cn.hutool.core.util.IdUtil;
+import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Project;
@@ -36,6 +37,7 @@ public class ProjectController {
      * @return
      */
     @GetMapping("/pageProject/{current}/{position}")
+    @Secret
     public Result getPageProject(@PathVariable int current, @PathVariable int position){
         //判断缓存是否存在首页
         List<Project> projects = null;
@@ -44,10 +46,11 @@ public class ProjectController {
             projects = (List<Project>) redisTemplate.opsForList().rightPop(RedisEnum.TOKEN_EXITS.getMsg());
             return new Result(ResultEnum.SELECT_PAGE,projects);
         }
-        return projectService.getPageProject(current, 20, position);
+        return projectService.getPageProject(current, 10, position);
     }
 
     @GetMapping("/allProject")
+    @Secret
     public Result getAllProject(){
         return projectService.getAllProject();
     }

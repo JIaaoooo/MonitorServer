@@ -9,6 +9,7 @@ import com.example.monitorserver.po.HttpSecretCode;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.utils.AesUtil;
 import com.example.monitorserver.utils.RSAUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -33,6 +34,7 @@ import java.util.Map;
 
 @Aspect
 @Component
+@Slf4j
 public class SecretAop {
 
 
@@ -148,6 +150,7 @@ public class SecretAop {
             }
         }
 
+        log.debug(httpSecretCode.toString());
         System.out.println(httpSecretCode);
 
 

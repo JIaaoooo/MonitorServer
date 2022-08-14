@@ -60,7 +60,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     @Override
     public Result getAllProject() {
         MybatisConfig.setDynamicTableName("t_project");
-        projectMapper.selectList(null);
+        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("status",9);
+        projectMapper.selectList(queryWrapper);
         return new Result(ResultEnum.REQUEST_SUCCESS,projectMapper.selectList(null));
     }
 

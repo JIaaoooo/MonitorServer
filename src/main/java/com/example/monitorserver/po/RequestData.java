@@ -1,5 +1,9 @@
 package com.example.monitorserver.po;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.Date;
 
 /**
@@ -8,6 +12,9 @@ import java.util.Date;
  * @author: Jiao
  * @create: 2022-08-10 19：10
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class RequestData {
 
     /** 项目名称 **/
