@@ -1,5 +1,6 @@
 package com.example.monitorserver.po;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,10 @@ public class Application {
 
     /** 操作项目的ID **/
     private String  projectId;
+
+    /**项目名 **/
+    @TableField(exist = false)
+    private String projectName;
 
     /** 操作类型  0-发布项目(管理员)，1-请求监控(发布者)，2-邀请发布者(普通用户)，3-删除项目(所有发布者) **/
     private int type;

@@ -49,7 +49,6 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     @Override
     public Result releaseApp(Application application) {
         MybatisConfig.setDynamicTableName("t_application");
-        MybatisConfig.setDynamicTableName("application");
         // TODO 1.将申请信息存入
         applicationMapper.insert(application);
         // TODO 2.信息推送 当类型为请求监控、删除项目时都需要向项目发布者发送消息通知也做同意

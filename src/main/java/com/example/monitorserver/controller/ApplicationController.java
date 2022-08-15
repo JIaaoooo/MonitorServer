@@ -1,17 +1,26 @@
 package com.example.monitorserver.controller;
 
 import cn.hutool.core.util.IdUtil;
+import com.example.monitorserver.annotation.Secret;
+import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.po.Application;
+import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
+import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.ApplicationService;
+import com.example.monitorserver.service.ProjectService;
+import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @program: monitor server
@@ -27,17 +36,49 @@ import javax.annotation.Resource;
 public class ApplicationController {
 
 
+    @Autowired
+    private HttpServletRequest request;
     @Resource
     private ApplicationService applicationService;
+
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
+
+    @Autowired
+    private ProjectService projectService;
 
     /**
      * 发布申请
      * @param application 申请信息
      * @return 申请处理结果
      */
-    public Result  releaseApp(Application application){
+    @PostMapping("/releaseApp")
+    @Secret
+    public Result  releaseApp(@RequestBody Application application){
         String ID = IdUtil.simpleUUID();
         application.setApplicationId(ID);
+        //TODO 1.获取当前申请用户的id
+        String token = request.getHeader("Authorization");
+        String userId = null;
+        //查询redis
+        Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
+        while (iterator.hasNext()){
+            String key = iterator.next();
+            if (key.equals(token)){
+                Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
+                User user = (User) MapBeanUtil.map2Object(entries, User.class);
+                userId = user.getUserId();
+                break;
+            }
+        }
+        // TODO 2.获取该项目名下的project_id;
+        Map<String,Object> condition = new HashMap<>();
+        condition.put("project_name",application.getProjectName());
+        Result result = projectService.getByCondition(condition);
+        Project project = (Project) result.getData();
+        //TODO 3.将用户id，项目id存入application
+        application.setApplicantId(userId);
+        application.setProjectId(project.getProjectId());
         return applicationService.releaseApp(application);
     }
 
