@@ -1,6 +1,7 @@
 package com.example.monitorserver.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.PerformanceError;
 import com.example.monitorserver.po.Result;
 import org.springframework.stereotype.Service;
@@ -17,4 +18,10 @@ public interface PerformanceErrorService extends IService<PerformanceError> {
 
     Result insert(PerformanceError performanceError);
 
+    /**
+     * 前端给予项目名、时间，获取直到该时刻的数据
+     * @param data 封装类
+     * @return 返回直到
+     */
+    /*Result select(Data data);*/
 }

@@ -58,9 +58,9 @@ public class UserController {
     public Result login(@RequestBody  User user){
         //TODO 1.登录认证
         Result result = userService.login(user);
-        User resultData = (User) result.getData();
-        user.setPosition(resultData.getPosition());
         if(result.getCode()==200){
+            User resultData = (User) result.getData();
+            user.setPosition(resultData.getPosition());
             //TODO 2.登陆成功，生成Token,并存入redis缓存
             String token = tokenUtil.createToken(user);
             //response.setHeader("Authorization",token);
