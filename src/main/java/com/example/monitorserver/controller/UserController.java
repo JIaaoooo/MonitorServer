@@ -3,11 +3,13 @@ package com.example.monitorserver.controller;
 
 import cn.hutool.core.util.IdUtil;
 import com.example.monitorserver.annotation.Secret;
+import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.UserService;
+import com.example.monitorserver.utils.MapBeanUtil;
 import com.example.monitorserver.utils.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -134,12 +138,35 @@ public class UserController {
     @PostMapping("/freezeUser")
     @Secret
     public Result freezeUser(@RequestBody Data data){
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        log.debug(data.getDate());
-        LocalDateTime dateTime = LocalDateTime.parse(data.getDate()+" 00:00:00", dtf);
+        LocalDateTime dateTime = data.getDate().toInstant().atOffset(ZoneOffset.of("+8")).toLocalDateTime();
         return userService.freezeUser(data.getUserName(),dateTime);
     }
 
+
+    /**
+     * 管理员强制用户登出（通过用户名）
+     * @param data 前端请求数据封装
+     * @return 执行结果
+     */
+    @GetMapping("/forceLogout")
+    @Secret
+    public Result forceLogout(@RequestBody Data data){
+        String userName = data.getUserName();
+        //TODO 1.查询redis中已存在的key对应的user
+        Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
+        while (iterator.hasNext()){
+            String key = iterator.next();
+            Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
+            User user = (User) MapBeanUtil.map2Object(entries, User.class);
+            if (userName.equals(user.getUsername())){
+                // TODO 2.删除redis缓存中的用户
+                redisTemplate.delete(key);
+                return new Result(ResultEnum.REQUEST_SUCCESS);
+            }
+        }
+        //删除失败，未找到该用户
+        return new Result(ResultEnum.REQUEST_FALSE);
+    }
     /**
      * 查看所有用户信息
      * @return 返回用户信息

@@ -58,8 +58,4 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         return false;
     }
 
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-            redisTemplate.delete(RedisEnum.LOGIN_TOKEN.getMsg() + token);
-    }
 }

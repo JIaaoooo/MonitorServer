@@ -1,5 +1,6 @@
 package com.example.monitorserver.service.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.mapper.ResourceErrorMapper;
@@ -50,7 +51,16 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper,Re
                 break;
             case 2:
                 //获取前一天的
+                dateTime = now.minusDays(1);
+                break;
+            case 3:
+                //获取前一个月的时间
+                dateTime = now.minusMonths(1);
+            default: break;
         }
-        return null;
+        QueryWrapper<ResourceError> queryWrapper = new QueryWrapper<>();
+        queryWrapper.le("date",dateTime);
+        Long count = resourceErrorMapper.selectCount(queryWrapper);
+        return new Result(ResultEnum.REQUEST_SUCCESS,count);
     }
 }

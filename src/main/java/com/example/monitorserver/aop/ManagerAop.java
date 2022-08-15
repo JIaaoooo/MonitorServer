@@ -1,4 +1,3 @@
-/*
 package com.example.monitorserver.aop;
 
 import com.example.monitorserver.constant.RedisEnum;
@@ -30,7 +29,9 @@ public class ManagerAop {
     private RedisTemplate<String,Object> redisTemplate;
 
     @Around("execution(* com.example.monitorserver.controller.UserController.getAllUser()) ||"+
-            "execution(* com.example.monitorserver.controller.ProjectController.getAllProject())")
+            "execution(* com.example.monitorserver.controller.ProjectController.getAllProject()) ||"+
+            "execution(* com.example.monitorserver.controller.UserController.freezeUser()) ||"+
+            "execution(* com.example.monitorserver.controller.UserController.forceLogout())")
     public Result jurisdiction(ProceedingJoinPoint pjp) throws Throwable {
         log.debug("管理员aop检测");
         String token = request.getHeader("Authorization");
@@ -50,4 +51,3 @@ public class ManagerAop {
         return new Result(ResultEnum.REQUEST_FALSE);
     }
 }
-*/

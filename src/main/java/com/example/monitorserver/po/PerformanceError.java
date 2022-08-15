@@ -1,5 +1,6 @@
 package com.example.monitorserver.po;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -57,5 +58,8 @@ public class PerformanceError {
     /** 卡顿时间 **/
     private Long longTask ;
 
+    /** 平均耗时 **/
+    @TableField(exist = false)
+    private Long ConsumeTime;
 
 }

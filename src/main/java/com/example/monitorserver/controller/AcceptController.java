@@ -1,6 +1,12 @@
 package com.example.monitorserver.controller;
 
 
+import com.example.monitorserver.constant.ResultEnum;
+import com.example.monitorserver.po.*;
+import com.example.monitorserver.service.BlankErrorService;
+import com.example.monitorserver.service.PerformanceErrorService;
+import com.example.monitorserver.service.ResourceErrorService;
+import com.example.monitorserver.service.apiErrorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,8 +33,41 @@ public class AcceptController {
     @Autowired
     HttpServletResponse response;
 
+    @Autowired
+    private apiErrorService apiErrorService;
+
+    @Autowired
+    private BlankErrorService blankErrorService;
+
+    @Autowired
+    private ResourceErrorService resourceErrorService;
+
+    @Autowired
+    private PerformanceErrorService performanceErrorService;
+
+    /**
+     * 接受前端SDK信息分类处理
+     * @param data 接收信息封装
+     */
     @PostMapping
-    public void getSDK(@RequestBody String Date){
-        System.out.println(Date);
+    public Result getSDK(@RequestBody SDK data){
+        String type = data.getType();
+        switch (type){
+            case "JsError":
+                apiErrorService.insert((apiError) data.getData());
+                break;
+            case "BlankError":
+                blankErrorService.insert((BlankError) data.getData());
+                break;
+            case "ResourceError":
+                resourceErrorService.insert((ResourceError) data.getData());
+                break;
+            case "PerformanceError":
+                performanceErrorService.insert((PerformanceError) data.getData());
+                break;
+            default:
+                return new Result(ResultEnum.REQUEST_FALSE);
+        }
+        return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 }

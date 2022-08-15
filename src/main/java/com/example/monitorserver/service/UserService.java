@@ -67,4 +67,9 @@ public interface UserService extends IService<User> {
      * @return 返回操作结果
      */
     Result freezeUser(String userId, LocalDateTime endTime);
+
+    /**
+     * 自动更新用户信息（检测是否解冻，更新）
+     */
+    void schedule();
 }

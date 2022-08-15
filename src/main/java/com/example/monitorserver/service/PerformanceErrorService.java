@@ -21,7 +21,7 @@ public interface PerformanceErrorService extends IService<PerformanceError> {
     /**
      * 前端给予项目名、时间，获取直到该时刻的数据
      * @param data 封装类
-     * @return 返回直到
+     * @return 返回截至这段时间的平均值
      */
-    /*Result select(Data data);*/
+    Result select(Data data);
 }

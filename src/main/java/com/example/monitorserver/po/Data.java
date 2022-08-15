@@ -24,9 +24,15 @@ public class Data {
 
     private String url;
 
-    private String date;
+
+
+    /** 时间戳 日期格式 **/
+    private Timestamp date;
 
     private String type;
+
+    /** 查看性能监控的类型 **/
+    private String responseType;
 
     private int option;
 

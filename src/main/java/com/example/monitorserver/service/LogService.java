@@ -55,7 +55,6 @@ public interface LogService extends IService<Log> {
      */
     Result getProjectMethod(LocalDateTime startTime,LocalDateTime endTime,String project_id);
 
-    public void HourAutoSum();
 
     public Result getCurrentLog(int currentPage,String project_url);
 
