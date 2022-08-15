@@ -11,6 +11,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,6 +43,16 @@ public class TokenUtil {
                 //将token只存入redis缓存,key的格式为： login:token:xxxxxxxx  value类型为map(存储的是user对象)
                 redisTemplate.opsForHash().putAll(RedisEnum.LOGIN_TOKEN.getMsg()+sb, BeanUtil.beanToMap(user));
                 redisTemplate.expire(RedisEnum.LOGIN_TOKEN.getMsg()+sb,RedisEnum.TOKEN_EXITS.getCode(),TimeUnit.HOURS);
+
+                //测试代码
+                Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg()+sb).iterator();
+                if (!iterator.hasNext()){
+                    log.debug("没东西");
+                }
+                while (iterator.hasNext()){
+                    log.debug(iterator.next());
+                }
+
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }

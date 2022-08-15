@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -60,9 +61,6 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     @Override
     public Result getAllProject() {
         MybatisConfig.setDynamicTableName("t_project");
-        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("status",9);
-        projectMapper.selectList(queryWrapper);
         return new Result(ResultEnum.REQUEST_SUCCESS,projectMapper.selectList(null));
     }
 
@@ -80,9 +78,12 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     public Result getByCondition(Map<String, Object> map) {
         MybatisConfig.setDynamicTableName("t_project");
         QueryWrapper<Project> wrapper = new QueryWrapper<>();
-        String key = map.keySet().iterator().next();
-        log.debug(key);
-        wrapper.like(key,map.get(key));
+        Iterator<String> iterator = map.keySet().iterator();
+        while(iterator.hasNext()){
+            String key = iterator.next();
+            Object value = map.get(key);
+            wrapper.like(key,value);
+        }
         List<Project> projects = projectMapper.selectList(wrapper);
         return new Result(ResultEnum.SELECT_LIKE,projects);
     }

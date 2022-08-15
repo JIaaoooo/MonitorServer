@@ -2,8 +2,12 @@ package com.example.monitorserver.interceptor;
 
 import cn.hutool.json.JSONUtil;
 import com.example.monitorserver.constant.RedisEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +21,8 @@ import java.util.concurrent.TimeUnit;
  * @author: Jiao
  * @create: 2022-08-08 14：55
  */
-public class LoginInterceptor implements HandlerInterceptor {
+@Slf4j
+public class LoginInterceptor extends HandlerInterceptorAdapter {
 
 
     private String token;
@@ -32,18 +37,22 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //获取token
+        String method = request.getMethod();
+        if ("OPTIONS".equals(method)) {
+            return true;
+        }
+        log.debug(method);
         token = request.getHeader("Authorization");
-        System.out.println(token);
+
+        log.debug(token);
         if(token!=null){
-            Map<Object, Object> map = redisTemplate.opsForHash().entries(token);
-            if(map!=null){
                 //已登录,并且刷新token
-                redisTemplate.expire(token,RedisEnum.TOKEN_EXITS.getCode(), TimeUnit.HOURS);
+                redisTemplate.expire(RedisEnum.TOKEN_EXITS.getMsg()+token,RedisEnum.TOKEN_EXITS.getCode(), TimeUnit.HOURS);
                 return true;
-             }
         }
         //错误给予返回提示信息
         HashMap<String,String> result = new HashMap<>();
+        response.setHeader("Content-type", "text/html;charset=UTF-8");
         result.put("cause","无权限访问，请登录");
         response.getWriter().write(JSONUtil.toJsonStr(result));
         return false;

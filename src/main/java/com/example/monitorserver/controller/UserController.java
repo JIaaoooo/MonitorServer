@@ -4,6 +4,7 @@ package com.example.monitorserver.controller;
 import cn.hutool.core.util.IdUtil;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.ResultEnum;
+import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.UserService;
@@ -19,6 +20,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 
@@ -56,6 +58,8 @@ public class UserController {
     public Result login(@RequestBody  User user){
         //TODO 1.登录认证
         Result result = userService.login(user);
+        User resultData = (User) result.getData();
+        user.setPosition(resultData.getPosition());
         if(result.getCode()==200){
             //TODO 2.登陆成功，生成Token,并存入redis缓存
             String token = tokenUtil.createToken(user);
@@ -75,6 +79,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/register")
+    @Secret
     public Result register(@RequestBody @Validated User user){
         //生成唯一id
         String ID = IdUtil.simpleUUID();
@@ -90,6 +95,7 @@ public class UserController {
      * @return 返回操作结果
      */
     @GetMapping("/logout")
+    @Secret
     public Result logout(@RequestBody User user){
         String token = request.getHeader("Authorization");
         //将redis缓存中的token删除
@@ -103,6 +109,7 @@ public class UserController {
      * @return 返回更新结果
      */
     @PutMapping
+    @Secret
     public Result update(@RequestBody User user){
         return userService.update(user);
     }
@@ -112,7 +119,8 @@ public class UserController {
      * @param map 传入键值对（json）
      * @return 返回该用户（可能为集合）
      */
-    @GetMapping("/getUserByCondition")  //用户邀请其他用户
+    @GetMapping("/getUserByCondition")
+    @Secret//用户邀请其他用户
     public Result getUserByCondition(Map<String,Object> map){
         return userService.getByCondition(map);
     }
@@ -120,13 +128,16 @@ public class UserController {
 
     /**
      * 管理员冻结用户
-     * @param userId  用户的Id
-     * @param endTime  解封时间
+     * @param data  接受信息的封装类
      * @return 返回操作执行结果
      */
     @PostMapping("/freezeUser")
-    public Result freezeUser(String userId, LocalDateTime endTime){
-        return userService.freezeUser(userId,endTime);
+    @Secret
+    public Result freezeUser(@RequestBody Data data){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        log.debug(data.getDate());
+        LocalDateTime dateTime = LocalDateTime.parse(data.getDate()+" 00:00:00", dtf);
+        return userService.freezeUser(data.getUserName(),dateTime);
     }
 
     /**
@@ -134,7 +145,11 @@ public class UserController {
      * @return 返回用户信息
      */
     @GetMapping("/getAllUser")
+    @Secret
     public Result getAllUser(){
+        log.debug("获取所有用户");
         return userService.getAllUser();
     }
+
+
 }

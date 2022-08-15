@@ -114,20 +114,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     @Override
     public Result  getAllUser() {
         MybatisConfig.setDynamicTableName("t_user");
-        List<User> users =null;
+        List<User> users = new ArrayList<>();
         // TODO 1.查看已登录，并赋予onLive标签
-        Set<String> keys = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg());
+        Set<String> keys = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*"));
         Iterator<String> iterator = keys.iterator();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+
         while(iterator.hasNext()){
             String key = iterator.next();
+            //从缓存中获取
             Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
             User user = (User) MapBeanUtil.map2Object(entries, User.class);
-            user.setOnLive(1);
             queryWrapper.ne("username",user.getUsername());
-            users.add(user);
+            if (user.getUsername()!="Admin"){
+                user.setOnLive(1);
+                users.add(user);
+            }
         }
         // TODO 2.查询余下为登录用户，并存入users集合中
+        queryWrapper.ne("username","Admin");
         List<User> selectList = userMapper.selectList(queryWrapper);
         for (int i = 0; i < selectList.size(); i++) {
             users.add(selectList.get(i));

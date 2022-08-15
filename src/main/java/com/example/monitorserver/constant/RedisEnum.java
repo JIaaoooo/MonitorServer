@@ -10,7 +10,7 @@ public enum RedisEnum {
     //登录成功redis缓存key的前缀名,登录成功
     LOGIN_TOKEN(200,"login:token:"),
 
-    //登录成功TOKEN缓存时间，超过缓存时间默认退出登录，登录闲置时间设置为1小时
+    //登录成功TOKEN缓存时间，超过缓存时间默认退出登录，登录闲置时间设置为1分钟
     TOKEN_EXITS(1,"过期时间"),
 
     INDEX_KEY(2,"index"),

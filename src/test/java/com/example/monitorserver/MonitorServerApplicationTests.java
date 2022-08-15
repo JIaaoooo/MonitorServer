@@ -3,6 +3,7 @@ package com.example.monitorserver;
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.mapper.StatisticsMapper;
 import com.example.monitorserver.mapper.UserMapper;
 import com.example.monitorserver.controller.ProjectController;
@@ -19,8 +20,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
@@ -49,13 +53,6 @@ class MonitorServerApplicationTests {
             String userId = user.getUserId();
             System.out.println(userId);
         }*/
-        MybatisConfig.setDynamicTableName("t_user");
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("username","jiaojiao");
-        User one = userMapper.selectOne(queryWrapper);
-        Map<String, Object> map = BeanUtil.beanToMap(one);
-        User user = (User) MapBeanUtil.map2Object(map, User.class);
-        System.out.println(user.getUsername());
     }
 
     @Test
@@ -80,7 +77,6 @@ class MonitorServerApplicationTests {
         Log logs = JSON.parseObject(str, Log.class);
         logService.insert(logs);
 
-       logService.HourAutoSum();
     }
 
     @Test
@@ -112,8 +108,43 @@ class MonitorServerApplicationTests {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
     @Test
     void ManageTest(){
+        HashMap<String,Object> map = new HashMap<>();
+        map.put("1","1");
+        redisTemplate.opsForHash().putAll("王健豪",map);
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries("王健豪");
+        redisTemplate.opsForHash().putAll("王健豪",map);
+        Iterator<String> iterator = redisTemplate.keys("王".concat("*")).iterator();
+        while (iterator.hasNext()){
+            System.out.println("redis中缓存的key"+iterator.next());
+        }
+        redisTemplate.opsForHash().putAll("王健豪",map);
+        Iterator<String> iterator2 = redisTemplate.keys("王".concat("*")).iterator();
+        while (iterator2.hasNext()){
+            System.out.println("redis中缓存的key"+iterator2.next());
+        }
+    }
 
+    @Test
+    void DateTest(){
+        String data = "2002-12-31 00:00:00";
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.parse(data, dtf);
+        System.out.println(dateTime);
+        /*DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//2.要转换的对象
+        LocalDateTime time = LocalDateTime.now();
+
+//3.发动功能
+        String localTime = df.format(time);
+        System.out.println("LocalDateTime转成String类型的时间："+localTime);
+
+//3.LocalDate发动，将字符串转换成  df格式的LocalDateTime对象，的功能
+        LocalDateTime LocalTime = LocalDateTime.parse(localTime,df);
+        System.out.println("String类型的时间转成LocalDateTime："+LocalTime);*/
     }
 }

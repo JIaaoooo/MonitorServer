@@ -7,10 +7,12 @@ import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ProjectService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +24,12 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping(value = "/project",produces = "application/json;charset=UTF-8")
+@CrossOrigin("http://localhost:3000")
+@Slf4j
 public class ProjectController {
 
+    @Autowired
+    private HttpServletRequest request;
     @Autowired
     private ProjectService projectService;
 
@@ -52,13 +58,18 @@ public class ProjectController {
     @GetMapping("/allProject")
     @Secret
     public Result getAllProject(){
+        log.debug("获取所有项目");
+
         return projectService.getAllProject();
     }
+
+
     /**
      * 模糊、条件查询项目信息
      * @param map 条件集合（可为json）
      * @return 返回项目信息
      */
+    @PostMapping("/getByCondition")
     public Result getByCondition(Map<String,Object> map){
         return projectService.getByCondition(map);
     }
@@ -68,6 +79,8 @@ public class ProjectController {
      * @param project  传入项目信息
      * @return 返回操作结果
      */
+    @PostMapping("/saveProject")
+    @Secret
     public Result saveProject(Project project){
         //生成唯一id
         String ID = IdUtil.simpleUUID();
@@ -80,6 +93,7 @@ public class ProjectController {
      * @param project 根据项目URL，更新
      * @return 返回操作结果
      */
+    @PostMapping("/update")
     public Result update(Project project){
         return projectService.updateProject(project);
     }

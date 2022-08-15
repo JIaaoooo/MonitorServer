@@ -1,6 +1,9 @@
 package com.example.monitorserver.po;
 
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -10,7 +13,10 @@ import java.time.LocalDateTime;
  * @author: Jiao
  * @create: 2022-08-14 9：39
  */
-public class Performance {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class PerformanceError {
 
     @TableId
     private Long id;

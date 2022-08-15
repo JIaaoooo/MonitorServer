@@ -13,6 +13,7 @@ import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
 import com.example.monitorserver.utils.MapBeanUtil;
 import com.example.monitorserver.utils.MybatisConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -27,6 +28,7 @@ import java.util.Map;
 
 @Component
 @Aspect
+@Slf4j
 public class MonitorAop {
 
     @Autowired
@@ -49,11 +51,12 @@ public class MonitorAop {
      * @param pjp 程序运行追踪
      * @return  是否允许通过
      */
-    @Around("execution(* com.example.monitorserver.controller.ProjectController.*(..)) ||"+
+    @Around(
             "execution(* com.example.monitorserver.controller.StatisticsController.*(..)) ||" +
             "execution(* com.example.monitorserver.controller.LogController.*(..)) ||"+
             "execution(* com.example.monitorserver.controller.AcceptController.*(..))")
     public Result jurisdiction(ProceedingJoinPoint pjp) throws Throwable {
+        log.debug("监控权限AOP");
         String token = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
         User user = (User) MapBeanUtil.map2Object(entries, User.class);

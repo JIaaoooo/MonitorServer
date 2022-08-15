@@ -8,12 +8,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.mapper.LogMapper;
 import com.example.monitorserver.po.Log;
-import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.Statistics;
+import com.example.monitorserver.po.apiError;
 import com.example.monitorserver.service.LogService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.StatisticsService;
+import com.example.monitorserver.service.apiErrorService;
 import com.example.monitorserver.utils.MybatisConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -52,6 +53,9 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private apiErrorService apiErrorService;
 
     @Override
     public Result createTable() {
@@ -235,6 +239,20 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
                         .setProjectName(projectName);
                 MybatisConfig.setDynamicTableName(table);
                 statisticsService.insert(statistics);
+
+                // TODO 4.将得到的api信息汇总到apiError表中
+                //TODO 4.1获取汇总表中的数据
+                Result select = apiErrorService.select(statistics.getProjectName());
+                apiError api = (apiError) select.getData();
+                Long visits = api.getVisits();
+                Long defeatCount = api.getDefeatCount();
+                //更新数据
+                api.setVisits(visits+packageVisits);
+                api.setDefeatCount(defeatCount+exception);
+                //计算报错率
+                api.setDefeat(1.0*(visits+packageVisits)/(defeatCount+exception));
+                // TODO 4.2更新数据
+                apiErrorService.update(api);
             }
 
 
