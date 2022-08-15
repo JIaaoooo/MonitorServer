@@ -5,6 +5,9 @@ import cn.hutool.core.lang.hash.Hash;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +18,9 @@ import java.util.Map;
  * @author: Jiao
  * @create: 2022-08-09 16：07
  */
+@RestController
+@RequestMapping("/log")
+@CrossOrigin("http://localhost:3000")
 public class LogController {
 
     @Autowired

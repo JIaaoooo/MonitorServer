@@ -8,10 +8,7 @@ import com.example.monitorserver.service.PerformanceErrorService;
 import com.example.monitorserver.service.ResourceErrorService;
 import com.example.monitorserver.service.apiErrorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @RestController
 @RequestMapping("/SDK")
+@CrossOrigin("http://localhost:3000")
 public class AcceptController {
 
     @Autowired

@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -170,6 +171,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
                 .set("unseal_date",endTime);
         userMapper.update(null,wrapper);
         return new Result(ResultEnum.FREEZE_SUCCESS);
+    }
+
+    @Override
+    public void scheduleUpdate() {
+        //TODO 1.查询用户表中是否存在被冻结用户
+        MybatisConfig.setDynamicTableName("t_user");
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("position",-1);
+        List<User> users = userMapper.selectList(queryWrapper);
+        if (users.size()==0){
+            return;
+        }
+        // TODO 2.对其冻结日期判断，若已过则更新
+        Iterator<User> iterator = users.iterator();
+        while (iterator.hasNext()){
+            User user = iterator.next();
+            LocalDateTime unsealDate = user.getUnsealDate();
+            LocalDateTime dateTime = LocalDateTime.now();
+            long now = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            long unseal = unsealDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            // TODO 3.当前时间小于解封时间
+            if (now<unseal){
+                UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+                updateWrapper.eq("username",user.getUsername());
+                user.setUnsealDate(null);
+                user.setPosition(0);
+                MybatisConfig.setDynamicTableName("t_user");
+                userMapper.update(user,updateWrapper);
+            }
+        }
     }
 
 

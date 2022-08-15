@@ -1,10 +1,7 @@
 package com.example.monitorserver.controller;
 
 import com.example.monitorserver.po.Result;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @program: monitor server
@@ -14,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/statistics")
+@CrossOrigin("http://localhost:3000")
 public class StatisticsController {
 
 

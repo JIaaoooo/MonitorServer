@@ -71,5 +71,5 @@ public interface UserService extends IService<User> {
     /**
      * 自动更新用户信息（检测是否解冻，更新）
      */
-    void schedule();
+    void scheduleUpdate();
 }

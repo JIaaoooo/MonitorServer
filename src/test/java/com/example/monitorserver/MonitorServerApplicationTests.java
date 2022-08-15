@@ -24,6 +24,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -131,20 +132,10 @@ class MonitorServerApplicationTests {
 
     @Test
     void DateTest(){
-        String data = "2002-12-31 00:00:00";
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime dateTime = LocalDateTime.parse(data, dtf);
-        System.out.println(dateTime);
-        /*DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//2.要转换的对象
-        LocalDateTime time = LocalDateTime.now();
-
-//3.发动功能
-        String localTime = df.format(time);
-        System.out.println("LocalDateTime转成String类型的时间："+localTime);
-
-//3.LocalDate发动，将字符串转换成  df格式的LocalDateTime对象，的功能
-        LocalDateTime LocalTime = LocalDateTime.parse(localTime,df);
-        System.out.println("String类型的时间转成LocalDateTime："+LocalTime);*/
+        LocalDateTime dateTime = LocalDateTime.now();
+        long now = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        LocalDateTime time = dateTime.minusDays(1);
+        long last = time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        System.out.println(now>last);
     }
 }
