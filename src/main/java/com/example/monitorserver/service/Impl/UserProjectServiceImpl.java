@@ -50,4 +50,14 @@ public class UserProjectServiceImpl extends ServiceImpl<UserProjectMapper, UserP
         List<UserProject> list = userProjectMapper.selectList(wrapper);
         return new Result(list);
     }
+
+    @Override
+    public Result delete(UserProject userProject) {
+        MybatisConfig.setDynamicTableName("t_project_user");
+        QueryWrapper<UserProject> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("project_id",userProject.getProjectId())
+                .eq("user_id",userProject.getUserId());
+        userProjectMapper.delete(queryWrapper);
+        return new Result(ResultEnum.REQUEST_SUCCESS);
+    }
 }

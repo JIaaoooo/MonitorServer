@@ -29,4 +29,6 @@ public interface UserProjectService extends IService<UserProject> {
      * @return
      */
     Result select(Map<String,Object> map);
+
+    Result delete(UserProject userProject);
 }

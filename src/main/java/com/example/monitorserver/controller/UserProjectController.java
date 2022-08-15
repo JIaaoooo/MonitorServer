@@ -67,5 +67,32 @@ public class UserProjectController {
         return new Result(ResultEnum.REQUEST_SUCCESS,userNameLists);
     }
 
-
+    /**
+     * 删除用户的监控权限
+     * @param data 封装项目名，用户名
+     * @return 返回执行结果
+     */
+    @PostMapping("/updatePermission")
+    @Secret
+    public Result updatePermission(@RequestBody Data data){
+        // TODO 前端给予项目名称 ， 用户名称
+        // TODO 1.获取项目名对应的项目ID
+        Map<String,Object> condition1 = new HashMap<>();
+        condition1.put("project_name",data.getProjectName());
+        Result result = projectService.getByCondition(condition1);
+        Project project = (Project) result.getData();
+        String projectId = project.getProjectId();
+        // TODO 2.获取用户名对应的用户ID
+        Map<String,Object> condition2 = new HashMap<>();
+        condition2.put("username",data.getUserName());
+        Result byCondition = userService.getByCondition(condition2);
+        User user = (User) byCondition.getData();
+        String userID = user.getUserId();
+        // TODO 3.信息封装
+        UserProject userProject = new UserProject();
+        userProject.setProjectId(projectId);
+        userProject.setUserId(userID);
+        // TODO 4.删除
+        return userProjectService.delete(userProject);
+    }
 }
