@@ -132,17 +132,22 @@ class MonitorServerApplicationTests {
     }
 
     @Test
-    void DateTest(){
+    void DateTest() {
         /*LocalDateTime dateTime = LocalDateTime.now();
         long now = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         LocalDateTime time = dateTime.minusDays(1);
         long last = time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         System.out.println(now>last);*/
 
-        Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
+        /*Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
         while (iterator.hasNext()){
             redisTemplate.delete(iterator.next());
             }
-        }
+        }*/
+
+        String number = "1";
+        int status = Integer.parseInt(number);
+        System.out.println(status);
+    }
 
 }

@@ -19,6 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -112,8 +113,17 @@ public class ProjectController {
      * @return 返回操作结果
      */
     @PostMapping("/update")
-    public Result update(Project project){
-        return projectService.updateProject(project);
+    @Secret
+    public Result ManageUpdate(@RequestBody Project project){
+        log.debug(project.toString());
+        Map<String,Object> condition = new HashMap<>();
+        condition.put("project_id",project.getProjectId());
+        Result byCondition = projectService.getByCondition(condition);
+        List<Project> projects = (List<Project>) byCondition.getData();
+        Project next = projects.iterator().next();
+        int status = Integer.parseInt(project.getPass());
+        next.setStatus(status);
+        return projectService.updateProject(next);
     }
 
 

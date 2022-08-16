@@ -16,6 +16,7 @@ import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @program: monitor server
@@ -57,8 +58,12 @@ public class Project extends HttpSecretCode{
     private LocalDateTime registerDate;
 
 
-    /** 审核状态 0为审核 1正常 -1审核不通过，不给予展示**/
+    /** 审核状态 0为审核 1正常 2审核不通过，-1 项目冻结 不给予展示**/
     private int status;
+
+    /** 获取前端status类型  **/
+    @TableField(exist = false)
+    private String pass;
 
     /** 解封日期 **/
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

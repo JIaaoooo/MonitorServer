@@ -135,7 +135,6 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Project::getProjectUrl,project.getProjectUrl());
         //更新项目信息后要重新获得管理员的批准
-        project.setStatus(0);
         //删除redis首页缓存
         if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))){
             redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
