@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +19,9 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResourceError {
+@ToString(callSuper = true)
+@Accessors(chain = true)
+public class ResourceError extends HttpSecretCode{
     @TableId
     private Long id;
 

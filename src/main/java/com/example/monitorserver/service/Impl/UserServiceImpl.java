@@ -120,40 +120,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         Set<String> keys = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*"));
         Iterator<String> iterator = keys.iterator();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-
-        while(iterator.hasNext()){
-            String key = iterator.next();
-            //从缓存中获取
-            Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
-            User user = (User) MapBeanUtil.map2Object(entries, User.class);
-            log.debug(user.getUsername());
-            if (user.getUsername()!="Admin"){
-
-                //遍历users判断
-                Iterator<User> userIterator = users.iterator();
-                //排除重复用户
-                int flag = 1;
-                while (userIterator.hasNext()){
-                    User next = userIterator.next();
-                    if (next.getUsername().equals(user.getUsername())){
-                        flag = 0;
-                        break;
-                    }
-                    if (flag!=0){
-                        queryWrapper.ne("username",user.getUsername());
-                        user.setOnLive(1);
-                        users.add(user);
-                    }
-                }
-
-            }
-        }
         // TODO 2.查询余下为登录用户，并存入users集合中
         queryWrapper.ne("username","Admin");
         List<User> selectList = userMapper.selectList(queryWrapper);
         for (int i = 0; i < selectList.size(); i++) {
             users.add(selectList.get(i));
         }
+        //将已登录的用户给予标签onLive 1
+        while(iterator.hasNext()) {
+            String key = iterator.next();
+            //从缓存中获取
+            Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
+            User user = (User) MapBeanUtil.map2Object(entries, User.class);
+            String username = user.getUsername();
+            //遍历selectList查询此用户名，给予标签
+            Iterator<User> userIterator = selectList.iterator();
+            while (userIterator.hasNext()){
+                User Alluser = userIterator.next();
+                if(Alluser.getUsername().equals(username)){
+                    Alluser.setOnLive(1);
+                    break;
+                }
+            }
+        }
+
         return new Result(ResultEnum.SELECT_SUCCESS, users);
     }
 

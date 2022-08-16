@@ -64,6 +64,7 @@ public class UserController {
         Result result = userService.login(user);
         if(result.getCode()==200){
             User resultData = (User) result.getData();
+            user.setUserId(resultData.getUserId());
             user.setPosition(resultData.getPosition());
             //TODO 2.登陆成功，生成Token,并存入redis缓存
             String token = tokenUtil.createToken(user);
@@ -102,7 +103,7 @@ public class UserController {
     public Result logout(){
         String token = request.getHeader("Authorization");
         //将redis缓存中的token删除
-        redisTemplate.delete(RedisEnum.LOGIN_TOKEN+token);
+        redisTemplate.delete(RedisEnum.LOGIN_TOKEN.getMsg()+token);
         return new Result(ResultEnum.LOGOUT_SUCCESS);
     }
 
@@ -151,10 +152,6 @@ public class UserController {
     @Secret
     public Result forceLogout(@RequestBody Data data){
         String userId = data.getUserId();
-        Iterator<String> it = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
-        while (it.hasNext()){
-            log.debug("redis缓存了"+it.next());
-        }
         //TODO 1.查询redis中已存在的key对应的user
         Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
         while (iterator.hasNext()){
@@ -166,10 +163,6 @@ public class UserController {
                 // TODO 2.删除redis缓存中的用户
                 redisTemplate.delete(key);
             }
-        }
-        Iterator<String> it2 = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
-        while (it2.hasNext()){
-            log.debug("redis仍1缓存"+it2.next());
         }
         //删除失败，未找到该用户
         return new Result(ResultEnum.REQUEST_SUCCESS);

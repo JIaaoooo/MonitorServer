@@ -9,7 +9,9 @@ import com.example.monitorserver.mapper.ProjectMapper;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
+import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.ProjectService;
+import com.example.monitorserver.service.UserProjectService;
 import com.example.monitorserver.utils.MybatisConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +39,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Autowired
     private ProjectMapper projectMapper;
+
+    @Autowired
+    private UserProjectService userProjectService;
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
@@ -59,9 +65,14 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     }
 
     @Override
-    public Result getAllProject() {
+    public Result getAllProject(int position) {
         MybatisConfig.setDynamicTableName("t_project");
-        return new Result(ResultEnum.REQUEST_SUCCESS,projectMapper.selectList(null));
+        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
+        if(position==0){
+            queryWrapper.eq("status",1);
+        }
+
+        return new Result(ResultEnum.REQUEST_SUCCESS,projectMapper.selectList(queryWrapper));
     }
 
     @Override
@@ -92,6 +103,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     public Result saveProject(Project project) {
         //　TODO 1.查项目名是否重复
         // TODO 1.1 查项目名是否重复
+        MybatisConfig.setDynamicTableName("t_project");
         QueryWrapper<Project> wrapper = new QueryWrapper<>();
         wrapper.eq("project_name",project.getProjectName());
         Long count = projectMapper.selectCount(wrapper);
@@ -105,8 +117,15 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
         if (count1!=0){
             return new Result(ResultEnum.REQUEST_FALSE);
         }
-        MybatisConfig.setDynamicTableName("t_project");
+        project.setRegisterDate(LocalDateTime.now());
         projectMapper.insert(project);
+
+        // TODO 2.将权限信息存入
+        UserProject userProject = new UserProject()
+                .setProjectId(project.getProjectId())
+                .setUserId(project.getUserId())
+                .setType(1);
+        userProjectService.add(userProject);
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 

@@ -141,7 +141,7 @@ class MonitorServerApplicationTests {
 
         Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
         while (iterator.hasNext()){
-            System.out.println(iterator.next());
+            redisTemplate.delete(iterator.next());
             }
         }
 

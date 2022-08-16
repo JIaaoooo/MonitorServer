@@ -27,7 +27,7 @@ public interface ProjectService extends IService<Project> {
      */
     Result getPageProject(int currentPage, int maxMessage,int position);
 
-    Result getAllProject();
+    Result getAllProject(int position);
 
     /**
      * 通过项目的url获取项目名

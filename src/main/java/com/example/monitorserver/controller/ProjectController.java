@@ -1,12 +1,18 @@
 package com.example.monitorserver.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
+import com.example.monitorserver.po.User;
+import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.ProjectService;
+import com.example.monitorserver.service.UserProjectService;
+import com.example.monitorserver.service.UserService;
+import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,6 +40,9 @@ public class ProjectController {
     private ProjectService projectService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
     /**
@@ -55,12 +64,17 @@ public class ProjectController {
         return projectService.getPageProject(current, 10, position);
     }
 
+    /**
+     *获取所有项目信息
+     * @return
+     */
     @GetMapping("/allProject")
     @Secret
     public Result getAllProject(){
-        log.debug("获取所有项目");
-
-        return projectService.getAllProject();
+        String token = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
+        User user = (User) MapBeanUtil.map2Object(entries, User.class);
+        return projectService.getAllProject(user.getPosition());
     }
 
 
@@ -81,10 +95,14 @@ public class ProjectController {
      */
     @PostMapping("/saveProject")
     @Secret
-    public Result saveProject(Project project){
+    public Result saveProject(@RequestBody Project project){
         //生成唯一id
         String ID = IdUtil.simpleUUID();
         project.setProjectId(ID);
+        String userId = project.getUserId();
+        Result byUserID = userService.getByUserID(userId);
+        User user = (User) byUserID.getData();
+        project.setUsername(user.getUsername());
         return projectService.saveProject(project);
     }
 

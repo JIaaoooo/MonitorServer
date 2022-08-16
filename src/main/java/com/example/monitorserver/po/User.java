@@ -2,10 +2,15 @@ package com.example.monitorserver.po;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.example.monitorserver.constant.Constants;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 import org.apache.ibatis.type.JdbcType;
 
 import java.time.LocalDateTime;
@@ -22,6 +27,7 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
+@Accessors(chain = true)
 //TODO 加密有问题,继承的父类属性添加到了查询里
 public class User extends HttpSecretCode{
 
@@ -50,6 +56,8 @@ public class User extends HttpSecretCode{
     private int position;
 
     /** 注册时间 **/
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime registerDate;
 
     /** 解封日期 **/

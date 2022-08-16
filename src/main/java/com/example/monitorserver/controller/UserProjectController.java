@@ -68,6 +68,34 @@ public class UserProjectController {
     }
 
     /**
+     * 查询自己发布的项目
+     * @param data 向前端获取用户id
+     * @return 返回project实体类
+     */
+    @PostMapping("/MyProject")
+    @Secret
+    public Result viewOwnProject(@RequestBody Data data){
+        Map<String,Object> condition = new HashMap<>();
+        condition.put("user_id",data.getUserId());
+        condition.put("type",1);
+        Result select =  userProjectService.select(condition);
+        //获取的到该用户下的项目ID
+        List<UserProject> list = (List<UserProject>) select.getData();
+        if (list.size()==0){
+            return new Result(ResultEnum.REQUEST_FALSE);
+        }
+        Iterator<UserProject> iterator = list.iterator();
+        Map<String,Object> condition2 = new HashMap<>();
+        while(iterator.hasNext()){
+            UserProject userProject = iterator.next();
+            String projectId = userProject.getProjectId();
+            condition2.put("project_id",projectId);
+        }
+
+        return projectService.getByCondition(condition2);
+    }
+
+    /**
      * 删除用户的监控权限
      * @param data 封装项目名，用户名
      * @return 返回执行结果
