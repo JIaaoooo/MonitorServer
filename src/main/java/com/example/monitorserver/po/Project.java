@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +65,9 @@ public class Project extends HttpSecretCode{
     /** 获取前端status类型  **/
     @TableField(exist = false)
     private String pass;
+
+    @TableField(exist = false)
+    private Timestamp time;
 
     /** 解封日期 **/
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

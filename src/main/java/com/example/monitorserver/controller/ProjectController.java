@@ -19,6 +19,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +126,11 @@ public class ProjectController {
         Project next = projects.iterator().next();
         int status = Integer.parseInt(project.getPass());
         next.setStatus(status);
+
+        if (status==-1){
+            LocalDateTime dateTime = project.getTime().toInstant().atOffset(ZoneOffset.of("+8")).toLocalDateTime();
+            next.setUnsealDate(dateTime);
+        }
         return projectService.updateProject(next);
     }
 
