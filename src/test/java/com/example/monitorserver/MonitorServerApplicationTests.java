@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.monitorserver.constant.RedisEnum;
+import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.mapper.StatisticsMapper;
 import com.example.monitorserver.mapper.UserMapper;
 import com.example.monitorserver.controller.ProjectController;
@@ -132,10 +133,16 @@ class MonitorServerApplicationTests {
 
     @Test
     void DateTest(){
-        LocalDateTime dateTime = LocalDateTime.now();
+        /*LocalDateTime dateTime = LocalDateTime.now();
         long now = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         LocalDateTime time = dateTime.minusDays(1);
         long last = time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        System.out.println(now>last);
-    }
+        System.out.println(now>last);*/
+
+        Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
+        while (iterator.hasNext()){
+            System.out.println(iterator.next());
+            }
+        }
+
 }

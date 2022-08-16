@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class apiError {
+public class apiError extends HttpSecretCode {
 
     @TableId
     private Long id;

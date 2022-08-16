@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BlankError {
+public class BlankError extends HttpSecretCode {
 
     @TableId
     private Long id;

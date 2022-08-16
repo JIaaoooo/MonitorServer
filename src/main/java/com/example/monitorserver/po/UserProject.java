@@ -17,9 +17,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProject {
-    @TableId
-    private long id;
+public class UserProject extends HttpSecretCode {
+
 
 
     private String userId;

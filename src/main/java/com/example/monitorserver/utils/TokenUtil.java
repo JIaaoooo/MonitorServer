@@ -42,7 +42,7 @@ public class TokenUtil {
                 sb.append(Md5Utils.getMD5(simpleUUID));
                 //将token只存入redis缓存,key的格式为： login:token:xxxxxxxx  value类型为map(存储的是user对象)
                 redisTemplate.opsForHash().putAll(RedisEnum.LOGIN_TOKEN.getMsg()+sb, BeanUtil.beanToMap(user));
-                redisTemplate.expire(RedisEnum.LOGIN_TOKEN.getMsg()+sb,RedisEnum.TOKEN_EXITS.getCode(),TimeUnit.HOURS);
+                redisTemplate.expire(RedisEnum.LOGIN_TOKEN.getMsg()+sb,RedisEnum.TOKEN_EXITS.getCode(),TimeUnit.MINUTES);
 
                 //测试代码
                 Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg()+sb).iterator();

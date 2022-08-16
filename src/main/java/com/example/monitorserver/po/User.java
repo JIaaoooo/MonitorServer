@@ -1,13 +1,12 @@
 package com.example.monitorserver.po;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.example.monitorserver.constant.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.ibatis.type.JdbcType;
 
 import java.time.LocalDateTime;
 import javax.validation.constraints.Pattern;
@@ -25,18 +24,17 @@ import javax.validation.constraints.Pattern;
 @ToString(callSuper = true)
 //TODO 加密有问题,继承的父类属性添加到了查询里
 public class User extends HttpSecretCode{
-    @TableId
-    private Long id;
+
 
     /**  用户唯一id **/
     //TODO 分组校验还没加入,等等
     private String userId;
 
     /** 用户名 **/
-
-
     @Pattern(regexp = Constants.REGEX_NAME,message = "用户名长度在4到20位")
     private String username;
+
+
 
     /** 密码 **/
     @TableField(select = false)
@@ -55,6 +53,7 @@ public class User extends HttpSecretCode{
     private LocalDateTime registerDate;
 
     /** 解封日期 **/
+    @TableField(updateStrategy = FieldStrategy.IGNORED,jdbcType = JdbcType.VARCHAR)
     private LocalDateTime unsealDate;
 
 

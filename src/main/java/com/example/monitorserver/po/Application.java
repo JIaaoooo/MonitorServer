@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Application {
+public class Application extends HttpSecretCode {
     @TableId
     private long id;
 

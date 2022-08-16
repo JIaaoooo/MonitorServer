@@ -18,7 +18,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class Statistics {
+public class Statistics extends HttpSecretCode {
 
     @TableId
     private Long id;

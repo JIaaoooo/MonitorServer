@@ -126,10 +126,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
             //从缓存中获取
             Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
             User user = (User) MapBeanUtil.map2Object(entries, User.class);
-            queryWrapper.ne("username",user.getUsername());
+            log.debug(user.getUsername());
             if (user.getUsername()!="Admin"){
-                user.setOnLive(1);
-                users.add(user);
+
+                //遍历users判断
+                Iterator<User> userIterator = users.iterator();
+                //排除重复用户
+                int flag = 1;
+                while (userIterator.hasNext()){
+                    User next = userIterator.next();
+                    if (next.getUsername().equals(user.getUsername())){
+                        flag = 0;
+                        break;
+                    }
+                    if (flag!=0){
+                        queryWrapper.ne("username",user.getUsername());
+                        user.setOnLive(1);
+                        users.add(user);
+                    }
+                }
+
             }
         }
         // TODO 2.查询余下为登录用户，并存入users集合中
@@ -192,7 +208,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
             long now = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
             long unseal = unsealDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
             // TODO 3.当前时间小于解封时间
-            if (now<unseal){
+            if (now>unseal){
                 UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
                 updateWrapper.eq("username",user.getUsername());
                 user.setUnsealDate(null);

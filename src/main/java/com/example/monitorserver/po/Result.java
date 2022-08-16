@@ -19,7 +19,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Result {
+public class Result extends HttpSecretCode {
 
     /**编号*/
     private Integer code;

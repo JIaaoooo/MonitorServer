@@ -19,8 +19,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Log {
-    @TableId
-    private long id;
 
 
     /** 访问者的ip  **/

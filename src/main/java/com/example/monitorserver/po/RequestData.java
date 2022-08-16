@@ -15,7 +15,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestData {
+public class RequestData extends HttpSecretCode {
 
     /** 项目名称 **/
     private String project_name;

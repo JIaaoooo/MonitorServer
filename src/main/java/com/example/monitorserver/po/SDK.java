@@ -14,7 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
-public class SDK {
+public class SDK extends HttpSecretCode {
 
     private String type;
 

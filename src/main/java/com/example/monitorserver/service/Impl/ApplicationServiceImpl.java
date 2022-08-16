@@ -46,6 +46,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     @Autowired
     private UserProjectService userProjectService;
 
+
     @Override
     public Result releaseApp(Application application) {
         MybatisConfig.setDynamicTableName("t_application");

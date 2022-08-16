@@ -17,7 +17,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
-public class Message {
+public class Message extends HttpSecretCode {
     @TableId
     private long id;
 

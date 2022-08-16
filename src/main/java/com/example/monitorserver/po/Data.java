@@ -3,6 +3,7 @@ package com.example.monitorserver.po;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.sql.Timestamp;
 
@@ -16,11 +17,14 @@ import java.sql.Timestamp;
 @lombok.Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Data {
+@ToString(callSuper = true)
+public class Data extends HttpSecretCode {
 
     private String projectName;
 
     private String userName;
+
+    private String userId;
 
     private String url;
 

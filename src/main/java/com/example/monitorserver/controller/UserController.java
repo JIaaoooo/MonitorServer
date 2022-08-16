@@ -95,16 +95,15 @@ public class UserController {
 
     /**
      * 用户登出
-     * @param user 根绝header头中的token值，删除token缓存即为退出
      * @return 返回操作结果
      */
     @GetMapping("/logout")
     @Secret
-    public Result logout(@RequestBody User user){
+    public Result logout(){
         String token = request.getHeader("Authorization");
         //将redis缓存中的token删除
-        redisTemplate.delete(token);
-        return new Result(ResultEnum.LOGOUT_SUCCESS.getCode(), ResultEnum.LOGOUT_SUCCESS.getMsg(), null);
+        redisTemplate.delete(RedisEnum.LOGIN_TOKEN+token);
+        return new Result(ResultEnum.LOGOUT_SUCCESS);
     }
 
     /**
@@ -139,7 +138,7 @@ public class UserController {
     @Secret
     public Result freezeUser(@RequestBody Data data){
         LocalDateTime dateTime = data.getDate().toInstant().atOffset(ZoneOffset.of("+8")).toLocalDateTime();
-        return userService.freezeUser(data.getUserName(),dateTime);
+        return userService.freezeUser(data.getUserId(),dateTime);
     }
 
 
@@ -148,24 +147,32 @@ public class UserController {
      * @param data 前端请求数据封装
      * @return 执行结果
      */
-    @GetMapping("/forceLogout")
+    @PostMapping("/forceLogout")
     @Secret
     public Result forceLogout(@RequestBody Data data){
-        String userName = data.getUserName();
+        String userId = data.getUserId();
+        Iterator<String> it = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
+        while (it.hasNext()){
+            log.debug("redis缓存了"+it.next());
+        }
         //TODO 1.查询redis中已存在的key对应的user
         Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
         while (iterator.hasNext()){
             String key = iterator.next();
+            log.debug(key);
             Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
             User user = (User) MapBeanUtil.map2Object(entries, User.class);
-            if (userName.equals(user.getUsername())){
+            if (userId.equals(user.getUserId())){
                 // TODO 2.删除redis缓存中的用户
                 redisTemplate.delete(key);
-                return new Result(ResultEnum.REQUEST_SUCCESS);
             }
         }
+        Iterator<String> it2 = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
+        while (it2.hasNext()){
+            log.debug("redis仍1缓存"+it2.next());
+        }
         //删除失败，未找到该用户
-        return new Result(ResultEnum.REQUEST_FALSE);
+        return new Result(ResultEnum.REQUEST_SUCCESS);
     }
     /**
      * 查看所有用户信息
