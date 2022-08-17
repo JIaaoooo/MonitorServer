@@ -1,17 +1,15 @@
 package com.example.monitorserver.controller;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
-import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
-import com.example.monitorserver.po.UserProject;
-import com.example.monitorserver.service.ProjectService;
-import com.example.monitorserver.service.UserProjectService;
 import com.example.monitorserver.service.UserService;
+import com.example.monitorserver.po.Data;
+import com.example.monitorserver.po.Project;
+import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +17,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -85,11 +81,14 @@ public class ProjectController {
 
     /**
      * 模糊、条件查询项目信息
-     * @param map 条件集合（可为json）
+     * @param data 前端信息集合
      * @return 返回项目信息
      */
     @PostMapping("/getByCondition")
-    public Result getByCondition(Map<String,Object> map){
+    @Secret
+    public Result getByCondition(@RequestBody Data data){
+        Map<String,Object> map = new HashMap<>();
+        map.put("project_name",data.getProjectName());
         return projectService.getByCondition(map);
     }
 

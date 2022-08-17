@@ -5,11 +5,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.mapper.JsErrorMapper;
 import com.example.monitorserver.po.Data;
-import com.example.monitorserver.po.JsError;
 import com.example.monitorserver.po.Result;
-import com.example.monitorserver.service.BlankErrorService;
+import com.example.monitorserver.po.JsError;
 import com.example.monitorserver.service.JsErrorService;
-import com.example.monitorserver.utils.MybatisConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +27,6 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
 
     @Override
     public Result insert(JsError jsError) {
-        MybatisConfig.setDynamicTableName("t_jsError");
         jsError.setDate(LocalDateTime.now());
         jsErrorMapper.insert(jsError);
         return new Result(ResultEnum.REQUEST_SUCCESS);
@@ -37,7 +34,6 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
 
     @Override
     public Result getUrlError(Data data) {
-        MybatisConfig.setDynamicTableName("t_jsError");
         QueryWrapper<JsError> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("project_name",data.getProjectName())
                 .eq("url",data.getUrl());
@@ -45,5 +41,13 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
         JsError jsError = jsErrorMapper.selectOne(queryWrapper);
         jsError.setCount(count);
         return new Result(ResultEnum.REQUEST_SUCCESS,jsError);
+    }
+
+    @Override
+    public Long getJsCount(String projectName) {
+        QueryWrapper<JsError> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("project_name",projectName);
+        Long count = jsErrorMapper.selectCount(queryWrapper);
+        return count;
     }
 }

@@ -5,10 +5,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.mapper.PerformanceErrorMapper;
 import com.example.monitorserver.po.Data;
-import com.example.monitorserver.po.PerformanceError;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.PerformanceErrorService;
-import com.example.monitorserver.utils.MybatisConfig;
+import com.example.monitorserver.po.PerformanceError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,6 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
 
     @Override
     public Result insert(PerformanceError performanceError) {
-        MybatisConfig.setDynamicTableName("t_performanceError");
         performanceError.setDate(LocalDateTime.now());
         performanceErrorMapper.insert(performanceError);
         return new Result(ResultEnum.REQUEST_SUCCESS);
@@ -37,7 +35,6 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
 
     @Override
     public Result select(Data data) {
-        MybatisConfig.setDynamicTableName("t_performanceError");
         LocalDateTime dateTime = data.getDate().toInstant().atOffset(ZoneOffset.of("+8")).toLocalDateTime();
         QueryWrapper<PerformanceError> queryWrapper = new QueryWrapper<>();
         queryWrapper.lt("date",dateTime);

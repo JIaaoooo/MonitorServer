@@ -1,9 +1,8 @@
 package com.example.monitorserver.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
-import com.example.monitorserver.po.User;
+import com.example.monitorserver.po.Project;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -25,7 +24,7 @@ public interface ProjectService extends IService<Project> {
      * @param position 当前用户的权限 若为0，普通用户，不能查看审核未通过项目   若为9，超级管理员，则可以全部显示
      * @return
      */
-    Result getPageProject(int currentPage, int maxMessage,int position);
+    Result getPageProject(int currentPage, int maxMessage, int position);
 
     Result getAllProject(int position);
 
@@ -64,5 +63,4 @@ public interface ProjectService extends IService<Project> {
      */
     Result deleteProject(String projectId);
 
-    void scheduleUpdate();
 }

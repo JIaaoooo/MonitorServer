@@ -28,6 +28,7 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Accessors(chain = true)
+@TableName("t_user")
 //TODO 加密有问题,继承的父类属性添加到了查询里
 public class User extends HttpSecretCode{
 

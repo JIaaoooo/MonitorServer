@@ -2,6 +2,7 @@ package com.example.monitorserver.po;
 
 
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Accessors(chain = true)
+@TableName("t_blankError")
 public class BlankError extends HttpSecretCode {
 
     @TableId

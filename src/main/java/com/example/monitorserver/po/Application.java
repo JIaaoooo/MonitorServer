@@ -20,6 +20,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Accessors(chain = true)
+@TableName("t_application")
 public class Application extends HttpSecretCode {
     @TableId
     private long id;
@@ -33,7 +34,7 @@ public class Application extends HttpSecretCode {
     /** 操作项目的ID **/
     private String  projectId;
 
-    /** 接受方用户id**/
+    /** 接受方用户id(在邀请发布者时使用)  **/
     @TableField(exist = false)
     private String userId;
 

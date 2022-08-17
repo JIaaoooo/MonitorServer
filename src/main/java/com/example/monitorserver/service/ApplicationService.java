@@ -1,9 +1,8 @@
 package com.example.monitorserver.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.monitorserver.po.Application;
 import com.example.monitorserver.po.Result;
-import com.example.monitorserver.po.User;
+import com.example.monitorserver.po.Application;
 import org.springframework.stereotype.Service;
 
 /**

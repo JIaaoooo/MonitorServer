@@ -1,11 +1,11 @@
 package com.example.monitorserver.controller;
 
 
-import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.MessageService;
+import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,9 +4,6 @@ import cn.hutool.json.JSONUtil;
 import com.example.monitorserver.constant.RedisEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,9 +40,9 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         }
         log.debug(method);
         token = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
 
-        log.debug(token);
-        if(token!=null){
+        if(token!=null&&!entries.isEmpty()){
                 //已登录,并且刷新token
                 redisTemplate.expire(RedisEnum.TOKEN_EXITS.getMsg()+token,RedisEnum.TOKEN_EXITS.getCode(), TimeUnit.HOURS);
                 return true;

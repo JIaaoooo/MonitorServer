@@ -2,15 +2,15 @@ package com.example.monitorserver.controller;
 
 
 import cn.hutool.core.util.IdUtil;
-import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
-import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.UserService;
-import com.example.monitorserver.utils.MapBeanUtil;
 import com.example.monitorserver.utils.TokenUtil;
+import com.example.monitorserver.annotation.Secret;
+import com.example.monitorserver.po.Data;
+import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,12 +18,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -60,7 +58,7 @@ public class UserController {
      */
     @PostMapping("/login")
     @Secret
-    public Result login(@RequestBody  User user){
+    public Result login(@RequestBody User user){
         //TODO 1.登录认证
         Result result = userService.login(user);
         if(result.getCode()==200){

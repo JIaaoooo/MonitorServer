@@ -3,23 +3,22 @@ package com.example.monitorserver.service.Impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.monitorserver.mapper.MessageMapper;
 import com.example.monitorserver.constant.ResultEnum;
-import com.example.monitorserver.po.Application;
+import com.example.monitorserver.mapper.MessageMapper;
 import com.example.monitorserver.po.Message;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.service.UserService;
-import com.example.monitorserver.utils.MybatisConfig;
+import com.example.monitorserver.po.Application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 /**
  * @program: monitor server
  * @description: 申请信息 服务实现层
@@ -44,7 +43,6 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Override
     public Result getApplication(String userId) {
-        MybatisConfig.setDynamicTableName("t_message");
         //TODO 1.userId是作为接收方 ， 查询该用户下的申请信息ID
         LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Message::getApplicationId,userId)
@@ -73,7 +71,6 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Override
     public Result addMessage(Message message) {
-        MybatisConfig.setDynamicTableName("t_message");
         //TODO 1.将关联信息存入表中
         messageMapper.insert(message);
         //TODO 2.在对应用户信息中，message信息+1
@@ -91,7 +88,6 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Override
     public void update(Message message) {
-        MybatisConfig.setDynamicTableName("t_message");
         UpdateWrapper<Message> up = new UpdateWrapper<>();
         up.eq("id",message.getId());
         messageMapper.update(message,up);

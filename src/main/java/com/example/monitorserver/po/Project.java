@@ -1,6 +1,5 @@
 package com.example.monitorserver.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -16,8 +15,6 @@ import lombok.experimental.Accessors;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @program: monitor server
@@ -31,6 +28,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Accessors(chain = true)
+@TableName("t_project")
 public class Project extends HttpSecretCode{
     @TableId
     private long id;

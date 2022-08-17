@@ -1,18 +1,14 @@
 package com.example.monitorserver.aop;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
-import com.example.monitorserver.mapper.UserProjectMapper;
 import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
-import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
 import com.example.monitorserver.utils.MapBeanUtil;
-import com.example.monitorserver.utils.MybatisConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

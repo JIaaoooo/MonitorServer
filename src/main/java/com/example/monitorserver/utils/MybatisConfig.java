@@ -1,3 +1,4 @@
+/*
 package com.example.monitorserver.utils;
 
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
@@ -8,12 +9,14 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
 
+*/
 /**
  * @program: monitor server
  * @description: 动态表明
  * @author: Jiao
  * @create: 2022-08-10 22:30
- */
+ *//*
+
 @Configuration
 
 public class MybatisConfig {
@@ -42,3 +45,4 @@ public class MybatisConfig {
 
 
 }
+*/

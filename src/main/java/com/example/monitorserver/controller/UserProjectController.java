@@ -4,10 +4,9 @@ package com.example.monitorserver.controller;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.*;
-import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
 import com.example.monitorserver.service.UserService;
-import com.example.monitorserver.utils.MybatisConfig;
+import com.example.monitorserver.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -86,13 +85,17 @@ public class UserProjectController {
         }
         Iterator<UserProject> iterator = list.iterator();
         Map<String,Object> condition2 = new HashMap<>();
+        List<Project> result = new ArrayList<>();
         while(iterator.hasNext()){
             UserProject userProject = iterator.next();
             String projectId = userProject.getProjectId();
             condition2.put("project_id",projectId);
+            Result byCondition = projectService.getByCondition(condition2);
+            List<Project> listProject = (List<Project>) byCondition.getData();
+            result.add(listProject.iterator().next());
         }
 
-        return projectService.getByCondition(condition2);
+        return new Result(ResultEnum.REQUEST_SUCCESS,result);
     }
 
     /**

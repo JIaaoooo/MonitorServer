@@ -53,7 +53,11 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.68</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.qgstudio</groupId>
+            <artifactId>monitor</artifactId>
+            <version>0.0.1</version>
+        </dependency>
 
         <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-all -->
         <dependency>

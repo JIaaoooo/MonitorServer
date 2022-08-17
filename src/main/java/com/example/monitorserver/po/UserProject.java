@@ -1,7 +1,6 @@
 package com.example.monitorserver.po;
 
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +20,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Accessors(chain = true)
+@TableName("t_project_user")
 public class UserProject extends HttpSecretCode {
 
 

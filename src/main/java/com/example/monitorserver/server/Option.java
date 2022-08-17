@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
  * @create: 2022-08-12  13：30
  */
 @Component
+@Slf4j
 public class Option {
 
     @Autowired
@@ -38,7 +39,7 @@ public class Option {
     public static void MessageHandle(String message){
         apiError error = JSON.parseObject(message, apiError.class);
         String projectName = option.projectService.getProjectName(error.getProjectUrl());
-        error.setPackageName(projectName);
+        error.setProjectName(projectName);
         option.apiErrorService.insert(error);
     }
 }

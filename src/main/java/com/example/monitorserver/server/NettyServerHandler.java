@@ -1,6 +1,5 @@
 package com.example.monitorserver.server;
 
-import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -42,6 +41,15 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
     }
 
 
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        log.debug("新连接移动");
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        log.debug("连接断开");
+    }
 
     //处理异常
     @Override

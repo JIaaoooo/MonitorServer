@@ -19,6 +19,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Accessors(chain = true)
+@TableName("t_message")
 public class Message extends HttpSecretCode {
     @TableId
     private long id;

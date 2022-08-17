@@ -29,22 +29,13 @@ public class ManagerAop {
     private RedisTemplate<String,Object> redisTemplate;
 
     @Around("execution(* com.example.monitorserver.controller.UserController.getAllUser()) ||"+
-            "execution(* com.example.monitorserver.controller.ProjectController.getAllProject()) ||"+
             "execution(* com.example.monitorserver.controller.UserController.freezeUser()) ||"+
             "execution(* com.example.monitorserver.controller.UserController.forceLogout())")
     public Result jurisdiction(ProceedingJoinPoint pjp) throws Throwable {
-        log.debug("管理员aop检测");
         String token = request.getHeader("Authorization");
-        log.debug("aop检测"+token);
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
-        //查看keys
-        Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
-        while (iterator.hasNext()){
-            log.debug("redis中缓存的key"+iterator.next());
-        }
         User user = (User) MapBeanUtil.map2Object(entries, User.class);
         int position = user.getPosition();
-        log.debug(user.toString());
         if (position==9){
             return (Result) pjp.proceed();
         }

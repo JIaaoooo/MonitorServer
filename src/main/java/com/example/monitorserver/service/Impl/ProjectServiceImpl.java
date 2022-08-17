@@ -6,15 +6,13 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.RedisEnum;
-import com.example.monitorserver.mapper.ProjectMapper;
 import com.example.monitorserver.constant.ResultEnum;
-import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
-import com.example.monitorserver.po.User;
 import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
-import com.example.monitorserver.utils.MybatisConfig;
+import com.example.monitorserver.mapper.ProjectMapper;
+import com.example.monitorserver.po.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -50,8 +48,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     private RedisTemplate<String,Object> redisTemplate;
 
     @Override
-    public Result getPageProject(int currentPage, int maxMessage,int position) {
-        MybatisConfig.setDynamicTableName("t_project");
+    public Result getPageProject(int currentPage, int maxMessage, int position) {
         Page<Project> page = new Page(currentPage, maxMessage);
         if (position!=0){
             //超级管理员，没有项目状态限制
@@ -69,18 +66,32 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result getAllProject(int position) {
-        MybatisConfig.setDynamicTableName("t_project");
         QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
         if(position==0){
             queryWrapper.eq("status",1);
         }
-
+        List<Project> projects = projectMapper.selectList(queryWrapper);
+        Iterator<Project> iterator = projects.iterator();
+        while (iterator.hasNext()){
+            Project project = iterator.next();
+            if (project.getStatus()==-1){
+                //判断是否已解冻
+                LocalDateTime unsealDate = project.getUnsealDate();
+                LocalDateTime dateTime = LocalDateTime.now();
+                long now = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                long unseal = unsealDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                if (now>unseal){
+                    project.setUnsealDate(null);
+                    project.setStatus(1);
+                    updateProject(project,9);
+                }
+            }
+        }
         return new Result(ResultEnum.REQUEST_SUCCESS,projectMapper.selectList(queryWrapper));
     }
 
     @Override
     public String getProjectName(String projectUrl) {
-        MybatisConfig.setDynamicTableName("t_project");
         QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("project_name")
                 .eq("project_url",projectUrl);
@@ -90,7 +101,6 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result getByCondition(Map<String, Object> map) {
-        MybatisConfig.setDynamicTableName("t_project");
         QueryWrapper<Project> wrapper = new QueryWrapper<>();
         Iterator<String> iterator = map.keySet().iterator();
         while(iterator.hasNext()){
@@ -104,7 +114,6 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result saveProject(Project project) {
-
         project.setRegisterDate(LocalDateTime.now());
         projectMapper.insert(project);
 
@@ -119,13 +128,11 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result updateProject(Project project,int position) {
-        MybatisConfig.setDynamicTableName("t_project");
         //普通用户更新项目信息后要重新获得管理员的批准
         if (position==0){
             project.setStatus(0);
             //　TODO 1.查项目名是否重复
             // TODO 1.1 查项目名是否重复
-            MybatisConfig.setDynamicTableName("t_project");
             QueryWrapper<Project> wrapper = new QueryWrapper<>();
             wrapper.eq("project_name",project.getProjectName());
             Long count = projectMapper.selectCount(wrapper);
@@ -153,40 +160,10 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result deleteProject(String projectUrl) {
-        MybatisConfig.setDynamicTableName("t_project");
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Project::getProjectUrl,projectUrl);
         projectMapper.delete(wrapper);
         return new Result(ResultEnum.DELETE_SUCCESS);
     }
 
-    @Override
-    public void scheduleUpdate() {
-        //TODO 1.查询用户表中是否存在被冻结用户
-        MybatisConfig.setDynamicTableName("t_project");
-        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("status", -1);
-        List<Project> projects = projectMapper.selectList(queryWrapper);
-        if (projects.size() == 0) {
-            return;
-        }
-        // TODO 2.对其冻结日期判断，若已过则更新
-        Iterator<Project> iterator = projects.iterator();
-        while (iterator.hasNext()) {
-            Project project = iterator.next();
-            LocalDateTime unsealDate = project.getUnsealDate();
-            LocalDateTime dateTime = LocalDateTime.now();
-            long now = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            long unseal = unsealDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            // TODO 3.当前时间小于解封时间
-            if (now > unseal) {
-                UpdateWrapper<Project> updateWrapper = new UpdateWrapper<>();
-                updateWrapper.eq("project_id", project.getProjectId());
-                project.setUnsealDate(null);
-                project.setStatus(0);
-                MybatisConfig.setDynamicTableName("t_project");
-                projectMapper.update(project, updateWrapper);
-            }
-        }
-    }
 }

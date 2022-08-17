@@ -3,21 +3,21 @@ package com.example.monitorserver.controller;
 import cn.hutool.core.util.IdUtil;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.RedisEnum;
-import com.example.monitorserver.po.*;
+import com.example.monitorserver.po.Message;
+import com.example.monitorserver.po.Result;
+import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.MessageService;
+import com.example.monitorserver.po.Application;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -55,15 +55,10 @@ public class ApplicationController {
      */
     @PostMapping("/releaseApp")
     @Secret
-    public Result  releaseApp(@RequestBody Application application){
-        String ID = IdUtil.simpleUUID();
-        application.setApplicationId(ID);
+    public Result releaseApp(@RequestBody Application application){
+
         String number = application.getNumber();
         application.setType(Integer.parseInt(number));
-        //当申请类型为4，删除项目时
-        if (number.equals("4")){
-
-        }
         // TODO 1.获取当前申请用户的id
         String token = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
@@ -73,11 +68,11 @@ public class ApplicationController {
         // TODO 2.将用户id，项目id存入application
         application.setApplicantId(userId);
 
-        // TODO 3.将信息存入message表中
+        /*// TODO 3.将信息存入message表中
         Message message = new Message()
-                .setApplicationId(application.getUserId())  //接受方id
-                .setUserId(userId); //申请人
-        messageService.addMessage(message);
+                .setApplicationId(ID)  //申请表id
+                .setUserId(); //接收方id
+        messageService.addMessage(message);*/
         return applicationService.releaseApp(application);
     }
 
