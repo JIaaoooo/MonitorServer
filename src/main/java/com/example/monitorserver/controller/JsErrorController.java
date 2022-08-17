@@ -20,15 +20,22 @@ public class JsErrorController {
     @Autowired
     private JsErrorService jsErrorService;
 
-
     /**
      * 获取某个项目的各个时间段下的js报错信息,
      * @param data :报错信息
      * @return :封装了报错信息的结果集
      */
-    @PostMapping
+    @PostMapping("/err")
     @Secret
     public Result getJsErrByType(@RequestBody Data data) {
         return jsErrorService.getJsErrByType(data.getProjectName(), data.getOption());
     }
+
+    @PostMapping("/urlErr")
+    @Secret
+    public Result getUrlErrCountByName(@RequestBody Data data) {
+        return jsErrorService.getUrlErrCountByName(data.getProjectName());
+
+    }
+
 }

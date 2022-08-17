@@ -203,28 +203,35 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
     @Override
     public Result getUrlErrCountByName(String projectName) {
 
-//        //查询项目下各个url的js报错数,和占总数的百分比
-//
-//        MybatisConfig.setDynamicTableName("t_jsError");
-//        LambdaQueryWrapper<JsError> lqw = new LambdaQueryWrapper<>();
-//
-//
-//        lqw.eq(JsError::getProjectName,projectName);
-//        List<JsError> jsErrors = jsErrorMapper.selectList(lqw);
-//
-//        List<JsError> list = new LinkedList<>();
-//        JsError vo = null;
-//
-//        for (JsError jsError : jsErrors) {
-//            vo = new JsError();
-//
-//            String url = jsError.getUrl();
-//
-//
-//            vo.setUrl(jsError.getUrl()).setCount()
-//        }
+        //查询项目下各个url的js报错数,和占总数的百分比
+
+        MybatisConfig.setDynamicTableName("t_jsError");
+        QueryWrapper<JsError> qw = new QueryWrapper<>();
 
 
-        return null;
+        qw.select("distinct url").lambda().eq(JsError::getProjectName,projectName);
+        //获得了项目的所有url,
+        List<JsError> jsErrors = jsErrorMapper.selectList(qw);
+
+        //现在需要查询url下的条数即可
+        List<JsError> list = new LinkedList<>();
+
+        qw.lambda().eq(JsError::getProjectName,projectName);
+
+        Long sum = jsErrorMapper.selectCount(qw);
+        Long count = 0L;
+        JsError vo = null;
+        for (JsError jsError : jsErrors) {
+            qw = new QueryWrapper<>();
+            qw.lambda().eq(JsError::getProjectName,projectName).eq(JsError::getUrl,jsError.getUrl());
+            count = jsErrorMapper.selectCount(qw);
+            sum += count;
+            vo = new JsError();
+            vo.setUrl(jsError.getUrl()).setCount(count);
+            list.add(vo);
+        }
+
+
+        return new Result(getPercent(list, sum));
     }
 }
