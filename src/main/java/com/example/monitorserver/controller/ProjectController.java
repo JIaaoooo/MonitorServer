@@ -58,7 +58,7 @@ public class ProjectController {
      */
     @GetMapping("/pageProject/{current}/{position}")
     @Secret
-    public Result getPageProject(@PathVariable int current, @PathVariable int position){
+    public Result getPageProject(@PathVariable("current") int current, @PathVariable("position") int position){
         //判断缓存是否存在首页
         List<Project> projects = null;
         if(current==1&& Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.TOKEN_EXITS.getMsg()))&&position==0){

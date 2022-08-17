@@ -18,4 +18,8 @@ public interface JsErrorService extends IService<JsError> {
     Result insert(JsError jsError);
 
     Result getUrlError(Data data);
+
+    Result getJsErrByType(String projectName,Integer type);
+
+    Result getUrlErrCountByName(String projectName);
 }

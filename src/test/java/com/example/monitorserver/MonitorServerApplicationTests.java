@@ -5,14 +5,10 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
-import com.example.monitorserver.mapper.StatisticsMapper;
 import com.example.monitorserver.mapper.UserMapper;
 import com.example.monitorserver.controller.ProjectController;
-import com.example.monitorserver.po.Log;
 import com.example.monitorserver.po.Result;
-import com.example.monitorserver.po.Statistics;
 import com.example.monitorserver.po.User;
-import com.example.monitorserver.service.LogService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserService;
 import com.example.monitorserver.utils.MapBeanUtil;
@@ -44,110 +40,110 @@ class MonitorServerApplicationTests {
     private ProjectController projectController;
 
 
-
-    @Test
-    void userTest() {
-//        DynamicTableNameConfig.setDynamicTableName("user");
-        /*List<User> users = userMapper.selectList(null);
-        Iterator<User> iterator = users.iterator();
-        while(iterator.hasNext()){
-            User user = iterator.next();
-            String userId = user.getUserId();
-            System.out.println(userId);
-        }*/
-    }
-
-    @Test
-    void projectTest(){
-        /*Project project = new Project();
-        project.setProjectName("Jiao");
-        project.setProjectDesc("Jiao");
-        project.setProjectUrl("Jiao");
-        Result result = projectController.saveProject(project);*/
-        Result result = projectService.getPageProject(1, 5, 9);
-        System.out.println(result.toString());
-    }
-
-    @Autowired
-    private LogService logService;
-    @Test
-    void LogTest(){
-        logService.createTable();
-
-        //logService.select(null);
-        String str = "{'projectUrl':'106.13.18.48','outParameters':{'code':60401,'data':{'email':'111111111@qq.com','password':'','permission':1,'phone_number':'13619209420','user_id':5,'username':'zhangsan666'},'msg':'查询用户成功'},'traits':['8'],'method':'getByUsername','inParameters':{'username':'[zhangsan666]'},'responseTime':411,'ip':'192.168.190.1','visitDate':1660268459269,'packageName':'com.qgstudio.controller.UserController','uri':'/users/username'}";
-        Log logs = JSON.parseObject(str, Log.class);
-        logService.insert(logs);
-
-    }
-
-    @Test
-    void intTest(){
-        //TODO 1.获得现在的小时数
-        SimpleDateFormat sdf = new SimpleDateFormat("HH");
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-
-        Integer now = Integer.valueOf(sdf.format(calendar.getTime()));
-        //TODO 2.从0时开始获取统计数据
-        int count = (~(now-1));
-        System.out.println(count);
-    }
-
-    @Autowired
-    private StatisticsMapper statisticsMapper;
-    @Test
-    void sumTest(){
-        QueryWrapper<Statistics> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("SUM(views) AS views","SUM(visits) AS visits","SUM(defeat) AS defeat");
-        //,"SUM(visits) AS visits","SUM(defeat) AS defeat"
-        MybatisConfig.setDynamicTableName("t_statistics_20220812_18");
-        List<Statistics> list = statisticsMapper.selectList(queryWrapper);
-        Statistics one = statisticsMapper.selectOne(queryWrapper);
-        //System.out.println(list);;
-        System.out.println(one);
-    }
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private RedisTemplate<String,Object> redisTemplate;
-    @Test
-    void ManageTest(){
-        HashMap<String,Object> map = new HashMap<>();
-        map.put("1","1");
-        redisTemplate.opsForHash().putAll("王健豪",map);
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries("王健豪");
-        redisTemplate.opsForHash().putAll("王健豪",map);
-        Iterator<String> iterator = redisTemplate.keys("王".concat("*")).iterator();
-        while (iterator.hasNext()){
-            System.out.println("redis中缓存的key"+iterator.next());
-        }
-        redisTemplate.opsForHash().putAll("王健豪",map);
-        Iterator<String> iterator2 = redisTemplate.keys("王".concat("*")).iterator();
-        while (iterator2.hasNext()){
-            System.out.println("redis中缓存的key"+iterator2.next());
-        }
-    }
-
-    @Test
-    void DateTest() {
-        /*LocalDateTime dateTime = LocalDateTime.now();
-        long now = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        LocalDateTime time = dateTime.minusDays(1);
-        long last = time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        System.out.println(now>last);*/
-
-        /*Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
-        while (iterator.hasNext()){
-            redisTemplate.delete(iterator.next());
-            }
-        }*/
-
-        String number = "1";
-        int status = Integer.parseInt(number);
-        System.out.println(status);
-    }
+//
+//    @Test
+//    void userTest() {
+////        DynamicTableNameConfig.setDynamicTableName("user");
+//        /*List<User> users = userMapper.selectList(null);
+//        Iterator<User> iterator = users.iterator();
+//        while(iterator.hasNext()){
+//            User user = iterator.next();
+//            String userId = user.getUserId();
+//            System.out.println(userId);
+//        }*/
+//    }
+//
+//    @Test
+//    void projectTest(){
+//        /*Project project = new Project();
+//        project.setProjectName("Jiao");
+//        project.setProjectDesc("Jiao");
+//        project.setProjectUrl("Jiao");
+//        Result result = projectController.saveProject(project);*/
+//        Result result = projectService.getPageProject(1, 5, 9);
+//        System.out.println(result.toString());
+//    }
+//
+//    @Autowired
+//    private LogService logService;
+//    @Test
+//    void LogTest(){
+//        logService.createTable();
+//
+//        //logService.select(null);
+//        String str = "{'projectUrl':'106.13.18.48','outParameters':{'code':60401,'data':{'email':'111111111@qq.com','password':'','permission':1,'phone_number':'13619209420','user_id':5,'username':'zhangsan666'},'msg':'查询用户成功'},'traits':['8'],'method':'getByUsername','inParameters':{'username':'[zhangsan666]'},'responseTime':411,'ip':'192.168.190.1','visitDate':1660268459269,'packageName':'com.qgstudio.controller.UserController','uri':'/users/username'}";
+//        Log logs = JSON.parseObject(str, Log.class);
+//        logService.insert(logs);
+//
+//    }
+//
+//    @Test
+//    void intTest(){
+//        //TODO 1.获得现在的小时数
+//        SimpleDateFormat sdf = new SimpleDateFormat("HH");
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(new Date());
+//
+//        Integer now = Integer.valueOf(sdf.format(calendar.getTime()));
+//        //TODO 2.从0时开始获取统计数据
+//        int count = (~(now-1));
+//        System.out.println(count);
+//    }
+//
+//    @Autowired
+//    private StatisticsMapper statisticsMapper;
+//    @Test
+//    void sumTest(){
+//        QueryWrapper<Statistics> queryWrapper = new QueryWrapper<>();
+//        queryWrapper.select("SUM(views) AS views","SUM(visits) AS visits","SUM(defeat) AS defeat");
+//        //,"SUM(visits) AS visits","SUM(defeat) AS defeat"
+//        MybatisConfig.setDynamicTableName("t_statistics_20220812_18");
+//        List<Statistics> list = statisticsMapper.selectList(queryWrapper);
+//        Statistics one = statisticsMapper.selectOne(queryWrapper);
+//        //System.out.println(list);;
+//        System.out.println(one);
+//    }
+//
+//    @Autowired
+//    private UserService userService;
+//
+//    @Autowired
+//    private RedisTemplate<String,Object> redisTemplate;
+//    @Test
+//    void ManageTest(){
+//        HashMap<String,Object> map = new HashMap<>();
+//        map.put("1","1");
+//        redisTemplate.opsForHash().putAll("王健豪",map);
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries("王健豪");
+//        redisTemplate.opsForHash().putAll("王健豪",map);
+//        Iterator<String> iterator = redisTemplate.keys("王".concat("*")).iterator();
+//        while (iterator.hasNext()){
+//            System.out.println("redis中缓存的key"+iterator.next());
+//        }
+//        redisTemplate.opsForHash().putAll("王健豪",map);
+//        Iterator<String> iterator2 = redisTemplate.keys("王".concat("*")).iterator();
+//        while (iterator2.hasNext()){
+//            System.out.println("redis中缓存的key"+iterator2.next());
+//        }
+//    }
+//
+//    @Test
+//    void DateTest() {
+//        /*LocalDateTime dateTime = LocalDateTime.now();
+//        long now = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+//        LocalDateTime time = dateTime.minusDays(1);
+//        long last = time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+//        System.out.println(now>last);*/
+//
+//        /*Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
+//        while (iterator.hasNext()){
+//            redisTemplate.delete(iterator.next());
+//            }
+//        }*/
+//
+//        String number = "1";
+//        int status = Integer.parseInt(number);
+//        System.out.println(status);
+//    }
 
 }

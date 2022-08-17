@@ -21,18 +21,18 @@ public class MvcConfig implements WebMvcConfigurer {
     @Resource
     private RedisTemplate<String,Object> redisTemplate;
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/*")
-                //所有地址都可以访问，也可以配置具体地址
-                .allowedOrigins("*")
-                //允许的请求方式
-                .allowedMethods("POST", "GET", "PUT", "OPTIONS", "DELETE")
-                //是否支持跨域Cookie
-                .allowCredentials(true)
-                // 跨域允许时间
-                .maxAge(3600);
-    }
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/*")
+//                //所有地址都可以访问，也可以配置具体地址
+//                .allowedOrigins("*")
+//                //允许的请求方式
+//                .allowedMethods("POST", "GET", "PUT", "OPTIONS", "DELETE")
+//                //是否支持跨域Cookie
+//                .allowCredentials(true)
+//                // 跨域允许时间
+//                .maxAge(3600);
+//    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
