@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -117,21 +118,30 @@ public class ProjectController {
      */
     @PostMapping("/update")
     @Secret
-    public Result ManageUpdate(@RequestBody Project project){
-        log.debug(project.toString());
-        Map<String,Object> condition = new HashMap<>();
-        condition.put("project_id",project.getProjectId());
-        Result byCondition = projectService.getByCondition(condition);
-        List<Project> projects = (List<Project>) byCondition.getData();
-        Project next = projects.iterator().next();
-        int status = Integer.parseInt(project.getPass());
-        next.setStatus(status);
-
-        if (status==-1){
-            LocalDateTime dateTime = project.getTime().toInstant().atOffset(ZoneOffset.of("+8")).toLocalDateTime();
-            next.setUnsealDate(dateTime);
+    public Result Update(@RequestBody Project project){
+        // TODO 两种，管理员为项目更新，用户给项目更新
+        // TODO 1.获取当前操作对象的权限
+        String token = request.getHeader("Authorization");
+        // TODO 2.遍历已存的token，获取权限
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
+        User user = (User) MapBeanUtil.map2Object(entries, User.class);
+        int position  = user.getPosition();
+        Project next = new Project();
+        if(position == 9){
+            Map<String,Object> condition = new HashMap<>();
+            condition.put("project_id",project.getProjectId());
+            Result byCondition = projectService.getByCondition(condition);
+            List<Project> projects = (List<Project>) byCondition.getData();
+            next = projects.iterator().next();
+            int status = Integer.parseInt(project.getPass());
+            next.setStatus(status);
+            if (status==-1){
+                LocalDateTime dateTime = project.getTime().toInstant().atOffset(ZoneOffset.of("+8")).toLocalDateTime();
+                next.setUnsealDate(dateTime);
+            }
         }
-        return projectService.updateProject(next);
+
+        return projectService.updateProject(next,position);
     }
 
 

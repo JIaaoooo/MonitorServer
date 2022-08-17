@@ -1,9 +1,6 @@
 package com.example.monitorserver.server;
 
 import com.alibaba.fastjson.JSON;
-import com.example.monitorserver.mapper.LogMapper;
-import com.example.monitorserver.po.Log;
-import com.example.monitorserver.service.LogService;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,8 +27,6 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         //ByteBuf是netty提供的，不是Nio的ByteBuffer
         ByteBuf buf = (ByteBuf) msg;
         String str = buf.toString(CharsetUtil.UTF_8);
-        Log logs = JSON.parseObject(str, Log.class);
-        log.info(logs.toString());
         //创建表
         Option.MessageHandle(str);
     }

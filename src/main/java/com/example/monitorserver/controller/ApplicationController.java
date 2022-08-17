@@ -3,11 +3,9 @@ package com.example.monitorserver.controller;
 import cn.hutool.core.util.IdUtil;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.RedisEnum;
-import com.example.monitorserver.po.Application;
-import com.example.monitorserver.po.Project;
-import com.example.monitorserver.po.Result;
-import com.example.monitorserver.po.User;
+import com.example.monitorserver.po.*;
 import com.example.monitorserver.service.ApplicationService;
+import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +45,9 @@ public class ApplicationController {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private MessageService messageService;
+
     /**
      * 发布申请
      * @param application 申请信息
@@ -57,28 +58,26 @@ public class ApplicationController {
     public Result  releaseApp(@RequestBody Application application){
         String ID = IdUtil.simpleUUID();
         application.setApplicationId(ID);
-        //TODO 1.获取当前申请用户的id
-        String token = request.getHeader("Authorization");
-        String userId = null;
-        //查询redis
-        Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
-        while (iterator.hasNext()){
-            String key = iterator.next();
-            if (key.equals(token)){
-                Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
-                User user = (User) MapBeanUtil.map2Object(entries, User.class);
-                userId = user.getUserId();
-                break;
-            }
+        String number = application.getNumber();
+        application.setType(Integer.parseInt(number));
+        //当申请类型为4，删除项目时
+        if (number.equals("4")){
+
         }
-        // TODO 2.获取该项目名下的project_id;
-        Map<String,Object> condition = new HashMap<>();
-        condition.put("project_name",application.getProjectName());
-        Result result = projectService.getByCondition(condition);
-        Project project = (Project) result.getData();
-        //TODO 3.将用户id，项目id存入application
+        // TODO 1.获取当前申请用户的id
+        String token = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
+        User user = (User) MapBeanUtil.map2Object(entries, User.class);
+        String userId = user.getUserId();
+
+        // TODO 2.将用户id，项目id存入application
         application.setApplicantId(userId);
-        application.setProjectId(project.getProjectId());
+
+        // TODO 3.将信息存入message表中
+        Message message = new Message()
+                .setApplicationId(application.getUserId())  //接受方id
+                .setUserId(userId); //申请人
+        messageService.addMessage(message);
         return applicationService.releaseApp(application);
     }
 

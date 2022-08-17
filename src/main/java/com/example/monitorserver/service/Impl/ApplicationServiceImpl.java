@@ -52,7 +52,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
         MybatisConfig.setDynamicTableName("t_application");
         // TODO 1.将申请信息存入
         applicationMapper.insert(application);
-        // TODO 2.信息推送 当类型为请求监控、删除项目时都需要向项目发布者发送消息通知也做同意
+        /*// TODO 2.信息推送 当类型为请求监控、删除项目时都需要向项目发布者发送消息通知也做同意
         String projectId = application.getProjectId();
         HashMap<String, Object> map = new HashMap<>();
         // TODO 2.1查询userProject表，获取项目的发布者  条件：项目id type 为1
@@ -68,7 +68,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
             String userId = iterator.next().getUserId();
             // TODO 4.将用户ID和申请信息ID绑定
 
-        }
+        }*/
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 

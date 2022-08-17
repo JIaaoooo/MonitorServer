@@ -42,4 +42,8 @@ public class Data extends HttpSecretCode {
 
     private int option;
 
+
+
+    private Object data;
+
 }

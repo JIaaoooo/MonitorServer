@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -120,13 +121,15 @@ public class UserController {
 
     /**
      * 模糊、条件查询用户   可根据任何值 (在邀请发布者需要调用)
-     * @param map 传入键值对（json）
+     * @param data  前端数据封装
      * @return 返回该用户（可能为集合）
      */
-    @GetMapping("/getUserByCondition")
+    @PostMapping("/getUser")
     @Secret//用户邀请其他用户
-    public Result getUserByCondition(Map<String,Object> map){
-        return userService.getByCondition(map);
+    public Result getUserByCondition(@RequestBody Data data){
+        Map<String,Object> condition = new HashMap<>();
+        condition.put("username",data.getUserName());
+        return userService.getByCondition(condition);
     }
 
 

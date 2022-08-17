@@ -1,3 +1,4 @@
+/*
 package com.example.monitorserver.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -70,3 +71,4 @@ public class StatisticsServiceImpl extends ServiceImpl<StatisticsMapper, Statist
         return new Result(ResultEnum.SELECT_SUCCESS,list);
     }
 }
+*/

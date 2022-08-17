@@ -2,6 +2,7 @@ package com.example.monitorserver.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.RedisEnum;
@@ -9,6 +10,7 @@ import com.example.monitorserver.mapper.ProjectMapper;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
+import com.example.monitorserver.po.User;
 import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -101,22 +104,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result saveProject(Project project) {
-        //　TODO 1.查项目名是否重复
-        // TODO 1.1 查项目名是否重复
-        MybatisConfig.setDynamicTableName("t_project");
-        QueryWrapper<Project> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_name",project.getProjectName());
-        Long count = projectMapper.selectCount(wrapper);
-        if (count!=0){
-            return new Result(ResultEnum.REQUEST_FALSE);
-        }
-        // TODO 1.2 查url是否重复
-        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("project_url",project.getProjectUrl());
-        Long count1 = projectMapper.selectCount(queryWrapper);
-        if (count1!=0){
-            return new Result(ResultEnum.REQUEST_FALSE);
-        }
+
         project.setRegisterDate(LocalDateTime.now());
         projectMapper.insert(project);
 
@@ -130,11 +118,31 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     }
 
     @Override
-    public Result updateProject(Project project) {
+    public Result updateProject(Project project,int position) {
         MybatisConfig.setDynamicTableName("t_project");
+        //普通用户更新项目信息后要重新获得管理员的批准
+        if (position==0){
+            project.setStatus(0);
+            //　TODO 1.查项目名是否重复
+            // TODO 1.1 查项目名是否重复
+            MybatisConfig.setDynamicTableName("t_project");
+            QueryWrapper<Project> wrapper = new QueryWrapper<>();
+            wrapper.eq("project_name",project.getProjectName());
+            Long count = projectMapper.selectCount(wrapper);
+            if (count!=0){
+                return new Result(ResultEnum.REQUEST_FALSE);
+            }
+            // TODO 1.2 查url是否重复
+            QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("project_url",project.getProjectUrl());
+            Long count1 = projectMapper.selectCount(queryWrapper);
+            if (count1!=0){
+                return new Result(ResultEnum.REQUEST_FALSE);
+            }
+        }
+
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Project::getProjectUrl,project.getProjectUrl());
-        //更新项目信息后要重新获得管理员的批准
         //删除redis首页缓存
         if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))){
             redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
@@ -152,5 +160,33 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
         return new Result(ResultEnum.DELETE_SUCCESS);
     }
 
-
+    @Override
+    public void scheduleUpdate() {
+        //TODO 1.查询用户表中是否存在被冻结用户
+        MybatisConfig.setDynamicTableName("t_project");
+        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("status", -1);
+        List<Project> projects = projectMapper.selectList(queryWrapper);
+        if (projects.size() == 0) {
+            return;
+        }
+        // TODO 2.对其冻结日期判断，若已过则更新
+        Iterator<Project> iterator = projects.iterator();
+        while (iterator.hasNext()) {
+            Project project = iterator.next();
+            LocalDateTime unsealDate = project.getUnsealDate();
+            LocalDateTime dateTime = LocalDateTime.now();
+            long now = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            long unseal = unsealDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            // TODO 3.当前时间小于解封时间
+            if (now > unseal) {
+                UpdateWrapper<Project> updateWrapper = new UpdateWrapper<>();
+                updateWrapper.eq("project_id", project.getProjectId());
+                project.setUnsealDate(null);
+                project.setStatus(0);
+                MybatisConfig.setDynamicTableName("t_project");
+                projectMapper.update(project, updateWrapper);
+            }
+        }
+    }
 }

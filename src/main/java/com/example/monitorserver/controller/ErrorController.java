@@ -2,13 +2,12 @@ package com.example.monitorserver.controller;
 
 
 import com.example.monitorserver.constant.ResultEnum;
+
 import com.example.monitorserver.po.*;
-import com.example.monitorserver.service.BlankErrorService;
-import com.example.monitorserver.service.PerformanceErrorService;
-import com.example.monitorserver.service.ResourceErrorService;
-import com.example.monitorserver.service.apiErrorService;
+import com.example.monitorserver.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/SDK")
 @CrossOrigin("http://localhost:3000")
-public class AcceptController {
+public class ErrorController {
 
     @Autowired
     HttpServletRequest request;
@@ -43,13 +42,15 @@ public class AcceptController {
     @Autowired
     private PerformanceErrorService performanceErrorService;
 
+
+
     /**
      * 接受前端SDK信息分类处理
      * @param data 接收信息封装
      */
     @PostMapping
-    public Result getSDK(@RequestBody SDK data){
-        String type = data.getType();
+    public Result getSDK(@RequestBody Data data){
+        /*String type = data.getType();
         switch (type){
             case "JsError":
                 apiErrorService.insert((apiError) data.getData());
@@ -65,7 +66,17 @@ public class AcceptController {
                 break;
             default:
                 return new Result(ResultEnum.REQUEST_FALSE);
-        }
+        }*/
         return new Result(ResultEnum.REQUEST_SUCCESS);
+    }
+
+
+    /**
+     *
+     * @param project_url   项目url
+     * @return 返回已过时段的日记统计信息
+     */
+    public Result getHoursData(String project_url){
+        return null;
     }
 }

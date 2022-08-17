@@ -1,13 +1,22 @@
 package com.example.monitorserver.controller;
 
 
+import com.example.monitorserver.annotation.Secret;
+import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.po.Result;
+import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.MessageService;
+import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 
 /**
@@ -23,14 +32,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class MessageController {
 
     @Autowired
+    private HttpServletRequest request;
+
+    @Autowired
     private MessageService messageService;
+
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
 
     /**
      * 当前用户作为接收方，查询信息库中要发给我的消息（该操作在用户点击进入消息队列后执行）
-     * @param userId 当前用户的ID
      * @return 返回其消息  ：返回格式： Application1：xxxx    Application2:xxxx
      */
-    public Result getApplication(String userId){
+    @GetMapping("/watch")
+    @Secret
+    public Result getApplication(){
+        //获取当前用户的id
+        String token = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
+        User user = (User) MapBeanUtil.map2Object(entries, User.class);
+        String userId = user.getUserId();
         return messageService.getApplication(userId);
     }
 }

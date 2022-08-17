@@ -28,4 +28,10 @@ public interface MessageService extends IService<Message> {
      * @return 返回操作结果
      */
     Result addMessage(Message message);
+
+    /**
+     * 更新消息状态
+     * @param message 消息
+     */
+    void update(Message message);
 }

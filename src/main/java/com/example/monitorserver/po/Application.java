@@ -33,6 +33,10 @@ public class Application extends HttpSecretCode {
     /** 操作项目的ID **/
     private String  projectId;
 
+    /** 接受方用户id**/
+    @TableField(exist = false)
+    private String userId;
+
     /**项目名 **/
     @TableField(exist = false)
     private String projectName;
@@ -43,5 +47,8 @@ public class Application extends HttpSecretCode {
 
     /** 当status为 0 的时候该申请通过 **/
     private int status;
+
+    @TableField(exist = false)
+    private String number;
 
 }

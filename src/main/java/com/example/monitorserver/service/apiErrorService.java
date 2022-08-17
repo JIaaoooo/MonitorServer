@@ -26,4 +26,19 @@ public interface apiErrorService extends IService<apiError> {
      * @param apiError apiError实体类，存储要更新的信息
      */
     void update(apiError apiError);
+
+
+    /**
+     * 获取成功率
+     * @param project_name 项目名称
+     * @return 返回成功率
+     */
+    Result getWhole(String project_name);
+
+    /**
+     * 获取各个接口的错误率，平均耗时
+     * @param project_name  项目名
+     * @return 返回前端所需信息
+     */
+    Result each(String project_name);
 }

@@ -30,4 +30,6 @@ public class Message extends HttpSecretCode {
 
     /** 用户Id **/
     private String userId;
+
+    private int status;
 }

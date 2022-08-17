@@ -1,3 +1,4 @@
+/*
 package com.example.monitorserver.service.Impl;
 
 
@@ -20,17 +21,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+*/
 /**
  * @program: monitor server
  * @description: 监控信息 实现层
  * @author: Jiao
  * @create: 2022-08-10 10:00
- */
+ *//*
+
 @Service
 public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogService {
 
@@ -58,21 +62,8 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
     private apiErrorService apiErrorService;
 
     @Override
-    public Result createTable() {
-        Date date = new Date();
-        String today = sdf.format(date);
-        TodayTable = "t_visit_"+today;
-        MybatisConfig.setDynamicTableName("IF");
-        logMapper.createTable(TodayTable);
-        return new Result(ResultEnum.CREATE_SUCCESS);
-    }
-
-    @Override
     public Result insert(Log log) {
-        Date date = new Date();
-        String today = sdf.format(date);
-        String table = "t_visit_"+today;
-        MybatisConfig.setDynamicTableName(table);
+        MybatisConfig.setDynamicTableName("t_log");
         logMapper.insert(log);
         return new Result(ResultEnum.INSERT_SUCCESS);
     }
@@ -81,11 +72,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
     @Override
     public Result select(HashMap<String,Object> map) {
         QueryWrapper<Log> wrapper = new QueryWrapper();
-        //查询的表名
-        Date date = new Date();
-        String today = sdf.format(date);
-        String table = "visit_"+today;
-        MybatisConfig.setDynamicTableName(table);
+        MybatisConfig.setDynamicTableName("t_log");
         if (map!=null){
             Iterator<String> keys = map.keySet().iterator();
             while(keys.hasNext()){
@@ -235,7 +222,6 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
                         .setViews(packageVisits)
                         .setVisits(packageIP)
                         .setDefeat(exception)
-                        .setType("api")
                         .setProjectName(projectName);
                 MybatisConfig.setDynamicTableName(table);
                 statisticsService.insert(statistics);
@@ -250,7 +236,6 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
                 api.setVisits(visits+packageVisits);
                 api.setDefeatCount(defeatCount+exception);
                 //计算报错率
-                api.setDefeat(1.0*(visits+packageVisits)/(defeatCount+exception));
                 // TODO 4.2更新数据
                 apiErrorService.update(api);
             }
@@ -263,7 +248,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
             for (int i = 0; i < methods.size(); i++) {
                 //获得的到方法名
                 String method = methods.get(i);
-                //TODO 2.2.2查询该项目  该方法名下的访问量
+                //TODO 2.2.2查询该项目  该接口下的访问量
                 QueryWrapper<Log> queryWrapper = new QueryWrapper<>();
                 queryWrapper.eq("project_id",projectUrl)
                         .eq("method",method);
@@ -277,14 +262,20 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
                 queryWrapper.select("DISTINCT ip");
                 MybatisConfig.setDynamicTableName(TodayTable);
                 Long MethodIP = logMapper.selectCount(queryWrapper);
-
+                //获取平均耗时
+                QueryWrapper<Log> qw = new QueryWrapper<>();
+                qw.select("SUM(response_time) AS response_time");
+                Log selectOne = logMapper.selectOne(qw);
+                double responseTime = selectOne.getResponseTime();
+                double AvgResponse = responseTime/MethodVisits;
+                DecimalFormat df = new DecimalFormat("0.0000");
                 //TODO 3.将数据存入statistic表
                 Statistics statistics = new Statistics();
                 statistics.setProjectUrl(projectUrl)
                         .setMethod(method)
                         .setViews(MethodVisits)
                         .setVisits(MethodIP)
-                        .setType("api")
+                        .setResponse(df.format(AvgResponse))
                         .setProjectName(projectName);
                 MybatisConfig.setDynamicTableName(table);
                 statisticsService.insert(statistics);
@@ -294,9 +285,11 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
         }
     }
 
-    /**
+    */
+/**
      * 定时器判断是否执行自动小时存储
-     */
+     *//*
+
     public  void schedule(){
         Date now = new Date();
         //指定每小时触发  ,判断分钟是否在 58分 - 02分之间
@@ -327,3 +320,4 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,Log> implements LogSer
     }
 }
 
+*/

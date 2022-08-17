@@ -55,7 +55,7 @@ public interface ProjectService extends IService<Project> {
      * @param project
      * @return
      */
-    Result updateProject(Project project);
+    Result updateProject(Project project,int position);
 
     /**
      * 根据项目id删除
@@ -63,4 +63,6 @@ public interface ProjectService extends IService<Project> {
      * @return 返回结果集
      */
     Result deleteProject(String projectId);
+
+    void scheduleUpdate();
 }
