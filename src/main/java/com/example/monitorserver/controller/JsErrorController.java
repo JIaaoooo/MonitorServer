@@ -31,6 +31,11 @@ public class JsErrorController {
         return jsErrorService.getJsErrByType(data.getProjectName(), data.getOption());
     }
 
+    /**
+     * 获取某个项目各个url的错误信息
+     * @param data:项目名称
+     * @return :返回封装了错误信息的结果集
+     */
     @PostMapping("/urlErr")
     @Secret
     public Result getUrlErrCountByName(@RequestBody Data data) {

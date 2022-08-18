@@ -1,6 +1,7 @@
 package com.example.monitorserver.po;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,4 +38,11 @@ public class ResourceError extends HttpSecretCode{
 
     /**  错误名称  **/
     private String tagname;
+
+    @TableField(exist = false)
+    private Long count;
+
+
+    @TableField(exist = false)
+    private Double percent;
 }
