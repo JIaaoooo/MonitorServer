@@ -110,7 +110,7 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
             count = resourceErrorMapper.selectCount(qw);
 
             vo = new ResourceError();
-            vo.setCount(count).setPercent(getDouble(count * 1.0 / sum)).setTagname(resourceError.getTagname());
+            vo.setCount(count).setPercent(getDouble(count * 100.0 / sum)).setTagname(resourceError.getTagname());
 
             listVo.add(vo);
         }
