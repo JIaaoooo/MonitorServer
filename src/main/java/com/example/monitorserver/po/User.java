@@ -72,4 +72,8 @@ public class User extends HttpSecretCode{
     /**  用户是否在线  **/
     @TableField(exist = false)
     private int onLive;
+
+    /** 该用户的类型 1发布者 2监控这 **/
+    @TableField(exist = false)
+    private int type;
 }

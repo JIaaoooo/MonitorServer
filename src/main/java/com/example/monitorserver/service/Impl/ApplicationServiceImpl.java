@@ -8,11 +8,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.mapper.ApplicationMapper;
-import com.example.monitorserver.po.Message;
-import com.example.monitorserver.po.Result;
-import com.example.monitorserver.po.UserProject;
+import com.example.monitorserver.po.*;
 import com.example.monitorserver.service.ApplicationService;
-import com.example.monitorserver.po.Application;
 import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
@@ -71,11 +68,14 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
                     .setUserId(application.getUserId())
                     .setApplicationId(ID);
             messageService.addMessage(message);
+            application.setStatus(1);
         }
         // TODO 申请成为监控者和删除项目，都要向发布者们发送申请
 
         else{
-
+            if(application.getType()==1){
+                application.setStatus(1);
+            }
             // TODO 2.查询该项目的所有发布者
             Map<String,Object> condition = new HashMap<>();
             condition.put("project_id",application.getProjectId());
@@ -107,23 +107,53 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
         UpdateWrapper<Application> wrapper = new UpdateWrapper<>();
         wrapper.eq("application_id",application.getApplicationId());
 
-        log.debug(application.getNumber());
-        int number = Integer.parseInt(application.getNumber());
-        application.setStatus(number);
         applicationMapper.update(application,wrapper);
+        if(application.getStatus()==0){
+            int type  = application.getType();
+            // TODO 1.申请监控
+             if (type == 1){
+                 // 将申请人 与 项目id 信息存入t_project_user表
+                 UserProject userProject = new UserProject()
+                         .setType(2)
+                         .setProjectId(application.getProjectId())
+                         .setUserId(application.getApplicantId());
+                 userProjectService.add(userProject);
+             }
+             // TODO 2.邀请成为发布者
+             if (type==2){
+                 UserProject userProject = new UserProject()
+                         .setType(1)
+                         .setProjectId(application.getProjectId())
+                         .setUserId(application.getUserId());
+                 userProjectService.add(userProject);
+             }
+            //TODO 3.  删除
 
-        //TODO 2.  删除
-        int type  = application.getType();
-        if(type==3){
-            if(application.getStatus()==0){
+            if(type==3){
+
                 //删除项目
-                projectService.deleteProject(application.getProjectId());
+                // TODO 通过项目id去获取项目信息，包括发布者
+                Map<String,Object> condition = new HashMap<>();
+                condition.put("project_id",application.getProjectId());
+                Result byCondition = projectService.getByCondition(condition);
+                List<Project> lists = (List<Project>) byCondition.getData();
+                Project project = lists.iterator().next();
+                Data data = new Data()
+                        .setUserId(project.getUserId())
+                                .setProjectName(project.getProjectName());
+                projectService.deleteProject(data);
                 //删除redis首页缓存
                 if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))){
                     redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
                 }
             }
         }
+        // TODO 更新message表中的handle为1
+        Message message = new Message()
+                .setHandle(application.getHandle())
+                        .setApplicationId(application.getApplicationId())
+                                .setUserId(application.getUserId());
+        messageService.update(message);
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
@@ -137,6 +167,19 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
             wrapper.eq(key,value);
         }
         return new Result(ResultEnum.REQUEST_SUCCESS,applicationMapper.selectList(wrapper));
+    }
+
+    @Override
+    public Result deleteAppli(Map<String,Object> condition) {
+        QueryWrapper<Application> queryWrapper = new QueryWrapper<>();
+        Iterator<String> iterator = condition.keySet().iterator();
+        while(iterator.hasNext()){
+            String key = iterator.next();
+            Object value = condition.get(key);
+            queryWrapper.eq(key,value);
+        }
+        applicationMapper.delete(queryWrapper);
+        return null;
     }
 
 

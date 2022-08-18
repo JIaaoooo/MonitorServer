@@ -3,13 +3,12 @@ package com.example.monitorserver.controller;
 import cn.hutool.core.util.IdUtil;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.RedisEnum;
-import com.example.monitorserver.po.Message;
-import com.example.monitorserver.po.Result;
-import com.example.monitorserver.po.User;
+import com.example.monitorserver.constant.ResultEnum;
+import com.example.monitorserver.po.*;
 import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.MessageService;
-import com.example.monitorserver.po.Application;
 import com.example.monitorserver.service.ProjectService;
+import com.example.monitorserver.service.UserService;
 import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @program: monitor server
@@ -46,6 +43,9 @@ public class ApplicationController {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private MessageService messageService;
@@ -74,18 +74,30 @@ public class ApplicationController {
     }
 
     /**
-     * 用户登录处理信息，后执行,前端传值：applicationId status，根据status判断（0同意，-1拒绝，1待审核）
+     * 用户登录处理信息，后执行,前端传值：applicationId status，根据status判断（1同意，-1拒绝，0待审核）
      * @param application 申请对象
      * @return 结果返回集
      */
     @PostMapping("/update")
     @Secret
     public Result  updateApp(@RequestBody Application application){
+        String token = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
+        User user = (User) MapBeanUtil.map2Object(entries, User.class);
+
         Map<String,Object> condition = new HashMap<>();
         condition.put("application_id",application.getApplicationId());
         Result result = applicationService.selectApp(condition);
         List<Application> list = (List<Application>) result.getData();
-        Application application1 = list.get(0).setNumber(application.getNumber());
+        Application application1 = list.get(0);
+        application1.setHandle(Integer.parseInt(application.getNumber()));
+
+        application1.setUserId(user.getUserId());
+        int status = application1.getStatus();
+        if (application.getNumber()=="1"){
+            status--;
+        }
+        application1.setStatus(status);
         return applicationService.updateApp(application1);
     }
 
@@ -100,8 +112,8 @@ public class ApplicationController {
 
 
     /**
-     * 查看我发出的申请信息，查看结果
-     * @return 返回申请消息
+     * 查看我发出的申请信息
+     * @return 返回接收者，项目名
      */
     @GetMapping("/MySend")
     @Secret
@@ -113,6 +125,59 @@ public class ApplicationController {
         // TODO 获取该用户id发布的application
         Map<String,Object> condition = new HashMap<>();
         condition.put("applicant_id",userId);
-        return  applicationService.selectApp(condition);
+        Result result = applicationService.selectApp(condition);
+        List<Application> lists = (List<Application>) result.getData();
+        Iterator<Application> iterator = lists.iterator();
+        // 结果集封装
+        List<Application> ApplicationResult = new ArrayList<>();
+        while(iterator.hasNext()){
+            Application application = iterator.next();
+            //获取项目名
+            String projectId = application.getProjectId();
+            Map<String,Object> mp = new HashMap<>();
+            mp.put("project_id",projectId);
+            Result byCondition = projectService.getByCondition(mp);
+            List<Project> projectList = (List<Project>) byCondition.getData();
+            Project next = projectList.iterator().next();
+            String projectName = next.getProjectName();
+
+            String applicationId = application.getApplicationId();
+            //通过applicationId去获取申请接收方
+            Map<String,Object> map = new HashMap<>();
+            map.put("application_id",applicationId);
+            Result select = messageService.select(map);
+            List<Message> messages = (List<Message>) select.getData();
+            Iterator<Message> messageIterator = messages.iterator();
+            while (messageIterator.hasNext()){
+                Message message = messageIterator.next();
+                // 通过id查询用户名
+                Result userID = userService.getByUserID(message.getUserId());
+                User userResult = (User) userID.getData();
+                String username = userResult.getUsername();
+                Application appli= new Application()
+                        .setProjectName(projectName)
+                        .setType(application.getType())
+                        .setHandle(message.getHandle())
+                        .setUserName(username)
+                                .setApplicationId(application.getApplicationId());
+                ApplicationResult.add(appli);
+            }
+        }
+        return  new Result(ResultEnum.REQUEST_SUCCESS,ApplicationResult);
+    }
+
+    /**
+     * 查出已处理信息，或撤回未读信息
+     * @param data 传参application_id
+     * @return
+     */
+    @PostMapping("/deleteMySend")
+    @Secret
+    public Result deleteMySend(@RequestBody Data data){
+        Map<String,Object> deleteMap = new HashMap<>();
+        deleteMap.put("application_id",data.getApplicationId());
+        applicationService.deleteAppli(deleteMap);
+        messageService.delete(deleteMap);
+        return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 }

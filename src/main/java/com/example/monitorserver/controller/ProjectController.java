@@ -4,11 +4,9 @@ import cn.hutool.core.util.IdUtil;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
-import com.example.monitorserver.po.Result;
-import com.example.monitorserver.po.User;
+import com.example.monitorserver.po.*;
+import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.UserService;
-import com.example.monitorserver.po.Data;
-import com.example.monitorserver.po.Project;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +40,9 @@ public class ProjectController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ApplicationService applicationService;
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
@@ -143,5 +144,24 @@ public class ProjectController {
         return projectService.updateProject(next,position);
     }
 
-
+    @PostMapping("/delete")
+    @Secret
+    public Result delProject(@RequestBody Data data){
+        String token = request.getHeader("Authorization");
+        // TODO 1.遍历已存的token，获取权限
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
+        User user = (User) MapBeanUtil.map2Object(entries, User.class);
+        // TODO 2.获取projectId
+        Map<String,Object> map = new HashMap<>();
+        map.put("project_name",data.getProjectName());
+        Result byCondition = projectService.getByCondition(map);
+        List<Project> list = (List<Project>) byCondition.getData();
+        Project project = list.iterator().next();
+        String projectId = project.getProjectId();
+        Application application = new Application()
+                .setProjectId(projectId)
+                .setApplicantId(user.getUserId())
+                .setType(3);
+        return applicationService.releaseApp(application);
+    }
 }

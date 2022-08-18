@@ -38,33 +38,27 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
         //获取token
         String method = request.getMethod();
         if ("OPTIONS".equals(method)) {
             return true;
         }
-        log.debug(method);
         token = request.getHeader("Authorization");
+        log.debug(token);
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
-
-        if(token!=null){
-                //已登录,并且刷新token
-                redisTemplate.expire(RedisEnum.TOKEN_EXITS.getMsg()+token,RedisEnum.TOKEN_EXITS.getCode(), TimeUnit.HOURS);
-
-
-                try{
-                    User user = (User) MapBeanUtil.map2Object(entries, User.class);
-                    String userId = user.getUserId();
-                }catch (Exception e){
-                    request.getSession();
-                    Result result = new Result(ResultEnum.USER_EXPIRE);
-                    response.getWriter().write(JSONUtil.toJsonStr(result));
-                    return false;
-                }
-                return true;
+        if (token!=null&&!entries.isEmpty()){
+            log.debug("访问成功111111111");
+            redisTemplate.expire(RedisEnum.TOKEN_EXITS.getMsg()+token,RedisEnum.TOKEN_EXITS.getCode(), TimeUnit.HOURS);
+            return true;
         }
+            log.debug("400");
+            request.getSession();
+            Result result = new Result(ResultEnum.USER_EXPIRE);
+            response.setHeader("content-type", "text/html;charset=utf-8");
+            response.getWriter().write(JSONUtil.toJsonStr(result));
+            return false;
 
-        return false;
     }
 
 }

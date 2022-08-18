@@ -9,7 +9,6 @@ import com.example.monitorserver.po.JsError;
 import com.example.monitorserver.po.ResourceError;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ResourceErrorService;
-import com.example.monitorserver.utils.MybatisConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +29,6 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
 
     @Override
     public Result insert(ResourceError resourceError) {
-        MybatisConfig.setDynamicTableName("t_resourceError");
         resourceError.setDate(LocalDateTime.now());
         resourceErrorMapper.insert(resourceError);
         return new Result(ResultEnum.REQUEST_SUCCESS);
@@ -38,7 +36,6 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
 
     @Override
     public Result getCount(Data data) {
-        MybatisConfig.setDynamicTableName("t_resourceError");
         LocalDateTime now = LocalDateTime.now();
         int option = data.getOption();
         LocalDateTime dateTime = null;
@@ -65,7 +62,6 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
 
     @Override
     public Result getFileNameByProject(String projectName) {
-        MybatisConfig.setDynamicTableName("t_resource");
         //需要获取tag标签下的所有的路径,但是需要distinct
 
         //首先需要获取项目存在的错误
@@ -91,7 +87,6 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
     @Override
     public Result getCountByProject(String projectName) {
         //TODO
-        MybatisConfig.setDynamicTableName("t_resource");
         //需要获取tag标签下的所有的路径,但是需要distinct
 
         //首先需要获取项目存在的错误
@@ -110,6 +105,14 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
         }
         return null;
 
+    }
+
+    @Override
+    public Long getResourceCount(String projectName) {
+        QueryWrapper<ResourceError> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("project_name",projectName);
+
+        return resourceErrorMapper.selectCount(queryWrapper);
     }
 
 

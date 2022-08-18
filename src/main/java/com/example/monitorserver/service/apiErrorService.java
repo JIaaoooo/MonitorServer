@@ -48,4 +48,17 @@ public interface apiErrorService extends IService<apiError> {
      * @return 返回js错误数
      */
     Long getApiCount(String projectName);
+
+    /**
+     * 获取服务段所有包下的访问量，访问人次，异常数，成功率
+     * @return 返回封装集合
+     */
+    Result getPackageInfor();
+
+    /**
+     * 获取某个包下的所有接口的，访问量，访问人次，异常数，成功率
+     * @param packageName 包名
+     * @return 返回集合
+     */
+    Result getMethodInfor(String packageName);
 }

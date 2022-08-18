@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @ToString(callSuper = true)
 @Accessors(chain = true)
 @TableName("t_apiError")
-public class apiError{
+public class apiError extends HttpSecretCode{
 
 
     /** 访问者的ip  **/
@@ -67,6 +67,9 @@ public class apiError{
     @TableField(exist = false)
     private Long visits;
 
+    /** 总访问人次 **/
+    @TableField(exist = false)
+    private Long visits_people;
 
     /**  失败次数 **/
     @TableField(exist = false)

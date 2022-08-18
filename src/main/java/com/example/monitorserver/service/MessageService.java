@@ -6,6 +6,8 @@ import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.Message;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * @program: monitor server
  * @description: 申请信息 服务处
@@ -34,4 +36,8 @@ public interface MessageService extends IService<Message> {
      * @param message 消息
      */
     void update(Message message);
+
+    Result delete(Map<String,Object> condition);
+
+    Result select(Map<String,Object> condition);
 }

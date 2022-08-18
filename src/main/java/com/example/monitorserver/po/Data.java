@@ -30,7 +30,7 @@ public class Data extends HttpSecretCode {
 
     private String url;
 
-
+    private String applicationId;
 
     /** 时间戳 日期格式 **/
     private Timestamp date;
@@ -42,7 +42,7 @@ public class Data extends HttpSecretCode {
 
     private int option;
 
-
+    private String packageName;
 
     private Object data;
 

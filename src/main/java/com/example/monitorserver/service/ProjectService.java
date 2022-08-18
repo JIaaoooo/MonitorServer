@@ -1,6 +1,7 @@
 package com.example.monitorserver.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.Project;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,6 @@ public interface ProjectService extends IService<Project> {
      * @param projectId  项目id
      * @return 返回结果集
      */
-    Result deleteProject(String projectId);
+    Result deleteProject(Data data);
 
 }

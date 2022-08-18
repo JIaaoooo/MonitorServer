@@ -21,7 +21,7 @@ public class ResourceErrorController {
 
 
     /**
-     * 通过项目名获取各个错误标签的错误路径
+     * 通过项目名获取各个错误标签的错误路径，表
      * @param resourceError:项目名
      * @return :封装了错误路径的结果集
      */

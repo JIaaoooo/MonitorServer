@@ -85,21 +85,21 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
         Long count = null;
         Long sum = 0L;
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 4; i++) {
 
             lqw = new LambdaQueryWrapper<>();
             lqw.eq(JsError::getProjectName,projectName)
                     .le(JsError::getDate,time)
-                    .ge(JsError::getDate,time.plusHours(-4));
+                    .ge(JsError::getDate,time.plusHours(-6));
 
              count = jsErrorMapper.selectCount(lqw);
              vo = new JsError();
              vo.setCount(count);
-             vo.setDateStr(time.plusHours(-4).getHour() + "时-" + time.getHour()+"时");
+             vo.setDateStr(time.plusHours(-6).getHour() + "时-" + time.getHour()+"时");
              data.add(vo);
              sum += count;
 
-             time  = time.plusHours(-4);
+             time  = time.plusHours(-6);
         }
 
         return getPercent(data, sum);
@@ -160,21 +160,21 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
         Long count = null;
         Long sum = 0L;
 
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 4; i++) {
 
             lqw = new LambdaQueryWrapper<>();
             lqw.eq(JsError::getProjectName,projectName)
                     .le(JsError::getDate,time)
-                    .ge(JsError::getDate,time.plusMonths(-1));
+                    .ge(JsError::getDate,time.plusMonths(-3));
 
             count = jsErrorMapper.selectCount(lqw);
             vo = new JsError();
             vo.setCount(count);
-            vo.setDateStr(time.plusMonths(-4).getMonthValue() + "月-" + time.getMonthValue() + "月" );
+            vo.setDateStr(time.plusMonths(-3).getMonthValue() + "月-" + time.getMonthValue() + "月" );
             data.add(vo);
             sum += count;
 
-            time  = time.plusMonths(-1);
+            time  = time.plusMonths(-3);
         }
 
         return getPercent(data, sum);
@@ -198,7 +198,6 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
 
         //查询项目下各个url的js报错数,和占总数的百分比
 
-        MybatisConfig.setDynamicTableName("t_jsError");
         QueryWrapper<JsError> qw = new QueryWrapper<>();
 
 
@@ -226,5 +225,12 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
 
 
         return new Result(getPercent(list, sum));
+    }
+
+    @Override
+    public Long getJsErrorCount(String projectName) {
+        QueryWrapper<JsError> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("project_name",projectName);
+        return jsErrorMapper.selectCount(queryWrapper);
     }
 }

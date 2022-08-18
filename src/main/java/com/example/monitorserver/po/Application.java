@@ -55,4 +55,10 @@ public class Application extends HttpSecretCode {
 
     private LocalDateTime date;
 
+    /** 标记信息是否已处理 **/
+    private int handle;
+
+    /** 向前端获取用户名 **/
+    @TableField(exist = false)
+    private String userName;
 }

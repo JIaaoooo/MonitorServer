@@ -32,5 +32,6 @@ public class Message extends HttpSecretCode {
     /** 用户Id **/
     private String userId;
 
-    private int status;
+    /** 该申请信息是否已处理 **/
+    private int handle;
 }

@@ -35,4 +35,6 @@ public interface ApplicationService extends IService<Application> {
      * @return 返回申请信息
      */
     Result selectApp(Map<String,Object> condition);
+
+    Result deleteAppli(Map<String,Object> condition);
 }

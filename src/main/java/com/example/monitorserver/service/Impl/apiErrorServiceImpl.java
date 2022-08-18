@@ -28,7 +28,7 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
     public Result select(String projectName) {
         QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("project_name",projectName);
-        return new Result(apiErrorMapper.selectOne(queryWrapper));
+        return new Result(apiErrorMapper.selectCount(queryWrapper));
     }
 
     @Override
@@ -102,6 +102,83 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
         QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("project_name",projectName);
         return apiErrorMapper.selectCount(queryWrapper);
+    }
+
+    @Override
+    public Result getPackageInfor() {
+        QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("DISTINCT package_name")
+                .eq("project_url","www.monitorServer.com");
+        List<apiError> logs = apiErrorMapper.selectList(queryWrapper);
+        Iterator<apiError> iterator = logs.iterator();
+        List<apiError> result = new ArrayList<>();
+        // TODO 获取的到服务器所有的包名
+        while (iterator.hasNext()){
+            String packageName = iterator.next().getPackageName();
+            //TODO 通过包名获取访问量，访问人次，异常数，成功率
+            QueryWrapper<apiError> qw = new QueryWrapper<>();
+            qw.eq("project_url","www.monitorServer.com")
+                    .eq("package_name",packageName);
+            //总访问量
+            Long visits = apiErrorMapper.selectCount(qw);
+            qw.select("DISTINCT ip");
+            Long visits_people = apiErrorMapper.selectCount(qw);
+            QueryWrapper<apiError> qw2 = new QueryWrapper<>();
+            qw2.eq("project_url","www.monitorServer.com")
+                    .eq("package_name",packageName)
+                    .ne("exception",null);
+            Long defeatCount = apiErrorMapper.selectCount(qw2);
+            double rate = 1.0 * defeatCount / visits;
+            apiError apiError = new apiError()
+                    .setPackageName(packageName)
+                    .setDefeatCount(defeatCount)
+                    .setRate(rate)
+                    .setVisits(visits)
+                    .setVisits_people(visits_people);
+            result.add(apiError);
+        }
+
+        // TODO 更新信息表
+        return new Result(ResultEnum.REQUEST_SUCCESS,result);
+    }
+
+    @Override
+    public Result getMethodInfor(String packageName) {
+        QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("DISTINCT uri")
+                .eq("project_url","www.monitorServer.com")
+                .eq("package_name",packageName);
+        List<apiError> logs = apiErrorMapper.selectList(queryWrapper);
+        Iterator<apiError> iterator = logs.iterator();
+        List<apiError> result = new ArrayList<>();
+        // TODO 得到该包下的各个接口信息
+        while (iterator.hasNext()){
+            String uri = iterator.next().getUri();
+            QueryWrapper<apiError> qw = new QueryWrapper<>();
+            qw.eq("project_url","www.monitorServer.com")
+                    .eq("package_name",packageName)
+                    .eq("uri",uri);
+            //总访问量
+            Long visits = apiErrorMapper.selectCount(qw);
+            qw.select("DISTINCT ip");
+            Long visits_people = apiErrorMapper.selectCount(qw);
+            QueryWrapper<apiError> qw2 = new QueryWrapper<>();
+            qw2.eq("project_url","www.monitorServer.com")
+                    .eq("package_name",packageName)
+                    .eq("package_name",packageName)
+                    .ne("exception",null);
+            Long defeatCount = apiErrorMapper.selectCount(qw2);
+            double rate = 1.0 * defeatCount / visits;
+            apiError apiError = new apiError()
+                    .setPackageName(packageName)
+                    .setUri(uri)
+                    .setDefeatCount(defeatCount)
+                    .setRate(rate)
+                    .setVisits(visits)
+                    .setVisits_people(visits_people);
+            result.add(apiError);
+        }
+        return new Result(ResultEnum.REQUEST_SUCCESS,result);
     }
 
 

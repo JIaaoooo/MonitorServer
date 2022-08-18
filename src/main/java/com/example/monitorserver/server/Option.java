@@ -45,9 +45,10 @@ public class Option {
 
     public static void MessageHandle(String message) throws Exception {
         apiError error = JSON.parseObject(message, apiError.class);
-
         String projectName = option.projectService.getProjectName(error.getProjectUrl());
         error.setProjectName(projectName);
-        option.apiErrorService.insert(error);
+        if(!error.getProjectUrl().equals("www.monitorServer.com") && !error.getUri().equals("/SDK")){
+            option.apiErrorService.insert(error);
+        }
     }
 }

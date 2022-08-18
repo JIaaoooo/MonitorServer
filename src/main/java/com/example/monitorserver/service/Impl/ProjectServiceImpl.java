@@ -7,12 +7,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
-import com.example.monitorserver.po.Result;
-import com.example.monitorserver.po.UserProject;
+import com.example.monitorserver.po.*;
+import com.example.monitorserver.service.ApplicationService;
+import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
 import com.example.monitorserver.mapper.ProjectMapper;
-import com.example.monitorserver.po.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,12 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Autowired
     private UserProjectService userProjectService;
+
+    @Autowired
+    private ApplicationService applicationService;
+
+    @Autowired
+    private MessageService messageService;
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
@@ -159,9 +166,26 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     }
 
     @Override
-    public Result deleteProject(String projectUrl) {
+    public Result deleteProject(Data data) {
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Project::getProjectUrl,projectUrl);
+        wrapper.eq(Project::getProjectName,data.getProjectName());
+        // TODO 获取项目id ，删除userproject、application相关信息（message相关信息）
+        Project project = projectMapper.selectOne(wrapper);
+        UserProject userProject = new UserProject()
+                .setUserId(data.getUserId())
+                        .setProjectId(project.getProjectId());
+        userProjectService.delete(userProject);
+        Map<String,Object> condition = new HashMap<>();
+        condition.put("project_id",project.getProjectId());
+        Result result= applicationService.selectApp(condition);
+        List<Application> applications = (List<Application>) result.getData();
+        Application application = applications.iterator().next();
+        Map<String,Object> deleteMap = new HashMap<>();
+        deleteMap.put("project_id",project.getProjectId());
+        applicationService.deleteAppli(deleteMap);
+        deleteMap.remove("project_id");
+        deleteMap.put("application_id",application.getApplicationId());
+        messageService.delete(deleteMap);
         projectMapper.delete(wrapper);
         return new Result(ResultEnum.DELETE_SUCCESS);
     }

@@ -21,7 +21,7 @@ public class JsErrorController {
     private JsErrorService jsErrorService;
 
     /**
-     * 获取某个项目的各个时间段下的js报错信息,
+     * 获取某个项目的各个时间段下的js报错信息,图的
      * @param data :报错信息
      * @return :封装了报错信息的结果集
      */
@@ -32,7 +32,7 @@ public class JsErrorController {
     }
 
     /**
-     * 获取某个项目各个url的错误信息
+     * 获取某个项目各个url的错误信息，表
      * @param data:项目名称
      * @return :返回封装了错误信息的结果集
      */

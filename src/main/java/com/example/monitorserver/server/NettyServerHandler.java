@@ -41,16 +41,6 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
     }
 
 
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        log.debug("新连接移动");
-    }
-
-    @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        log.debug("连接断开");
-    }
-
     //处理异常
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {

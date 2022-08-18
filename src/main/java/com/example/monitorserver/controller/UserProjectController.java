@@ -47,27 +47,28 @@ public class UserProjectController {
         Map<String,Object> condition = new HashMap<>();
         condition.put("project_name",data.getProjectName());
         Result result = projectService.getByCondition(condition);
-        Project project = (Project) result.getData();
+        List<Project> project = (List<Project>) result.getData();
         Map<String,Object> map = new HashMap<>();
-        map.put("project_id",project.getProjectId());
-        map.put("type",2);
+        map.put("project_id",project.iterator().next().getProjectId());
         Result select = userProjectService.select(map);
         //TODO 返回的是userProject类，内存的是用户ID
         List<UserProject> lists = (List<UserProject>) select.getData();
         Iterator<UserProject> iterator = lists.iterator();
         // TODO 将用户ID 转成用户名 封装成集合返回
-        List<String> userNameLists  = new ArrayList<>();
+        List<User> userNameLists  = new ArrayList<>();
         while (iterator.hasNext()){
-            String userId = iterator.next().getUserId();
+            UserProject userProject = iterator.next();
+            String userId = userProject.getUserId();
             Result byUserID = userService.getByUserID(userId);
             User user = (User) byUserID.getData();
-            userNameLists.add(user.getUsername());
+            user.setType(userProject.getType());
+            userNameLists.add(user);
         }
         return new Result(ResultEnum.REQUEST_SUCCESS,userNameLists);
     }
 
     /**
-     *查询自己监控、发布的项目
+     *查询自己监控\发布的项目
      * @param data 向前端获取用户id
      * @return 返回project实体类
      */
@@ -80,7 +81,7 @@ public class UserProjectController {
         //获取的到该用户下的项目ID
         List<UserProject> list = (List<UserProject>) select.getData();
         if (list.size()==0){
-            return new Result(ResultEnum.REQUEST_FALSE);
+            return new Result(ResultEnum.SELECT_BLANK);
         }
         Iterator<UserProject> iterator = list.iterator();
         Map<String,Object> condition2 = new HashMap<>();
@@ -91,6 +92,9 @@ public class UserProjectController {
             condition2.put("project_id",projectId);
             Result byCondition = projectService.getByCondition(condition2);
             List<Project> listProject = (List<Project>) byCondition.getData();
+            if (listProject.size()==0){
+                return new Result(ResultEnum.SELECT_BLANK);
+            }
             Project next = listProject.iterator().next();
             next.setAppliType(userProject.getType());
             result.add(next);
@@ -112,18 +116,12 @@ public class UserProjectController {
         Map<String,Object> condition1 = new HashMap<>();
         condition1.put("project_name",data.getProjectName());
         Result result = projectService.getByCondition(condition1);
-        Project project = (Project) result.getData();
-        String projectId = project.getProjectId();
-        // TODO 2.获取用户名对应的用户ID
-        Map<String,Object> condition2 = new HashMap<>();
-        condition2.put("username",data.getUserName());
-        Result byCondition = userService.getByCondition(condition2);
-        User user = (User) byCondition.getData();
-        String userID = user.getUserId();
+        List<Project> project = (List<Project>) result.getData();
+        String projectId = project.iterator().next().getProjectId();
         // TODO 3.信息封装
         UserProject userProject = new UserProject();
         userProject.setProjectId(projectId);
-        userProject.setUserId(userID);
+        userProject.setUserId(data.getUserId());
         // TODO 4.删除
         return userProjectService.delete(userProject);
     }

@@ -5,6 +5,8 @@ import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.*;
 import com.example.monitorserver.service.BlankErrorService;
+import com.example.monitorserver.service.JsErrorService;
+import com.example.monitorserver.service.apiErrorService;
 import com.example.monitorserver.service.PerformanceErrorService;
 import com.example.monitorserver.service.ResourceErrorService;
 
@@ -34,7 +36,10 @@ public class ErrorController {
     HttpServletResponse response;
 
     @Autowired
-    private com.example.monitorserver.service.apiErrorService apiErrorService;
+    private apiErrorService apiErrorService;
+
+    @Autowired
+    private JsErrorService jsErrorService;
 
     @Autowired
     private BlankErrorService blankErrorService;
@@ -54,6 +59,7 @@ public class ErrorController {
     @PostMapping
     public Result getSDK(@RequestBody Data data){
         String type = data.getType();
+        System.out.println(data.toString());
         switch (type){
             case "JsError":
                 apiErrorService.insert((apiError) data.getData());
@@ -73,19 +79,30 @@ public class ErrorController {
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
-    /**
-     * js错误栈
-     * @param data
-     * @return
+   /* *//**
+     * js错误率
+     * @param data 封装项目名
+     * @return 返回比例
      */
     @PostMapping("/JsRate")
     @Secret
     public Result JsRate(@RequestBody Data data){
+        Long jsCount = jsErrorService.getJsErrorCount(data.getProjectName());
         Long apiCount = apiErrorService.getApiCount(data.getProjectName());
         Long blankCount = blankErrorService.getBlankCount(data.getProjectName());
         Long resourceCount = resourceErrorService.getResourceCount(data.getProjectName());
         Long whole = apiCount + blankCount + resourceCount;
-        double rate = 1.0*apiCount / whole;
+        double rate = 1.000*jsCount / whole;
         return new Result(ResultEnum.REQUEST_SUCCESS,rate);
+    }
+
+    /**
+     * js错误数
+     * @param data
+     * @return
+     */
+    public Result JsCount(@RequestBody Data data){
+        Long jsCount = jsErrorService.getJsErrorCount(data.getProjectName());
+        return new Result(ResultEnum.REQUEST_SUCCESS,jsCount);
     }
 }
