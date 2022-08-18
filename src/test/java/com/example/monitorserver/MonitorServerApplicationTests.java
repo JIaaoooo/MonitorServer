@@ -10,9 +10,6 @@ import com.example.monitorserver.controller.ProjectController;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.ProjectService;
-import com.example.monitorserver.service.UserService;
-import com.example.monitorserver.utils.MapBeanUtil;
-import com.example.monitorserver.utils.MybatisConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +35,17 @@ class MonitorServerApplicationTests {
 
     @Autowired
     private ProjectController projectController;
+
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
+
+    @Test
+    void Test(){
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + "token");
+        if (entries.isEmpty()){
+            System.out.println(1);
+        }
+    }
 
 
 //

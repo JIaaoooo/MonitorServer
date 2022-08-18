@@ -5,6 +5,8 @@ import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.Application;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * @program: monitor server
  * @description: 申请信息 服务处
@@ -28,9 +30,9 @@ public interface ApplicationService extends IService<Application> {
     Result updateApp(Application application);
 
     /**
-     * 根据application_id获取申请信息
-     * @param applicationId 申请id
+     * 搜索相关申请信息
+     * @param condition 搜索条件信息
      * @return 返回申请信息
      */
-    Result selectApp(String applicationId);
+    Result selectApp(Map<String,Object> condition);
 }

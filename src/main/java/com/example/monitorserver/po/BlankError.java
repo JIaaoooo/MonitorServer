@@ -1,6 +1,7 @@
 package com.example.monitorserver.po;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -35,4 +36,15 @@ public class BlankError extends HttpSecretCode {
 
     /** 报错日期 **/
     private LocalDateTime date;
+
+    /** 报错数 **/
+    @TableField(exist = false)
+    private Long count;
+
+    @TableField(exist = false)
+    private Double percent;
+
+
+    @TableField(exist = false)
+    private String  dateStr;
 }

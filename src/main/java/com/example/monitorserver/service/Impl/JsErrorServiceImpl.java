@@ -9,8 +9,6 @@ import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.JsError;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.JsErrorService;
-import com.example.monitorserver.utils.MybatisConfig;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +32,6 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
 
     @Override
     public Result insert(JsError jsError) {
-        MybatisConfig.setDynamicTableName("t_jsError");
         jsError.setDate(LocalDateTime.now());
         jsErrorMapper.insert(jsError);
         return new Result(ResultEnum.REQUEST_SUCCESS);
@@ -42,7 +39,6 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
 
     @Override
     public Result getUrlError(Data data) {
-        MybatisConfig.setDynamicTableName("t_jsError");
         QueryWrapper<JsError> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("project_name",data.getProjectName())
                 .eq("url",data.getUrl());
@@ -85,7 +81,6 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
         time = time.plusHours(1);
 
         //往前查询
-        MybatisConfig.setDynamicTableName("t_jsError");
         LambdaQueryWrapper<JsError> lqw = null;
         Long count = null;
         Long sum = 0L;
@@ -123,7 +118,6 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
 
 
         //往前查询
-        MybatisConfig.setDynamicTableName("t_jsError");
         LambdaQueryWrapper<JsError> lqw = null;
         Long count = null;
         Long sum = 0L;
@@ -138,7 +132,7 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
             count = jsErrorMapper.selectCount(lqw);
             vo = new JsError();
             vo.setCount(count);
-            vo.setDateStr(time.plusDays(-4).getDayOfMonth() + "号-" + time.getDayOfMonth() + "号");
+            vo.setDateStr(time.plusDays(-7).getDayOfMonth() + "日-" + time.getDayOfMonth() + "日");
             data.add(vo);
             sum += count;
 
@@ -162,7 +156,6 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
 
 
         //往前查询
-        MybatisConfig.setDynamicTableName("t_jsError");
         LambdaQueryWrapper<JsError> lqw = null;
         Long count = null;
         Long sum = 0L;

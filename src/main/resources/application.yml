@@ -12,6 +12,9 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
 
+  main:
+    allow-circular-references: true
+
   monitor:
       #监控数据流向的服务器地址,默认为localhost
       host: 39.98.41.126

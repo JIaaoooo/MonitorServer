@@ -2,6 +2,8 @@ package com.example.monitorserver.service.Impl;
 
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
@@ -15,11 +17,13 @@ import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +50,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     @Autowired
     private ProjectService projectService;
 
+    @Lazy
     @Autowired
     private MessageService messageService;
 
@@ -57,6 +62,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     public Result releaseApp(Application application) {
         String ID = IdUtil.simpleUUID();
         application.setApplicationId(ID);
+        application.setDate(LocalDateTime.now());
         int count = 0;
 
         // TODO 邀请发布者
@@ -98,8 +104,12 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     @Override
     public Result updateApp(Application application) {
         //TODO 1.更新Application表中的数据
-        LambdaQueryWrapper<Application> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Application::getApplicantId,application.getApplicantId());
+        UpdateWrapper<Application> wrapper = new UpdateWrapper<>();
+        wrapper.eq("application_id",application.getApplicationId());
+
+        log.debug(application.getNumber());
+        int number = Integer.parseInt(application.getNumber());
+        application.setStatus(number);
         applicationMapper.update(application,wrapper);
 
         //TODO 2.  删除
@@ -118,11 +128,15 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     }
 
     @Override
-    public Result selectApp(String applicationId) {
-        LambdaQueryWrapper<Application> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Application::getApplicantId,applicationId);
-        Application selectOne = applicationMapper.selectOne(wrapper);
-        return new Result(selectOne);
+    public Result selectApp(Map<String,Object> condition) {
+        QueryWrapper<Application> wrapper = new QueryWrapper<>();
+        Iterator<String> iterator = condition.keySet().iterator();
+        while(iterator.hasNext()){
+            String key = iterator.next();
+            Object value = condition.get(key);
+            wrapper.eq(key,value);
+        }
+        return new Result(ResultEnum.REQUEST_SUCCESS,applicationMapper.selectList(wrapper));
     }
 
 

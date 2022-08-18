@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
+
 /**
  * @program: monitor server
  * @description: 项目实体类
@@ -22,8 +24,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @TableName("t_application")
 public class Application extends HttpSecretCode {
-    @TableId
-    private long id;
+
 
     /** 申请表唯一ID **/
     private String applicationId;
@@ -51,5 +52,7 @@ public class Application extends HttpSecretCode {
 
     @TableField(exist = false)
     private String number;
+
+    private LocalDateTime date;
 
 }
