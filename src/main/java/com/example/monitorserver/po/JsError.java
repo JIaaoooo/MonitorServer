@@ -3,7 +3,6 @@ package com.example.monitorserver.po;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -25,8 +24,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@TableName("t_jsError")
-public class JsError extends HttpSecretCode {
+public class JsError {
 
     @TableId
     private Long id;
@@ -45,5 +43,12 @@ public class JsError extends HttpSecretCode {
     /** 报错数 **/
     @TableField(exist = false)
     private Long count;
+
+    @TableField(exist = false)
+    private Double percent;
+
+
+    @TableField(exist = false)
+    private String  dateStr;
 
 }

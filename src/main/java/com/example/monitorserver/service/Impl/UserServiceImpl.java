@@ -50,6 +50,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         wrapper.eq(User::getUsername,user.getUsername())
                 .eq(User::getPassword,user.getPassword());
         User result = userMapper.selectOne(wrapper);
+        System.out.println("result = " + result);
         //返回结果不为空，并且要求用户不被冻结，即为登陆成功
         if(result!=null){
 

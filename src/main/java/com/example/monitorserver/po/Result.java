@@ -19,9 +19,8 @@ import lombok.experimental.Accessors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(callSuper = true)
 @Accessors(chain = true)
-public class Result extends HttpSecretCode {
+public class Result {
 
     /**编号*/
     private Integer code;

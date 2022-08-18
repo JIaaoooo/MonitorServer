@@ -49,7 +49,7 @@ public class User extends HttpSecretCode{
     private String password;
 
     /** 绑定的电话 **/
-    @Pattern(regexp = Constants.REGEX_PHONE,message = "手机格式错误")
+//    @Pattern(regexp = Constants.REGEX_PHONE,message = "手机格式错误")
     private String phone;
 
 

@@ -16,7 +16,7 @@ import java.io.IOException;
  * @create: 2022-08-10 14:57
  **/
 @Component
-public class XssFilter implements Filter{
+public  class XssFilter implements Filter{
     Logger log  = LoggerFactory.getLogger(this.getClass());
 
     // 忽略权限检查的url地址
