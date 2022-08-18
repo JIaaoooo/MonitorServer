@@ -4,10 +4,9 @@ package com.example.monitorserver.controller;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.*;
-import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
 import com.example.monitorserver.service.UserService;
-import com.example.monitorserver.utils.MybatisConfig;
+import com.example.monitorserver.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -68,7 +67,7 @@ public class UserProjectController {
     }
 
     /**
-     * 查询自己发布的项目
+     *查询自己监控、发布的项目
      * @param data 向前端获取用户id
      * @return 返回project实体类
      */
@@ -77,7 +76,6 @@ public class UserProjectController {
     public Result viewOwnProject(@RequestBody Data data){
         Map<String,Object> condition = new HashMap<>();
         condition.put("user_id",data.getUserId());
-        condition.put("type",1);
         Result select =  userProjectService.select(condition);
         //获取的到该用户下的项目ID
         List<UserProject> list = (List<UserProject>) select.getData();
@@ -86,13 +84,19 @@ public class UserProjectController {
         }
         Iterator<UserProject> iterator = list.iterator();
         Map<String,Object> condition2 = new HashMap<>();
+        List<Project> result = new ArrayList<>();
         while(iterator.hasNext()){
             UserProject userProject = iterator.next();
             String projectId = userProject.getProjectId();
             condition2.put("project_id",projectId);
+            Result byCondition = projectService.getByCondition(condition2);
+            List<Project> listProject = (List<Project>) byCondition.getData();
+            Project next = listProject.iterator().next();
+            next.setAppliType(userProject.getType());
+            result.add(next);
         }
 
-        return projectService.getByCondition(condition2);
+        return new Result(ResultEnum.REQUEST_SUCCESS,result);
     }
 
     /**

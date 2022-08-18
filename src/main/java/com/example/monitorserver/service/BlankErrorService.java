@@ -1,9 +1,8 @@
 package com.example.monitorserver.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.monitorserver.po.BlankError;
-import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.Result;
+import com.example.monitorserver.po.BlankError;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,8 +18,10 @@ public interface BlankErrorService extends IService<BlankError> {
 
     /**
      * 获取白屏次数
-     * @param data 通过项目名查询
+     * @param projectName 通过项目名查询
      * @return 返回白屏次数
      */
-    Result getBlankCount(Data data);
+    Long getBlankCount(String projectName);
+
+    Result getJsErrByType(String projectName,Integer type);
 }

@@ -3,21 +3,23 @@ package com.example.monitorserver.controller;
 import cn.hutool.core.util.IdUtil;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.RedisEnum;
-import com.example.monitorserver.po.*;
+import com.example.monitorserver.po.Message;
+import com.example.monitorserver.po.Result;
+import com.example.monitorserver.po.User;
 import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.MessageService;
+import com.example.monitorserver.po.Application;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,21 +51,16 @@ public class ApplicationController {
     private MessageService messageService;
 
     /**
-     * 发布申请
+     * 一：申请监控（前端发送申请类型 1，项目名）  二：邀请发布者（前端发送申请类型 2 ，项目名） 三：删除项目（类型3 ， 项目名）
      * @param application 申请信息
      * @return 申请处理结果
      */
     @PostMapping("/releaseApp")
     @Secret
-    public Result  releaseApp(@RequestBody Application application){
-        String ID = IdUtil.simpleUUID();
-        application.setApplicationId(ID);
+    public Result releaseApp(@RequestBody Application application){
+
         String number = application.getNumber();
         application.setType(Integer.parseInt(number));
-        //当申请类型为4，删除项目时
-        if (number.equals("4")){
-
-        }
         // TODO 1.获取当前申请用户的id
         String token = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
@@ -73,21 +70,23 @@ public class ApplicationController {
         // TODO 2.将用户id，项目id存入application
         application.setApplicantId(userId);
 
-        // TODO 3.将信息存入message表中
-        Message message = new Message()
-                .setApplicationId(application.getUserId())  //接受方id
-                .setUserId(userId); //申请人
-        messageService.addMessage(message);
         return applicationService.releaseApp(application);
     }
 
     /**
-     * 更新申请状态
+     * 用户登录处理信息，后执行,前端传值：applicationId status，根据status判断（0同意，-1拒绝，1待审核）
      * @param application 申请对象
      * @return 结果返回集
      */
-    public Result  updateApp(Application application){
-        return applicationService.updateApp(application);
+    @PostMapping("/update")
+    @Secret
+    public Result  updateApp(@RequestBody Application application){
+        Map<String,Object> condition = new HashMap<>();
+        condition.put("application_id",application.getApplicationId());
+        Result result = applicationService.selectApp(condition);
+        List<Application> list = (List<Application>) result.getData();
+        Application application1 = list.get(0).setNumber(application.getNumber());
+        return applicationService.updateApp(application1);
     }
 
     /**
@@ -96,7 +95,24 @@ public class ApplicationController {
      * @return 返回该申请信息
      */
     public Result selectApp(String applicationId){
-        return applicationService.selectApp(applicationId);
+        return null;
     }
 
+
+    /**
+     * 查看我发出的申请信息，查看结果
+     * @return 返回申请消息
+     */
+    @GetMapping("/MySend")
+    @Secret
+    public Result getMySend(){
+        String token = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
+        User user = (User) MapBeanUtil.map2Object(entries, User.class);
+        String userId = user.getUserId();
+        // TODO 获取该用户id发布的application
+        Map<String,Object> condition = new HashMap<>();
+        condition.put("applicant_id",userId);
+        return  applicationService.selectApp(condition);
+    }
 }

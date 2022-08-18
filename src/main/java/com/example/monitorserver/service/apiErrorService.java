@@ -41,4 +41,11 @@ public interface apiErrorService extends IService<apiError> {
      * @return 返回前端所需信息
      */
     Result each(String project_name);
+
+    /**
+     * 获得该项目名的所有Api错误数量
+     * @param projectName 项目名
+     * @return 返回js错误数
+     */
+    Long getApiCount(String projectName);
 }

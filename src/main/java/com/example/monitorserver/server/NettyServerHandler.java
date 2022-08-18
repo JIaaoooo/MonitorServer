@@ -1,6 +1,5 @@
 package com.example.monitorserver.server;
 
-import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -38,10 +37,19 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         //writeAndFlush是write+flush
         //将数据写入缓存，并刷新。需要对发送的数据进行编码
         ctx.writeAndFlush(Unpooled.copiedBuffer("hello，客户端",CharsetUtil.UTF_8));
-
+        ctx.channel().close();
     }
 
 
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        log.debug("新连接移动");
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        log.debug("连接断开");
+    }
 
     //处理异常
     @Override

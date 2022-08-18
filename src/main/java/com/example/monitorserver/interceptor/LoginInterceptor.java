@@ -2,15 +2,17 @@ package com.example.monitorserver.interceptor;
 
 import cn.hutool.json.JSONUtil;
 import com.example.monitorserver.constant.RedisEnum;
+import com.example.monitorserver.constant.ResultEnum;
+import com.example.monitorserver.po.Result;
+import com.example.monitorserver.po.User;
+import com.example.monitorserver.utils.MapBeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -43,18 +45,25 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         }
         log.debug(method);
         token = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
 
-        log.debug(token);
         if(token!=null){
                 //已登录,并且刷新token
                 redisTemplate.expire(RedisEnum.TOKEN_EXITS.getMsg()+token,RedisEnum.TOKEN_EXITS.getCode(), TimeUnit.HOURS);
+
+
+                try{
+                    User user = (User) MapBeanUtil.map2Object(entries, User.class);
+                    String userId = user.getUserId();
+                }catch (Exception e){
+                    request.getSession();
+                    Result result = new Result(ResultEnum.USER_EXPIRE);
+                    response.getWriter().write(JSONUtil.toJsonStr(result));
+                    return false;
+                }
                 return true;
         }
-        //错误给予返回提示信息
-        HashMap<String,String> result = new HashMap<>();
-        response.setHeader("Content-type", "text/html;charset=UTF-8");
-        result.put("cause","无权限访问，请登录");
-        response.getWriter().write(JSONUtil.toJsonStr(result));
+
         return false;
     }
 

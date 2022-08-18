@@ -1,26 +1,33 @@
 package com.example.monitorserver.service.Impl;
 
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.RedisEnum;
-import com.example.monitorserver.mapper.ApplicationMapper;
 import com.example.monitorserver.constant.ResultEnum;
-import com.example.monitorserver.po.Application;
+import com.example.monitorserver.mapper.ApplicationMapper;
+import com.example.monitorserver.po.Message;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.ApplicationService;
+import com.example.monitorserver.po.Application;
+import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
-import com.example.monitorserver.utils.MybatisConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: monitor server
@@ -43,41 +50,66 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     @Autowired
     private ProjectService projectService;
 
+    @Lazy
+    @Autowired
+    private MessageService messageService;
+
     @Autowired
     private UserProjectService userProjectService;
 
 
     @Override
     public Result releaseApp(Application application) {
-        MybatisConfig.setDynamicTableName("t_application");
-        // TODO 1.将申请信息存入
+        String ID = IdUtil.simpleUUID();
+        application.setApplicationId(ID);
+        application.setDate(LocalDateTime.now());
+        int count = 0;
+
+        // TODO 邀请发布者
+        if(application.getType()==2){
+            Message message =new Message()
+                    .setUserId(application.getUserId())
+                    .setApplicationId(ID);
+            messageService.addMessage(message);
+        }
+        // TODO 申请成为监控者和删除项目，都要向发布者们发送申请
+
+        else{
+
+            // TODO 2.查询该项目的所有发布者
+            Map<String,Object> condition = new HashMap<>();
+            condition.put("project_id",application.getProjectId());
+            Result select = userProjectService.select(condition);
+            List<UserProject> lists= (List<UserProject>) select.getData();
+            Iterator<UserProject> iterator = lists.iterator();
+            while(iterator.hasNext()){
+                count ++;
+                UserProject next = iterator.next();
+                // TODO 成功获取得到userId
+                String userId = next.getUserId();
+                // TODO 3.存入消息
+                Message message =new Message()
+                        .setUserId(userId)
+                        .setApplicationId(ID);
+                messageService.addMessage(message);
+            }
+        }
+        if(application.getType()==3){
+            application.setStatus(count);
+        }
         applicationMapper.insert(application);
-        /*// TODO 2.信息推送 当类型为请求监控、删除项目时都需要向项目发布者发送消息通知也做同意
-        String projectId = application.getProjectId();
-        HashMap<String, Object> map = new HashMap<>();
-        // TODO 2.1查询userProject表，获取项目的发布者  条件：项目id type 为1
-        map.put("project_id",projectId);
-        map.put("type",1);
-        Result select = userProjectService.select(map);
-        List<UserProject> data = (List<UserProject>) select.getData();
-
-        // TODO 3.获得对应的发布者信息
-        Iterator<UserProject> iterator = data.iterator();
-        while (iterator.hasNext()){
-            // TODO 3.1获得项目发布者的ID
-            String userId = iterator.next().getUserId();
-            // TODO 4.将用户ID和申请信息ID绑定
-
-        }*/
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
     public Result updateApp(Application application) {
-        MybatisConfig.setDynamicTableName("application");
         //TODO 1.更新Application表中的数据
-        LambdaQueryWrapper<Application> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Application::getApplicantId,application.getApplicantId());
+        UpdateWrapper<Application> wrapper = new UpdateWrapper<>();
+        wrapper.eq("application_id",application.getApplicationId());
+
+        log.debug(application.getNumber());
+        int number = Integer.parseInt(application.getNumber());
+        application.setStatus(number);
         applicationMapper.update(application,wrapper);
 
         //TODO 2.  删除
@@ -96,12 +128,15 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     }
 
     @Override
-    public Result selectApp(String applicationId) {
-        MybatisConfig.setDynamicTableName("application");
-        LambdaQueryWrapper<Application> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Application::getApplicantId,applicationId);
-        Application selectOne = applicationMapper.selectOne(wrapper);
-        return new Result(selectOne);
+    public Result selectApp(Map<String,Object> condition) {
+        QueryWrapper<Application> wrapper = new QueryWrapper<>();
+        Iterator<String> iterator = condition.keySet().iterator();
+        while(iterator.hasNext()){
+            String key = iterator.next();
+            Object value = condition.get(key);
+            wrapper.eq(key,value);
+        }
+        return new Result(ResultEnum.REQUEST_SUCCESS,applicationMapper.selectList(wrapper));
     }
 
 

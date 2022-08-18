@@ -1,6 +1,5 @@
 package com.example.monitorserver.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -16,8 +15,6 @@ import lombok.experimental.Accessors;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @program: monitor server
@@ -31,9 +28,9 @@ import java.util.List;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Accessors(chain = true)
+@TableName("t_project")
 public class Project extends HttpSecretCode{
-    @TableId
-    private long id;
+
 
     /** 项目唯一id **/
     private String projectId;
@@ -73,5 +70,15 @@ public class Project extends HttpSecretCode{
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime unsealDate;
+
+    /** 在申请返回时使用，告知前端该项目下的申请是什么类型  **/
+    @TableField(exist = false)
+    private int appliType;
+
+    @TableField(exist = false)
+    private String appliId;
+
+    @TableField(exist = false)
+    private String appiUser;
 
 }

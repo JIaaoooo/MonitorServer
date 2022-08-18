@@ -2,12 +2,11 @@ package com.example.monitorserver.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.monitorserver.mapper.UserProjectMapper;
 import com.example.monitorserver.constant.ResultEnum;
+import com.example.monitorserver.mapper.UserProjectMapper;
 import com.example.monitorserver.po.Result;
-import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.UserProjectService;
-import com.example.monitorserver.utils.MybatisConfig;
+import com.example.monitorserver.po.UserProject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,14 +32,12 @@ public class UserProjectServiceImpl extends ServiceImpl<UserProjectMapper, UserP
 
     @Override
     public Result add(UserProject userProject) {
-        MybatisConfig.setDynamicTableName("t_project_user");
         userProjectMapper.insert(userProject);
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
     public Result select(Map<String, Object> map) {
-        MybatisConfig.setDynamicTableName("t_project_user");
         QueryWrapper<UserProject> wrapper = new QueryWrapper<>();
         Iterator<String> iterator = map.keySet().iterator();
         while(iterator.hasNext()){
@@ -53,7 +50,6 @@ public class UserProjectServiceImpl extends ServiceImpl<UserProjectMapper, UserP
 
     @Override
     public Result delete(UserProject userProject) {
-        MybatisConfig.setDynamicTableName("t_project_user");
         QueryWrapper<UserProject> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("project_id",userProject.getProjectId())
                 .eq("user_id",userProject.getUserId());

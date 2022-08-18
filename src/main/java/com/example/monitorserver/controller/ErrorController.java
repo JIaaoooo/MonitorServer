@@ -1,10 +1,13 @@
 package com.example.monitorserver.controller;
 
 
+import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.ResultEnum;
-
 import com.example.monitorserver.po.*;
-import com.example.monitorserver.service.*;
+import com.example.monitorserver.service.BlankErrorService;
+import com.example.monitorserver.service.PerformanceErrorService;
+import com.example.monitorserver.service.ResourceErrorService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +34,7 @@ public class ErrorController {
     HttpServletResponse response;
 
     @Autowired
-    private apiErrorService apiErrorService;
+    private com.example.monitorserver.service.apiErrorService apiErrorService;
 
     @Autowired
     private BlankErrorService blankErrorService;
@@ -50,7 +53,7 @@ public class ErrorController {
      */
     @PostMapping
     public Result getSDK(@RequestBody Data data){
-        /*String type = data.getType();
+        String type = data.getType();
         switch (type){
             case "JsError":
                 apiErrorService.insert((apiError) data.getData());
@@ -66,17 +69,23 @@ public class ErrorController {
                 break;
             default:
                 return new Result(ResultEnum.REQUEST_FALSE);
-        }*/
+        }
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
-
     /**
-     *
-     * @param project_url   项目url
-     * @return 返回已过时段的日记统计信息
+     * js错误栈
+     * @param data
+     * @return
      */
-    public Result getHoursData(String project_url){
-        return null;
+    @PostMapping("/JsRate")
+    @Secret
+    public Result JsRate(@RequestBody Data data){
+        Long apiCount = apiErrorService.getApiCount(data.getProjectName());
+        Long blankCount = blankErrorService.getBlankCount(data.getProjectName());
+        Long resourceCount = resourceErrorService.getResourceCount(data.getProjectName());
+        Long whole = apiCount + blankCount + resourceCount;
+        double rate = 1.0*apiCount / whole;
+        return new Result(ResultEnum.REQUEST_SUCCESS,rate);
     }
 }

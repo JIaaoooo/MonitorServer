@@ -3,6 +3,7 @@ package com.example.monitorserver.po;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Accessors(chain = true)
+@TableName("t_resource")
 public class ResourceError extends HttpSecretCode{
     @TableId
     private Long id;
