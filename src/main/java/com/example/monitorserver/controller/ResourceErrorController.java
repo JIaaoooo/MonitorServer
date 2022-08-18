@@ -21,7 +21,7 @@ public class ResourceErrorController {
 
 
     /**
-     * 通过项目名获取各个错误标签的错误路径
+     * 通过项目名获取各个错误标签的错误路径,表
      * @param resourceError:项目名
      * @return :封装了错误路径的结果集
      */
@@ -29,4 +29,16 @@ public class ResourceErrorController {
     public Result getFileNameByProject(@RequestBody ResourceError resourceError) {
         return resourceErrorService.getFileNameByProject(resourceError.getProjectName());
     }
+
+
+    /**
+     * 通过项目名各个错误的错误数和比例,图
+     * @param resourceError :项目名
+     * @return :封装了错误路径的结果集
+     */
+    @PostMapping("/count")
+    public Result getCountByProject(@RequestBody ResourceError resourceError) {
+        return resourceErrorService.getCountByProject(resourceError.getProjectName());
+    }
 }
+

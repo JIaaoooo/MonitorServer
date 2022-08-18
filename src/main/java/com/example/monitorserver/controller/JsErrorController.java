@@ -28,7 +28,7 @@ public class JsErrorController {
     @PostMapping("/err")
     @Secret
     public Result getJsErrByType(@RequestBody Data data) {
-        return jsErrorService.getJsErrByType(data.getProjectName(), data.getOption());
+        return jsErrorService.getJsErrByType(data.getProjectName(), data.getType());
     }
 
     /**

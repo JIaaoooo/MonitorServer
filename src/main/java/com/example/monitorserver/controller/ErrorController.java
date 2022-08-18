@@ -83,9 +83,11 @@ public class ErrorController {
     public Result JsRate(@RequestBody Data data){
         Long apiCount = apiErrorService.getApiCount(data.getProjectName());
         Long blankCount = blankErrorService.getBlankCount(data.getProjectName());
-        Long resourceCount = resourceErrorService.getResourceCount(data.getProjectName());
-        Long whole = apiCount + blankCount + resourceCount;
-        double rate = 1.0*apiCount / whole;
-        return new Result(ResultEnum.REQUEST_SUCCESS,rate);
+//        Long resourceCount = resourceErrorService.getResourceCount(data.getProjectName());
+//        Long whole = apiCount + blankCount + resourceCount;
+//        double rate = 1.0*apiCount / whole;
+//        return new Result(ResultEnum.REQUEST_SUCCESS,rate);
+
+        return null;
     }
 }
