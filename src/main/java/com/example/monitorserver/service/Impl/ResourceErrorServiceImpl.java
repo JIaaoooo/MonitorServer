@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -94,17 +95,32 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
         qw.select("distinct tagname").lambda().eq(ResourceError::getProjectName, projectName);
         List<ResourceError> resourceErrors = resourceErrorMapper.selectList(qw);
 
+        qw = new QueryWrapper<>();
+        qw.lambda().eq(ResourceError::getProjectName,projectName);
         Long sum = 0L;
+        sum = resourceErrorMapper.selectCount(qw);
         Long count = 0L;
+        List<ResourceError> listVo = new LinkedList<>();
 
+        ResourceError vo = null;
         for (ResourceError resourceError : resourceErrors) {
             qw = new QueryWrapper<>();
             qw.lambda().eq(ResourceError::getTagname, resourceError.getTagname())
                     .eq(ResourceError::getProjectName, projectName);
-            resourceErrorMapper.selectList(qw);
-        }
-        return null;
+            count = resourceErrorMapper.selectCount(qw);
 
+            vo = new ResourceError();
+            vo.setCount(count).setPercent(getDouble(count * 100.0 / sum)).setTagname(resourceError.getTagname());
+
+            listVo.add(vo);
+        }
+        return new Result(listVo);
+
+    }
+    private double getDouble(double percent) {
+        String  str = String.format("%.2f",percent);
+        percent = Double.parseDouble(str);
+        return percent;
     }
 
     @Override

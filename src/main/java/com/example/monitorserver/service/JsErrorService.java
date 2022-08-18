@@ -25,7 +25,7 @@ public interface JsErrorService extends IService<JsError> {
      * @param type 粒度
      * @return 过去时间的错误数
      */
-    Result getJsErrByType(String projectName,Integer type);
+    Result getJsErrByType(String projectName,String type);
 
     /**
      * 查询项目下各个url的js报错数,和占总数的百分比

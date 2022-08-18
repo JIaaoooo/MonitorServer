@@ -49,7 +49,7 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
     }
 
     @Override
-    public Result getJsErrByType(String projectName, Integer type) {
+    public Result getJsErrByType(String projectName, String type) {
 
 
         //需要根据项目名和类型进行查询日志
@@ -58,11 +58,11 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
         //3.年:查询从现在起,12个月的错误数
 
         switch (type) {
-            case 1:
+            case "1":
                 return new Result(getJsErrHourCount(projectName));
-            case 2:
+            case "2":
                 return new Result(getJsErrDayCount(projectName));
-            case 3:
+            case "3":
                 return new Result(getJsErrMonthCount(projectName));
             default:
                 return null;
