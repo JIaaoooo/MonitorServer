@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Accessors(chain = true)
-@TableName("t_performce")
+@TableName("t_performance")
 public class PerformanceError extends HttpSecretCode  {
 
     @TableId
@@ -64,8 +64,22 @@ public class PerformanceError extends HttpSecretCode  {
     /** 卡顿时间 **/
     private Long longTask ;
 
+
+
     /** 平均耗时 **/
     @TableField(exist = false)
     private Long ConsumeTime;
+
+
+    @TableField(exist = false)
+    private String type;
+
+    @TableField(exist = false)
+    private String dateType;
+
+
+    @TableField(exist = false)
+    private String dateStr;
+
 
 }

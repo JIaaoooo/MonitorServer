@@ -170,7 +170,13 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
                     Data data = new Data()
                             .setUserId(project.getUserId())
                             .setProjectName(project.getProjectName());
-                    projectService.deleteProject(data);
+                    try {
+                        projectService.deleteProject(data);
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     //删除redis首页缓存
                     if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))) {
                         redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());

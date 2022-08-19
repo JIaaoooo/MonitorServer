@@ -67,7 +67,7 @@ public class ErrorController {
     @PostMapping
     public Result getSDK(@RequestBody SDK data){
         String type = data.getType();
-        System.out.println(data.toString());
+        System.out.println("data = " + data);
         switch (type){
             case "JsError":
                 apiError apiError = JSON.parseObject(data.getData(), apiError.class);

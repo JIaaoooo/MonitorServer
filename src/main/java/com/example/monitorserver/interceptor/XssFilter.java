@@ -37,14 +37,14 @@ public  class XssFilter implements Filter{
         //注入xss过滤器实例
         XssHttpServletRequestWrapper reqW = new XssHttpServletRequestWrapper(req);
         log.debug("用了过滤器");
-        //过滤掉不需要的Xss校验的地址
-        for (String str : excludeUrls) {
-            if (uri.indexOf(str) >= 0) {
-                arg2.doFilter(arg0, response);
-                return;
-            }
-        }
-        //过滤
+//        //过滤掉不需要的Xss校验的地址
+//        for (String str : excludeUrls) {
+//            if (uri.indexOf(str) >= 0) {
+//                arg2.doFilter(arg0, response);
+//                return;
+//            }
+//        }
+//        //过滤
         arg2.doFilter(reqW, response);
     }
     public void destroy() {

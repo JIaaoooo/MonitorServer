@@ -2,6 +2,7 @@ package com.example.monitorserver.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.monitorserver.po.Data;
+import com.example.monitorserver.po.ResourceError;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.PerformanceError;
 import org.springframework.stereotype.Service;
@@ -25,4 +26,7 @@ public interface PerformanceErrorService extends IService<PerformanceError> {
      */
     Result select(Data data);
 
+
+
+    Result getAvgByTypeAndDate(String projectName, String type, String dataType) ;
 }

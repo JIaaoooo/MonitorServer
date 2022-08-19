@@ -49,5 +49,8 @@ public class ResourceError extends HttpSecretCode{
     private Double percent;
 
     @TableField(exist = false)
+    private int type;
+
+    @TableField(exist = false)
     private String  dateStr;
 }
