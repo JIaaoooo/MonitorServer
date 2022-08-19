@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  **/
 @RestController
 @RequestMapping("/resource")
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class ResourceErrorController {
     @Autowired
     private ResourceErrorService resourceErrorService;
@@ -43,6 +43,13 @@ public class ResourceErrorController {
     @Secret
     public Result getCountByProject(@RequestBody Data data) {
         return resourceErrorService.getCountByProject(data.getProjectName());
+    }
+
+
+    @PostMapping("/err")
+    @Secret
+    public Result getJsErrByType(@RequestBody ResourceError resourceError) {
+        return resourceErrorService.getErrByType(resourceError.getProjectName(), resourceError.getDateType(),resourceError.getType());
     }
 }
 

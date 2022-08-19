@@ -41,7 +41,7 @@ public class PerformanceError extends HttpSecretCode  {
     private Long dns;
 
     /** 完整加载用时 **/
-    private Long localTime;
+    private Long loadTime;
 
     /** 首次可交互时间 **/
     private Long timeToInteractive;

@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @ToString(callSuper = true)
 @Accessors(chain = true)
 @TableName("t_resource")
-public class ResourceError extends HttpSecretCode{
+public class    ResourceError extends HttpSecretCode{
     @TableId
     private Long id;
 
@@ -49,7 +49,10 @@ public class ResourceError extends HttpSecretCode{
     private Double percent;
 
     @TableField(exist = false)
-    private int type;
+    private String type;
+
+    @TableField(exist = false)
+    private String dateType;
 
     @TableField(exist = false)
     private String  dateStr;

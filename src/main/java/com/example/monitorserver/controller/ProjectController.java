@@ -73,7 +73,7 @@ public class ProjectController {
      */
     @GetMapping("/allProject")
     @Secret
-    public Result getAllProject(){
+    public Result getAllProject() throws ExecutionException, InterruptedException {
         String token = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
         User user = (User) MapBeanUtil.map2Object(entries, User.class);
@@ -119,7 +119,7 @@ public class ProjectController {
      */
     @PostMapping("/update")
     @Secret
-    public Result Update(@RequestBody Project project){
+    public Result Update(@RequestBody Project project) throws ExecutionException, InterruptedException {
         // TODO 两种，管理员为项目更新，用户给项目更新
         // TODO 1.获取当前操作对象的权限
         String token = request.getHeader("Authorization");

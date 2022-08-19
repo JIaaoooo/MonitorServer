@@ -108,9 +108,9 @@ public class ErrorController {
 
         Long jsCount = JsFuture.get();
         Long apiCount = ApiFuture.get();
-        Long blankCount = ApiFuture.get();
+        Long blankCount = BlankFuture.get();
         Long resourceCount = ResFuture.get();
-        Long whole = apiCount + blankCount + resourceCount;
+        Long whole = apiCount + blankCount + resourceCount ;
         double rate = 1.000*jsCount / whole;
         String  str = String.format("%.2f",rate );
         rate = Double.parseDouble(str);
@@ -119,9 +119,11 @@ public class ErrorController {
 
     /**
      * js错误数
-     * @param data
-     * @return
+     * @param data 项目名
+     * @return 返回改项目总的js错误
      */
+    @PostMapping("/JsCount")
+    @Secret
     public Result JsCount(@RequestBody Data data){
         Long jsCount = jsErrorService.getJsErrorCount(data.getProjectName());
         return new Result(ResultEnum.REQUEST_SUCCESS,jsCount);

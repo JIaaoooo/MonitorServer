@@ -48,11 +48,9 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         log.debug(token);
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
         if (token!=null&&!entries.isEmpty()){
-            log.debug("访问成功111111111");
-            redisTemplate.expire(RedisEnum.TOKEN_EXITS.getMsg()+token,RedisEnum.TOKEN_EXITS.getCode(), TimeUnit.HOURS);
+            redisTemplate.expire(RedisEnum.TOKEN_EXITS.getMsg()+token,RedisEnum.TOKEN_EXITS.getCode(), TimeUnit.DAYS);
             return true;
         }
-            log.debug("400");
             request.getSession();
             Result result = new Result(ResultEnum.USER_EXPIRE);
             response.setHeader("content-type", "text/html;charset=utf-8");

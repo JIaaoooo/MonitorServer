@@ -54,7 +54,7 @@ public class User extends HttpSecretCode{
 
 
     /**用户状态 0->正常用户 -1被冻结用户**/
-    private int position;
+    private Integer position;
 
     /** 注册时间 **/
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -67,13 +67,13 @@ public class User extends HttpSecretCode{
 
 
     /** 该用户是否有信息 **/
-    private int message;
+    private Integer message;
 
     /**  用户是否在线  **/
     @TableField(exist = false)
-    private int onLive;
+    private Integer onLive;
 
     /** 该用户的类型 1发布者 2监控这 **/
     @TableField(exist = false)
-    private int type;
+    private Integer type;
 }

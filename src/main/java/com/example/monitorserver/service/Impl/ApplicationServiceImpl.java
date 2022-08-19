@@ -166,16 +166,16 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
 
                 List<Project> lists = (List<Project>) projectFuture.get();
                 Project project = lists.iterator().next();
+
+
                 group.next().submit(()->{
                     Data data = new Data()
-                            .setUserId(project.getUserId())
                             .setProjectName(project.getProjectName());
+
                     try {
                         projectService.deleteProject(data);
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (ExecutionException | InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
                     //删除redis首页缓存
                     if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))) {

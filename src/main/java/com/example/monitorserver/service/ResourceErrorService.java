@@ -19,13 +19,12 @@ public interface ResourceErrorService extends IService<ResourceError> {
 
     Result insert(ResourceError resourceError);
 
-    Result getCount(Data data);
 
     Result getFileNameByProject(String projectName);
 
     Result getCountByProject(String projectName);
 
-    Result getErrByType(String projectName,String type);
+    Result getErrByType(String projectName,String type,String option);
 
     Long getResourceCount(String projectName);
 }

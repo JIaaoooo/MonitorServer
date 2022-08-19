@@ -77,7 +77,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     }
 
     @Override
-    public Result getAllProject(int position) {
+    public Result getAllProject(int position) throws ExecutionException, InterruptedException {
         QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
         if(position==0){
             queryWrapper.eq("status",1);
@@ -127,52 +127,71 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     @Override
     public Result saveProject(Project project) {
         project.setRegisterDate(LocalDateTime.now());
-        projectMapper.insert(project);
+        NioEventLoopGroup group = NettyEventGroup.group;
+        group.next().submit(()->{
+            projectMapper.insert(project);
+        });
 
-        // TODO 2.将权限信息存入
-        UserProject userProject = new UserProject()
-                .setProjectId(project.getProjectId())
-                .setUserId(project.getUserId())
-                .setType(1);
-        userProjectService.add(userProject);
+        group.next().submit(()->{
+            // TODO 2.将权限信息存入
+            UserProject userProject = new UserProject()
+                    .setProjectId(project.getProjectId())
+                    .setUserId(project.getUserId())
+                    .setType(1);
+            userProjectService.add(userProject);
+        });
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
-    public Result updateProject(Project project,int position) {
+    public Result updateProject(Project project,int position) throws ExecutionException, InterruptedException {
+        NioEventLoopGroup group = NettyEventGroup.group;
         //普通用户更新项目信息后要重新获得管理员的批准
         if (position==0){
             project.setStatus(0);
             //　TODO 1.查项目名是否重复
             // TODO 1.1 查项目名是否重复
-            QueryWrapper<Project> wrapper = new QueryWrapper<>();
-            wrapper.eq("project_name",project.getProjectName());
-            Long count = projectMapper.selectCount(wrapper);
-            if (count!=0){
+
+            Future<Long> count1 = group.next().submit(() -> {
+                QueryWrapper<Project> wrapper = new QueryWrapper<>();
+                wrapper.eq("project_name", project.getProjectName());
+                Long count = projectMapper.selectCount(wrapper);
+                return count;
+            });
+            if (count1.get()!=0){
                 return new Result(ResultEnum.REQUEST_FALSE);
             }
+
+
             // TODO 1.2 查url是否重复
-            QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("project_url",project.getProjectUrl());
-            Long count1 = projectMapper.selectCount(queryWrapper);
-            if (count1!=0){
+            Future<Long> count2 = group.next().submit(() -> {
+                QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("project_url", project.getProjectUrl());
+                Long c = projectMapper.selectCount(queryWrapper);
+                return c;
+            });
+            if (count2.get()!=0){
                 return new Result(ResultEnum.REQUEST_FALSE);
             }
         }
 
-        LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Project::getProjectUrl,project.getProjectUrl());
-        //删除redis首页缓存
-        if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))){
-            redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
-        }
-        projectMapper.update(project,wrapper);
+
+        group.next().submit(()->{
+            LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Project::getProjectUrl,project.getProjectUrl());
+            projectMapper.update(project,wrapper);
+            //删除redis首页缓存
+            if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))){
+                redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
+            }
+        });
+
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
     public Result deleteProject(Data data) throws ExecutionException, InterruptedException {
-        /*NioEventLoopGroup group = NettyEventGroup.group;
+        NioEventLoopGroup group = NettyEventGroup.group;
 
         Future<Project> projectFuture = group.next().submit(() -> {
             LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
@@ -181,28 +200,64 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
             return projectMapper.selectOne(wrapper);
         });
 
-        Project project = projectFuture.get();
         group.next().submit(()->{
-            UserProject userProject = new UserProject()
-                        .setUserId(data.getUserId())
-                        .setProjectId(project.getProjectId());
+            UserProject userProject = null;
+            try {
+                userProject = new UserProject()
+                            .setUserId(data.getUserId())
+                            .setProjectId(projectFuture.get().getProjectId());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
             userProjectService.delete(userProject);
         });
 
-        Map<String,Object> condition = new HashMap<>();
-        condition.put("project_id",project.getProjectId());
-        Result result= applicationService.selectApp(condition);
-        List<Application> applications = (List<Application>) result.getData();
-        Application application = applications.iterator().next();
-        Map<String,Object> deleteMap = new HashMap<>();
-        deleteMap.put("project_id",project.getProjectId());
-        applicationService.deleteAppli(deleteMap);
-        deleteMap.remove("project_id");
-        deleteMap.put("application_id",application.getApplicationId());
-        messageService.delete(deleteMap);
-        projectMapper.delete(wrapper);
-        return new Result(ResultEnum.DELETE_SUCCESS);*/
-        return  null;
+
+        Future<Application> application = group.next().submit(() -> {
+            Map<String, Object> condition = new HashMap<>();
+            condition.put("project_id", projectFuture.get().getProjectId());
+            Result result = applicationService.selectApp(condition);
+            List<Application> applications = (List<Application>) result.getData();
+            return applications.iterator().next();
+        });
+
+
+        //申请表中相关信息
+        group.next().submit(()->{
+            Map<String,Object> deleteMap = new HashMap<>();
+            try {
+                deleteMap.put("project_id",projectFuture.get().getProjectId());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+            applicationService.deleteAppli(deleteMap);
+        });
+
+        //删除消息表中相关信息
+        group.next().submit(()->{
+            Map<String,Object> condition2 = new HashMap<>();
+            try {
+                condition2.put("application_id",application.get().getApplicationId());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+            messageService.delete(condition2);
+        });
+
+
+        //删除project表中信息
+        group.next().submit(()->{
+            LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
+            try {
+                wrapper.eq(Project::getProjectName, projectFuture.get().getProjectName());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+            projectMapper.delete(wrapper);
+        });
+
+        return new Result(ResultEnum.DELETE_SUCCESS);
+
     }
 
 }

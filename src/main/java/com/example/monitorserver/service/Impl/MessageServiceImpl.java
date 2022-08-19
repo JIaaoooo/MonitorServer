@@ -11,10 +11,14 @@ import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserService;
+import com.example.monitorserver.utils.NettyEventGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @program: monitor server
@@ -43,27 +47,33 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
 
     @Override
-    public Result getApplication(String userId) {
+    public Result getApplication(String userId) throws ExecutionException, InterruptedException {
         //TODO 1.userId是作为接收方 ， 查询该用户下的申请信息ID
-        LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Message::getUserId,userId)
-                .select(Message::getApplicationId)
-                .ne(Message::getHandle,1);
-        List<Message> messages = messageMapper.selectList(wrapper);
+        NioEventLoopGroup group = NettyEventGroup.group;
+        Future<List<Message>> messages = group.next().submit(() -> {
+            LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Message::getUserId, userId)
+                    .select(Message::getApplicationId)
+                    .ne(Message::getHandle, 1);
+            List<Message> messages1 = messageMapper.selectList(wrapper);
+            return messages1;
+        });
         //TODO 2.通过applicationId去调用Application获取申请信息,用一个Map集合存储，后返回
         List<Project> projects = new ArrayList<>();
 
-        for (Message message : messages) {
+        for (Message message : messages.get()) {
             String applicationId = message.getApplicationId();
-            Map<String,Object> condition = new HashMap<>();
-            condition.put("application_id",applicationId);
-            condition.put("handle",0);
-            Result result = applicationService.selectApp(condition);
-            List<Application> data = (List<Application>) result.getData();
-            if (data.size()==0){
+            Future<List<Application>> data = group.next().submit(() -> {
+                Map<String, Object> condition = new HashMap<>();
+                condition.put("application_id", applicationId);
+                condition.put("handle", 0);
+                Result result = applicationService.selectApp(condition);
+                return (List<Application>) result.getData();
+            });
+            if (data.get().size()==0){
                 continue;
             }
-            Application application = data.iterator().next();
+            Application application = data.get().iterator().next();
             // TODO 通过申请表中的projectId获取项目信息
             Map<String,Object> condition2 = new HashMap<>();
             condition2.put("project_id",application.getProjectId());

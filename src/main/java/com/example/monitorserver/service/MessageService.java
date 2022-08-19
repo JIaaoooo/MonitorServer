@@ -7,6 +7,7 @@ import com.example.monitorserver.po.Message;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @program: monitor server
@@ -22,7 +23,7 @@ public interface MessageService extends IService<Message> {
      * @param userId 用户Id
      * @return 返回申请信息，给予判断是否同意
      */
-    Result getApplication(String userId);
+    Result getApplication(String userId) throws ExecutionException, InterruptedException;
 
     /**
      * 将用户ID与申请ID绑定

@@ -47,7 +47,7 @@ public class Option {
         String projectName = option.projectService.getProjectName(error.getProjectUrl());
         error.setProjectName(projectName);
         if(!error.getProjectUrl().equals("www.monitorServer.com") && !error.getUri().equals("/SDK")){
-            option.apiErrorService.insert(error);
         }
+        option.apiErrorService.insert(error);
     }
 }

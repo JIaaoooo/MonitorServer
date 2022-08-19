@@ -95,7 +95,7 @@ public class ApplicationController {
 
         application1.setUserId(user.getUserId());
         int status = application1.getStatus();
-        if (application.getNumber()=="1"){
+        if (application.getNumber().equals("1")){
             status--;
         }
         application1.setStatus(status);

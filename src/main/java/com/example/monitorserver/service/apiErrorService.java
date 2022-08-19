@@ -5,6 +5,8 @@ import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.apiError;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.ExecutionException;
+
 @Service
 public interface apiErrorService extends IService<apiError> {
 
@@ -15,11 +17,11 @@ public interface apiErrorService extends IService<apiError> {
     void insert(apiError apiError);
 
     /**
-     * 通过项目名称，获取接口的错误率，错误数
+     * 通过项目名称，获取各个接口的错误数,平均耗时
      * @param projectName 项目名称
      * @return 返回api实体类
      */
-    Result select(String projectName);
+    Result selectMethod(String projectName);
 
     /**
      * 更新统计信息
@@ -56,9 +58,17 @@ public interface apiErrorService extends IService<apiError> {
     Result getPackageInfor();
 
     /**
-     * 获取某个包下的所有接口的，访问量，访问人次，异常数，成功率
+     * 服务端获取某个包下的所有接口的，访问量，访问人次，异常数，成功率
      * @param packageName 包名
      * @return 返回集合
      */
     Result getMethodInfor(String packageName);
+
+    /**
+     * 根据年月日返回项目的 成功数，错误数，成功率
+     * @param projectName
+     * @param type
+     * @return
+     */
+    Result getApiErrByType(String projectName,String type) throws ExecutionException, InterruptedException;
 }

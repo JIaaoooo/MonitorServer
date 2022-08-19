@@ -1,17 +1,25 @@
 package com.example.monitorserver.service.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.ResultEnum;
+import com.example.monitorserver.po.JsError;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.mapper.apiErrorMapper;
 import com.example.monitorserver.po.apiError;
 import com.example.monitorserver.service.apiErrorService;
+import com.example.monitorserver.utils.NettyEventGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> implements apiErrorService {
@@ -25,10 +33,40 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
     }
 
     @Override
-    public Result select(String projectName) {
+    public Result selectMethod(String projectName) {
         QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("project_name",projectName);
-        return new Result(apiErrorMapper.selectCount(queryWrapper));
+        List<apiError> list = apiErrorMapper.selectList(queryWrapper);
+        Iterator<apiError> iterator = list.iterator();
+        List<apiError> results = new ArrayList<>();
+        while(iterator.hasNext()){
+            apiError apiError = iterator.next();
+            //查询方法的总访问量
+            queryWrapper.eq("method",apiError.getMethod());
+            Long sum = apiErrorMapper.selectCount(queryWrapper);
+            if (sum==0){
+                continue;
+            }
+            //获取该方法的错误数
+            queryWrapper.isNotNull("exception");
+            Long defeat = apiErrorMapper.selectCount(queryWrapper);
+            queryWrapper.clear();
+            queryWrapper.eq("project_name",projectName)
+                    .eq("method",apiError.getMethod())
+                    .select("SUM(response_time) AS response_time");
+            apiError apiError1 = apiErrorMapper.selectOne(queryWrapper);
+            Long responseTime = apiError1.getResponseTime();
+            //平均耗时
+            double AvgTime = 1.000 *responseTime / sum;
+            // 错误率
+            double percent = 1.000 * defeat / sum ;
+            apiError result = new apiError()
+                    .setRate(percent)
+                    .setAvgResponseTime(AvgTime);
+            results.add(result);
+        }
+        return new Result(ResultEnum.REQUEST_SUCCESS,results);
+
     }
 
     @Override
@@ -181,5 +219,165 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
         return new Result(ResultEnum.REQUEST_SUCCESS,result);
     }
 
+    @Override
+    public Result getApiErrByType(String projectName, String type) {
+
+
+        //需要根据项目名和类型进行查询日志
+        //type:1:日,查询24从现在起前24小时的错误数量,
+        //2:月:查询从现在起,4个星期的错误数量
+        //3.年:查询从现在起,12个月的错误数
+
+        switch (type) {
+            case "1":
+                return new Result(getApiErrHourCount(projectName));
+            case "2":
+                return new Result(getApiErrDayCount(projectName));
+            case "3":
+                return new Result(getApiErrMonthCount(projectName));
+            default:
+                return null;
+        }
+    }
+
+    private List<apiError> getApiErrHourCount(String projectName)  {
+        String pattern = "yyyy-MM-dd HH";
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        //需要查询24小时,所以需要查询到个数据进行返回
+        List<apiError> data = new LinkedList<>();
+        apiError vo = null;
+
+        //获得当前时间2021年6月9日14小时49分
+        LocalDateTime time = LocalDateTime.now();
+        time = time.plusHours(1);
+        //往前查询
+
+        Long visitsSum = 0L;
+
+        for (int i = 0; i < 4; i++) {
+
+            LambdaQueryWrapper<apiError> lqw = new LambdaQueryWrapper<>();
+            lqw.eq(apiError::getProjectName, projectName)
+                    .isNull(apiError::getException)
+                    .le(apiError::getVisitDate, time)
+                    .ge(apiError::getVisitDate, time.plusHours(-6));
+            Long count = apiErrorMapper.selectCount(lqw);
+
+            LambdaQueryWrapper<apiError> lqw1 =  new LambdaQueryWrapper<>();
+            lqw1.eq(apiError::getProjectName, projectName)
+                    .isNotNull(apiError::getException)
+                    .le(apiError::getVisitDate, time)
+                    .ge(apiError::getVisitDate, time.plusHours(-6));
+            Long deafCount = apiErrorMapper.selectCount(lqw1);
+            vo = new apiError()
+                    .setCount(count)
+                    .setDefeatCount(deafCount);
+            vo.setDateStr(time.plusHours(-6).getHour() + "时-" +time.getHour()+"时");
+            data.add(vo);
+            visitsSum += count;
+
+            time  = time.plusHours(-6);
+        }
+
+        return getPercent(data, visitsSum);
+
+    }
+
+
+    private List<apiError> getApiErrDayCount(String projectName) {
+        String pattern = "yyyy-MM-dd HH";
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        //需要查询24小时,所以需要查询到个数据进行返回
+        List<apiError> data = new LinkedList<>();
+        apiError vo = null;
+
+        //获得当前时间2021年6月9日14小时49分
+        LocalDateTime time = LocalDateTime.now();
+        //往前查询
+
+        Long visits = null;
+        Long visitsSum = 0L;
+        Long defeatSum = 0L;
+
+        for (int i = 0; i < 4; i++) {
+
+            LambdaQueryWrapper<apiError> lqw =  new LambdaQueryWrapper<>();
+            lqw.eq(apiError::getProjectName, projectName)
+                    .isNull(apiError::getException)
+                    .le(apiError::getVisitDate, time)
+                    .ge(apiError::getVisitDate, time.plusDays(-7));
+            Long count = apiErrorMapper.selectCount(lqw);
+
+            LambdaQueryWrapper<apiError> lqw1 =  new LambdaQueryWrapper<>();
+            lqw1.eq(apiError::getProjectName, projectName)
+                    .isNotNull(apiError::getException)
+                    .le(apiError::getVisitDate, time)
+                    .ge(apiError::getVisitDate, time.plusDays(-7));
+            Long deafCount = apiErrorMapper.selectCount(lqw1);
+            vo = new apiError()
+                    .setCount(count)
+                    .setDefeatCount(deafCount);
+            vo.setDateStr(time.plusDays(-7).getDayOfMonth() + "日-" +time.getDayOfMonth()+"日");
+            data.add(vo);
+            visitsSum += count;
+
+            time  = time.plusDays(-7);
+        }
+
+        return getPercent(data, visitsSum);
+
+    }
+
+    private List<apiError> getApiErrMonthCount(String projectName)  {
+        String pattern = "yyyy-MM-dd HH";
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        //需要查询24小时,所以需要查询到个数据进行返回
+        List<apiError> data = new LinkedList<>();
+        apiError vo = null;
+
+        //获得当前时间2021年6月9日14小时49分
+        LocalDateTime time = LocalDateTime.now();
+        //往前查询
+
+        Long visitsSum = 0L;
+
+        for (int i = 0; i < 4; i++) {
+
+            LambdaQueryWrapper<apiError> lqw =  new LambdaQueryWrapper<>();
+            lqw.eq(apiError::getProjectName, projectName)
+                    .isNull(apiError::getException)
+                    .le(apiError::getVisitDate, time)
+                    .ge(apiError::getVisitDate, time.plusMonths(-3));
+            Long count = apiErrorMapper.selectCount(lqw);
+
+            LambdaQueryWrapper<apiError> lqw1 =  new LambdaQueryWrapper<>();
+            lqw1.eq(apiError::getProjectName, projectName)
+                    .isNotNull(apiError::getException)
+                    .le(apiError::getVisitDate, time)
+                    .ge(apiError::getVisitDate, time.plusMonths(-3));
+            Long deafCount = apiErrorMapper.selectCount(lqw1);
+            vo = new apiError()
+                    .setCount(count)
+                    .setDefeatCount(deafCount);
+            vo.setDateStr(time.plusMonths(-3).getMonthValue() + "月-" + time.getMonthValue() + "月");
+            data.add(vo);
+            visitsSum += count;
+
+            time = time.plusMonths(-3);
+        }
+
+        return getPercent(data, visitsSum);
+    }
+
+        private List<apiError> getPercent(List<apiError> data, Long sum) {
+        double percent;
+        for (apiError datum : data) {
+            percent = 1 - datum.getCount() * 100.0 / sum ;
+            String  str = String.format("%.2f",percent);
+            percent = Double.parseDouble(str);
+            datum.setPercent(percent);
+        }
+        return data;
+    }
 
 }

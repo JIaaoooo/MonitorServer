@@ -35,31 +35,6 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
-    @Override
-    public Result getCount(Data data) {
-        LocalDateTime now = LocalDateTime.now();
-        int option = data.getOption();
-        LocalDateTime dateTime = null;
-        switch (option) {
-            case 1:
-                //获取前半小时的localdatetime格式
-                dateTime = now.minusMinutes(30);
-                break;
-            case 2:
-                //获取前一天的
-                dateTime = now.minusDays(1);
-                break;
-            case 3:
-                //获取前一个月的时间
-                dateTime = now.minusMonths(1);
-            default:
-                break;
-        }
-        QueryWrapper<ResourceError> queryWrapper = new QueryWrapper<>();
-        queryWrapper.le("date", dateTime);
-        Long count = resourceErrorMapper.selectCount(queryWrapper);
-        return new Result(ResultEnum.REQUEST_SUCCESS, count);
-    }
 
     @Override
     public Result getFileNameByProject(String projectName) {
@@ -119,20 +94,38 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
     }
 
     @Override
-    public Result getErrByType(String projectName, String type) {
+    public Result getErrByType(String projectName, String type,String option) {
+        String tag = null;
+        switch (option) {
+
+            case "1":
+                tag = "link";
+                break;
+            case "2":
+                tag = "script";
+                break;
+            case "3":
+                tag = "img";
+                break;
+            case "4":
+                tag = "object";
+                break;
+            default:
+                break;
+        }
         switch (type) {
             case "1":
-                return new Result(getErrHourCount(projectName));
+                return new Result(getErrHourCount(projectName,tag));
             case "2":
-                return new Result(getErrDayCount(projectName));
+                return new Result(getErrDayCount(projectName,tag));
             case "3":
-                return new Result(getErrMonthCount(projectName));
+                return new Result(getErrMonthCount(projectName,tag));
             default:
                 return null;
         }
     }
 
-    private List<ResourceError> getErrHourCount(String projectName) {
+    private List<ResourceError> getErrHourCount(String projectName,String option) {
         String pattern = "yyyy-MM-dd HH";
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         //需要查询24小时,所以需要查询到个数据进行返回
@@ -152,6 +145,7 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
 
             lqw = new LambdaQueryWrapper<>();
             lqw.eq(ResourceError::getProjectName,projectName)
+                    .eq(ResourceError::getTagname,option)
                     .le(ResourceError::getDate,time)
                     .ge(ResourceError::getDate,time.plusHours(-6));
 
@@ -161,14 +155,13 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
             vo.setDateStr(time.plusHours(-6).getHour() + "时-" + time.getHour()+"时");
             data.add(vo);
             sum += count;
-
             time  = time.plusHours(-6);
         }
 
         return getPercent(data, sum);
     }
 
-    private List<ResourceError> getErrDayCount(String projectName) {
+    private List<ResourceError> getErrDayCount(String projectName,String option) {
         String pattern = "yyyy-MM-dd";
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         //需要查询24小时,所以需要查询到个数据进行返回
@@ -187,13 +180,14 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
 
             lqw = new LambdaQueryWrapper<>();
             lqw.eq(ResourceError::getProjectName,projectName)
+                    .eq(ResourceError::getTagname,option)
                     .le(ResourceError::getDate,time)
                     .ge(ResourceError::getDate,time.plusDays(-7));
 
             count = resourceErrorMapper.selectCount(lqw);
             vo = new ResourceError();
             vo.setCount(count);
-            vo.setDateStr(time.plusDays(-7).getHour() + "时-" + time.getDayOfMonth()+"时");
+            vo.setDateStr(time.plusDays(-7).getDayOfMonth() + "时-" + time.getDayOfMonth()+"时");
             data.add(vo);
             sum += count;
 
@@ -203,7 +197,7 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
         return getPercent(data, sum);
     }
 
-    private List<ResourceError> getErrMonthCount(String projectName) {
+    private List<ResourceError> getErrMonthCount(String projectName,String option) {
         String pattern = "yyyy-MM";
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         //需要查询12个月,所以需要查询到12个数据进行返回
@@ -223,6 +217,7 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
 
             lqw = new LambdaQueryWrapper<>();
             lqw.eq(ResourceError::getProjectName, projectName)
+                    .eq(ResourceError::getTagname,option)
                     .le(ResourceError::getDate, time)
                     .ge(ResourceError::getDate, time.plusMonths(-3));
 

@@ -62,37 +62,6 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
         //datatype: 123为日,月年
 
         //每一个时间端的均值
-        List<PerformanceError>  performanceErrors = null;
-        switch (dataType) {
-            //日
-            case "1":
-                 performanceErrors = selectHourType(projectName, type);
-                break;
-            case "2":
-                performanceErrors = selectDayType(projectName, type);
-                break;
-            case "3":
-                performanceErrors = selectMonthType(projectName, type);
-                break;
-            default:
-                break;
-        }
-
-        //TODO
-        return new Result(performanceErrors);
-
-
-    }
-
-    private List<PerformanceError> selectHourType(String projectName, String type) {
-
-
-        String pattern = "yyyy-MM-dd HH";
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
-        //需要查询24小时,所以需要查询到个数据进行返回
-        List<PerformanceError> data = new LinkedList<>();
-        PerformanceError vo = null;
-
         String field = null;
         switch (type) {
             //FP
@@ -129,6 +98,38 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
             default:
                 break;
         }
+
+        List<PerformanceError>  performanceErrors = null;
+        switch (dataType) {
+            //日
+            case "1":
+                 performanceErrors = selectHourType(projectName, type,field);
+                break;
+            case "2":
+                performanceErrors = selectDayType(projectName, type,field);
+                break;
+            case "3":
+                performanceErrors = selectMonthType(projectName, type,field);
+                break;
+            default:
+                break;
+        }
+
+        //TODO
+        return new Result(performanceErrors);
+
+
+    }
+
+    private List<PerformanceError> selectHourType(String projectName, String type,String field) {
+
+
+        String pattern = "yyyy-MM-dd HH";
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        //需要查询24小时,所以需要查询到个数据进行返回
+        List<PerformanceError> data = new LinkedList<>();
+        PerformanceError vo = null;
+
 
         QueryWrapper<PerformanceError> qw = new QueryWrapper<>();
 
@@ -184,49 +185,13 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
 
     }
 
-    private List<PerformanceError> selectDayType(String projectName, String type) {
+    private List<PerformanceError> selectDayType(String projectName, String type,String field) {
         String pattern = "yyyy-MM-dd";
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         //需要查询24小时,所以需要查询到个数据进行返回
         List<PerformanceError> data = new LinkedList<>();
         PerformanceError vo = null;
 
-        String field = null;
-        switch (type) {
-            //FP
-            case "1":
-                field = "first_paint";
-                break;
-            case "2":
-                field = "first_contentful_paint";
-                break;
-            case "3":
-                field = "domContentLoadedTime";
-                break;
-            case "4":
-                field = "dns";
-                break;
-            case "5":
-                field = "fid";
-                break;
-            case "6":
-                field = "largest_contentful_paint";
-                break;
-            case "7":
-                field = "first_meaningful_paint";
-                break;
-            case "8":
-                field = "long task";
-                break;
-            case "9":
-                field = "time_to_interactive";
-                break;
-            case "10":
-                field = "load_time";
-                break;
-            default:
-                break;
-        }
 
         QueryWrapper<PerformanceError> qw = new QueryWrapper<>();
 
@@ -261,7 +226,7 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
 
     }
 
-    private List<PerformanceError> selectMonthType(String projectName, String type) {
+    private List<PerformanceError> selectMonthType(String projectName, String type,String field) {
 
         String pattern = "yyyy-MM";
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
@@ -269,42 +234,6 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
         List<PerformanceError> data = new LinkedList<>();
         PerformanceError vo = null;
 
-        String field = null;
-        switch (type) {
-            //FP
-            case "1":
-                field = "first_paint";
-                break;
-            case "2":
-                field = "first_contentful_paint";
-                break;
-            case "3":
-                field = "domContentLoadedTime";
-                break;
-            case "4":
-                field = "dns";
-                break;
-            case "5":
-                field = "fid";
-                break;
-            case "6":
-                field = "largest_contentful_paint";
-                break;
-            case "7":
-                field = "first_meaningful_paint";
-                break;
-            case "8":
-                field = "long task";
-                break;
-            case "9":
-                field = "time_to_interactive";
-                break;
-            case "10":
-                field = "load_time";
-                break;
-            default:
-                break;
-        }
 
         QueryWrapper<PerformanceError> qw = new QueryWrapper<>();
 

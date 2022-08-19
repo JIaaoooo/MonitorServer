@@ -40,9 +40,10 @@ public class Data extends HttpSecretCode {
     /** 查看性能监控的类型 **/
     private String responseType;
 
-    private int option;
+    private String option;
 
     private String packageName;
+
 
     private Object data;
 

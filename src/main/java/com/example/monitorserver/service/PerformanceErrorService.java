@@ -29,4 +29,5 @@ public interface PerformanceErrorService extends IService<PerformanceError> {
 
 
     Result getAvgByTypeAndDate(String projectName, String type, String dataType) ;
+
 }

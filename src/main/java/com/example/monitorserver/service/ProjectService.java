@@ -28,7 +28,7 @@ public interface ProjectService extends IService<Project> {
      */
     Result getPageProject(int currentPage, int maxMessage, int position);
 
-    Result getAllProject(int position);
+    Result getAllProject(int position) throws ExecutionException, InterruptedException;
 
     /**
      * 通过项目的url获取项目名
@@ -56,7 +56,7 @@ public interface ProjectService extends IService<Project> {
      * @param project
      * @return
      */
-    Result updateProject(Project project,int position);
+    Result updateProject(Project project,int position) throws ExecutionException, InterruptedException;
 
     /**
      * 根据项目id删除

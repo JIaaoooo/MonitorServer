@@ -51,8 +51,10 @@ public class UserProjectServiceImpl extends ServiceImpl<UserProjectMapper, UserP
     @Override
     public Result delete(UserProject userProject) {
         QueryWrapper<UserProject> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("project_id",userProject.getProjectId())
-                .eq("user_id",userProject.getUserId());
+        queryWrapper.eq("project_id",userProject.getProjectId());
+        if (userProject.getUserId() != null) {
+            queryWrapper.eq("user_id",userProject.getUserId());
+        }
         userProjectMapper.delete(queryWrapper);
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }

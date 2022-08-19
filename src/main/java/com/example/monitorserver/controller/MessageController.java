@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -52,7 +53,7 @@ public class MessageController {
      */
     @GetMapping("/watch")
     @Secret
-    public Result getApplication(){
+    public Result getApplication() throws ExecutionException, InterruptedException {
         //获取当前用户的id
         String token = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);

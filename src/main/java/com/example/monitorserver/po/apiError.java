@@ -77,9 +77,26 @@ public class apiError extends HttpSecretCode{
 
     /** 平均延迟时间 **/
     @TableField(exist = false)
-    private Long AvgResponseTime;
+    private double AvgResponseTime;
 
     /** 错误率 **/
     @TableField(exist = false)
     private double rate;
+
+    /** 报错数 **/
+    @TableField(exist = false)
+    private Long count;
+
+    @TableField(exist = false)
+    private Double percent;
+
+
+    @TableField(exist = false)
+    private String  dateStr;
+
+    @TableField(exist = false)
+    private String type;
+
+    @TableField(exist = false)
+    private String dateType;
 }
