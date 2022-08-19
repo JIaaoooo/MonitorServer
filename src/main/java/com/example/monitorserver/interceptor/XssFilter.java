@@ -21,7 +21,7 @@ public  class XssFilter implements Filter{
 
     // 忽略权限检查的url地址
     private final String[] excludeUrls = new String[]{
-            "null"
+            ""
     };
 
     public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain arg2)

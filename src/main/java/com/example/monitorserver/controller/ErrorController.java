@@ -1,6 +1,9 @@
 package com.example.monitorserver.controller;
 
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.*;
@@ -25,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @RestController
 @RequestMapping("/SDK")
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class ErrorController {
 
     @Autowired
@@ -57,21 +60,25 @@ public class ErrorController {
      * @param data 接收信息封装
      */
     @PostMapping
-    public Result getSDK(@RequestBody Data data){
+    public Result getSDK(@RequestBody SDK data){
         String type = data.getType();
         System.out.println(data.toString());
         switch (type){
             case "JsError":
-                apiErrorService.insert((apiError) data.getData());
+                apiError apiError = JSON.parseObject(data.getData(), apiError.class);
+                apiErrorService.insert(apiError);
                 break;
             case "BlankError":
-                blankErrorService.insert((BlankError) data.getData());
+                BlankError blankError = JSON.parseObject(data.getData(), BlankError.class);
+                blankErrorService.insert(blankError);
                 break;
             case "ResourceError":
-                resourceErrorService.insert((ResourceError) data.getData());
+                ResourceError resourceError = JSON.parseObject(data.getData(), ResourceError.class);
+                resourceErrorService.insert(resourceError);
                 break;
             case "PerformanceError":
-                performanceErrorService.insert((PerformanceError) data.getData());
+                PerformanceError performanceError = JSON.parseObject(data.getData(), PerformanceError.class);
+                performanceErrorService.insert(performanceError);
                 break;
             default:
                 return new Result(ResultEnum.REQUEST_FALSE);

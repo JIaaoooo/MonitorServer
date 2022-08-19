@@ -60,6 +60,7 @@ public class UserController {
     @Secret
     public Result login(@RequestBody User user){
         //TODO 1.登录认证
+        System.out.println("user = " + user);
         Result result = userService.login(user);
         if(result.getCode()==200){
             User resultData = (User) result.getData();

@@ -1,5 +1,7 @@
 package com.example.monitorserver.controller;
 
+import com.example.monitorserver.annotation.Secret;
+import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.ResourceError;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.ResourceErrorService;
@@ -22,23 +24,25 @@ public class ResourceErrorController {
 
     /**
      * 通过项目名获取各个错误标签的错误路径,表
-     * @param resourceError:项目名
+     * @param data:项目名
      * @return :封装了错误路径的结果集
      */
-    @PostMapping
-    public Result getFileNameByProject(@RequestBody ResourceError resourceError) {
-        return resourceErrorService.getFileNameByProject(resourceError.getProjectName());
+    @PostMapping("/brr")
+    @Secret
+    public Result getFileNameByProject(@RequestBody Data data) {
+        return resourceErrorService.getFileNameByProject(data.getProjectName());
     }
 
 
     /**
      * 通过项目名各个错误的错误数和比例,图
-     * @param resourceError :项目名
+     * @param data :项目名
      * @return :封装了错误路径的结果集
      */
     @PostMapping("/count")
-    public Result getCountByProject(@RequestBody ResourceError resourceError) {
-        return resourceErrorService.getCountByProject(resourceError.getProjectName());
+    @Secret
+    public Result getCountByProject(@RequestBody Data data) {
+        return resourceErrorService.getCountByProject(data.getProjectName());
     }
 }
 

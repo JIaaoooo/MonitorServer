@@ -47,8 +47,6 @@ public class MonitorAop {
      * @param pjp 程序运行追踪
      * @return  是否允许通过
      */
-    @Around(
-            "execution(* com.example.monitorserver.controller.ErrorController.*(..))")
     public Result jurisdiction(ProceedingJoinPoint pjp) throws Throwable {
         log.debug("监控权限AOP");
         String token = request.getHeader("Authorization");

@@ -36,7 +36,8 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport {
         registry.addInterceptor(new LoginInterceptor(redisTemplate))
                 .excludePathPatterns(
                         "/user/login",
-                        "/user/register"
+                        "/user/register",
+                        "/SDK"
                 );
     }
 }

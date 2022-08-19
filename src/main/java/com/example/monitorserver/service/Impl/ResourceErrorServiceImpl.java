@@ -1,18 +1,18 @@
 package com.example.monitorserver.service.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.mapper.ResourceErrorMapper;
-import com.example.monitorserver.po.Data;
-import com.example.monitorserver.po.JsError;
-import com.example.monitorserver.po.ResourceError;
-import com.example.monitorserver.po.Result;
+import com.example.monitorserver.po.*;
 import com.example.monitorserver.service.ResourceErrorService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -117,10 +117,143 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
         return new Result(listVo);
 
     }
+
+    @Override
+    public Result getErrByType(String projectName, String type) {
+        switch (type) {
+            case "1":
+                return new Result(getErrHourCount(projectName));
+            case "2":
+                return new Result(getErrDayCount(projectName));
+            case "3":
+                return new Result(getErrMonthCount(projectName));
+            default:
+                return null;
+        }
+    }
+
+    private List<ResourceError> getErrHourCount(String projectName) {
+        String pattern = "yyyy-MM-dd HH";
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        //需要查询24小时,所以需要查询到个数据进行返回
+        List<ResourceError> data = new LinkedList<>();
+        ResourceError vo = null;
+
+        //获得当前时间2021年6月9日14小时49分
+        LocalDateTime time = LocalDateTime.now();
+        time = time.plusHours(1);
+
+        //往前查询
+        LambdaQueryWrapper<ResourceError> lqw = null;
+        Long count = null;
+        Long sum = 0L;
+
+        for (int i = 0; i < 4; i++) {
+
+            lqw = new LambdaQueryWrapper<>();
+            lqw.eq(ResourceError::getProjectName,projectName)
+                    .le(ResourceError::getDate,time)
+                    .ge(ResourceError::getDate,time.plusHours(-6));
+
+            count = resourceErrorMapper.selectCount(lqw);
+            vo = new ResourceError();
+            vo.setCount(count);
+            vo.setDateStr(time.plusHours(-6).getHour() + "时-" + time.getHour()+"时");
+            data.add(vo);
+            sum += count;
+
+            time  = time.plusHours(-6);
+        }
+
+        return getPercent(data, sum);
+    }
+
+    private List<ResourceError> getErrDayCount(String projectName) {
+        String pattern = "yyyy-MM-dd";
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        //需要查询24小时,所以需要查询到个数据进行返回
+        List<ResourceError> data = new LinkedList<>();
+        ResourceError vo = null;
+
+        //获得当前时间2021年6月9日14小时49分
+        LocalDateTime time = LocalDateTime.now();
+
+        //往前查询
+        LambdaQueryWrapper<ResourceError> lqw = null;
+        Long count = null;
+        Long sum = 0L;
+
+        for (int i = 0; i < 4; i++) {
+
+            lqw = new LambdaQueryWrapper<>();
+            lqw.eq(ResourceError::getProjectName,projectName)
+                    .le(ResourceError::getDate,time)
+                    .ge(ResourceError::getDate,time.plusDays(-7));
+
+            count = resourceErrorMapper.selectCount(lqw);
+            vo = new ResourceError();
+            vo.setCount(count);
+            vo.setDateStr(time.plusDays(-7).getHour() + "时-" + time.getDayOfMonth()+"时");
+            data.add(vo);
+            sum += count;
+
+            time  = time.plusDays(-7);
+        }
+
+        return getPercent(data, sum);
+    }
+
+    private List<ResourceError> getErrMonthCount(String projectName) {
+        String pattern = "yyyy-MM";
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        //需要查询12个月,所以需要查询到12个数据进行返回
+        List<ResourceError> data = new LinkedList<>();
+        ResourceError vo = null;
+
+        //获得当前时间2021年6月9日14小时49分
+        LocalDateTime time = LocalDateTime.now();
+
+
+        //往前查询
+        LambdaQueryWrapper<ResourceError> lqw = null;
+        Long count = null;
+        Long sum = 0L;
+
+        for (int i = 0; i < 4; i++) {
+
+            lqw = new LambdaQueryWrapper<>();
+            lqw.eq(ResourceError::getProjectName, projectName)
+                    .le(ResourceError::getDate, time)
+                    .ge(ResourceError::getDate, time.plusMonths(-3));
+
+            count = resourceErrorMapper.selectCount(lqw);
+            vo = new ResourceError();
+            vo.setCount(count);
+            vo.setDateStr(time.plusMonths(-3).getMonthValue() + "月-" + time.getMonthValue() + "月");
+            data.add(vo);
+            sum += count;
+
+            time = time.plusMonths(-3);
+        }
+        return getPercent(data, sum);
+    }
+
     private double getDouble(double percent) {
         String  str = String.format("%.2f",percent);
         percent = Double.parseDouble(str);
         return percent;
+    }
+
+    @NotNull
+    private List<ResourceError> getPercent(List<ResourceError> data, Long sum) {
+        double percent;
+        for (ResourceError datum : data) {
+            percent = datum.getCount() * 100.0 / sum ;
+            String  str = String.format("%.2f",percent);
+            percent = Double.parseDouble(str);
+            datum.setPercent(percent);
+        }
+        return data;
     }
 
     @Override

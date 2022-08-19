@@ -48,7 +48,7 @@ public class BlankErrorServiceImpl extends ServiceImpl<BlankErrorMapper,BlankErr
     }
 
     @Override
-    public Result getJsErrByType(String projectName, Integer type) {
+    public Result getBlankErrByType(String projectName, String type) {
 
 
         //需要根据项目名和类型进行查询日志
@@ -57,11 +57,11 @@ public class BlankErrorServiceImpl extends ServiceImpl<BlankErrorMapper,BlankErr
         //3.年:查询从现在起,12个月的错误数
 
         switch (type) {
-            case 1:
+            case "1":
                 return new Result(getJsErrHourCount(projectName));
-            case 2:
+            case "2":
                 return new Result(getJsErrDayCount(projectName));
-            case 3:
+            case "3":
                 return new Result(getJsErrMonthCount(projectName));
             default:
                 return null;
@@ -84,21 +84,21 @@ public class BlankErrorServiceImpl extends ServiceImpl<BlankErrorMapper,BlankErr
         Long count = null;
         Long sum = 0L;
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 4; i++) {
 
             lqw = new LambdaQueryWrapper<>();
             lqw.eq(BlankError::getProjectName,projectName)
                     .le(BlankError::getDate,time)
-                    .ge(BlankError::getDate,time.plusHours(-4));
+                    .ge(BlankError::getDate,time.plusHours(-6));
 
             count = blankErrorMapper.selectCount(lqw);
             vo = new BlankError();
             vo.setCount(count);
-            vo.setDateStr(time.plusHours(-4).getHour() + "时-" + time.getHour()+"时");
+            vo.setDateStr(time.plusHours(-6).getHour() + "时-" + time.getHour()+"时");
             data.add(vo);
             sum += count;
 
-            time  = time.plusHours(-4);
+            time  = time.plusHours(-6);
         }
 
         return getPercent(data, sum);
@@ -154,21 +154,21 @@ public class BlankErrorServiceImpl extends ServiceImpl<BlankErrorMapper,BlankErr
         Long count = null;
         Long sum = 0L;
 
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 4; i++) {
 
             lqw = new LambdaQueryWrapper<>();
             lqw.eq(BlankError::getProjectName,projectName)
                     .le(BlankError::getDate,time)
-                    .ge(BlankError::getDate,time.plusMonths(-7));
+                    .ge(BlankError::getDate,time.plusMonths(-3));
 
             count = blankErrorMapper.selectCount(lqw);
             vo = new BlankError();
             vo.setCount(count);
-            vo.setDateStr(time.plusMonths(-1).getMonthValue() + "月-" + time.getMonthValue()+"日");
+            vo.setDateStr(time.plusMonths(-3).getMonthValue() + "月-" + time.getMonthValue()+"日");
             data.add(vo);
             sum += count;
 
-            time  = time.plusMonths(-1);
+            time  = time.plusMonths(-3);
         }
 
         return getPercent(data, sum);

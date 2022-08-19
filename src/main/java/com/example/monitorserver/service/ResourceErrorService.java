@@ -25,5 +25,7 @@ public interface ResourceErrorService extends IService<ResourceError> {
 
     Result getCountByProject(String projectName);
 
+    Result getErrByType(String projectName,String type);
+
     Long getResourceCount(String projectName);
 }

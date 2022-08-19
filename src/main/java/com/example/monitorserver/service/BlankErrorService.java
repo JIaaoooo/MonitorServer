@@ -23,5 +23,5 @@ public interface BlankErrorService extends IService<BlankError> {
      */
     Long getBlankCount(String projectName);
 
-    Result getJsErrByType(String projectName,Integer type);
+    Result getBlankErrByType(String projectName,String type);
 }
