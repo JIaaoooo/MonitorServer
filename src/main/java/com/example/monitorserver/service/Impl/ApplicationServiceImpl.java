@@ -13,6 +13,9 @@ import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
+import com.example.monitorserver.utils.NettyEventGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @program: monitor server
@@ -56,7 +61,8 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
 
 
     @Override
-    public Result releaseApp(Application application) {
+    public Result releaseApp(Application application) throws ExecutionException, InterruptedException {
+        NioEventLoopGroup group = NettyEventGroup.group;
         String ID = IdUtil.simpleUUID();
         application.setApplicationId(ID);
         application.setDate(LocalDateTime.now());
@@ -67,7 +73,9 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
             Message message =new Message()
                     .setUserId(application.getUserId())
                     .setApplicationId(ID);
-            messageService.addMessage(message);
+            group.next().submit(()->{
+                messageService.addMessage(message);
+            });
             application.setStatus(1);
         }
         // TODO 申请成为监控者和删除项目，都要向发布者们发送申请
@@ -77,10 +85,13 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
                 application.setStatus(1);
             }
             // TODO 2.查询该项目的所有发布者
-            Map<String,Object> condition = new HashMap<>();
-            condition.put("project_id",application.getProjectId());
-            Result select = userProjectService.select(condition);
-            List<UserProject> lists= (List<UserProject>) select.getData();
+            Future<Object> userProjectFuture = group.next().submit(() -> {
+                Map<String, Object> condition = new HashMap<>();
+                condition.put("project_id", application.getProjectId());
+                return userProjectService.select(condition).getData();
+            });
+
+            List<UserProject> lists= (List<UserProject>) userProjectFuture.get();
             Iterator<UserProject> iterator = lists.iterator();
             while(iterator.hasNext()){
                 count ++;
@@ -91,69 +102,91 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
                 Message message =new Message()
                         .setUserId(userId)
                         .setApplicationId(ID);
-                messageService.addMessage(message);
+                group.next().submit(()->{
+                    messageService.addMessage(message);
+                });
+
             }
         }
         if(application.getType()==3){
             application.setStatus(count);
         }
-        applicationMapper.insert(application);
+        group.next().submit(()->{
+            applicationMapper.insert(application);
+        });
+
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
     @Override
-    public Result updateApp(Application application) {
+    public Result updateApp(Application application) throws ExecutionException, InterruptedException {
+        NioEventLoopGroup group = NettyEventGroup.group;
+        group.next().submit(()->{
+            UpdateWrapper<Application> wrapper = new UpdateWrapper<>();
+            wrapper.eq("application_id",application.getApplicationId());
+            applicationMapper.update(application,wrapper);
+        });
         //TODO 1.更新Application表中的数据
-        UpdateWrapper<Application> wrapper = new UpdateWrapper<>();
-        wrapper.eq("application_id",application.getApplicationId());
 
-        applicationMapper.update(application,wrapper);
         if(application.getStatus()==0){
             int type  = application.getType();
             // TODO 1.申请监控
              if (type == 1){
                  // 将申请人 与 项目id 信息存入t_project_user表
-                 UserProject userProject = new UserProject()
-                         .setType(2)
-                         .setProjectId(application.getProjectId())
-                         .setUserId(application.getApplicantId());
-                 userProjectService.add(userProject);
+                 group.next().submit(()->{
+                     UserProject userProject = new UserProject()
+                             .setType(2)
+                             .setProjectId(application.getProjectId())
+                             .setUserId(application.getApplicantId());
+                     userProjectService.add(userProject);
+                 });
+
              }
              // TODO 2.邀请成为发布者
              if (type==2){
-                 UserProject userProject = new UserProject()
-                         .setType(1)
-                         .setProjectId(application.getProjectId())
-                         .setUserId(application.getUserId());
-                 userProjectService.add(userProject);
+                 group.next().submit(()->{
+                     UserProject userProject = new UserProject()
+                             .setType(1)
+                             .setProjectId(application.getProjectId())
+                             .setUserId(application.getUserId());
+                     userProjectService.add(userProject);
+                 });
+
              }
             //TODO 3.  删除
-
             if(type==3){
 
                 //删除项目
                 // TODO 通过项目id去获取项目信息，包括发布者
-                Map<String,Object> condition = new HashMap<>();
-                condition.put("project_id",application.getProjectId());
-                Result byCondition = projectService.getByCondition(condition);
-                List<Project> lists = (List<Project>) byCondition.getData();
+                Future<List<Project>> projectFuture = group.next().submit(() -> {
+                    Map<String, Object> condition = new HashMap<>();
+                    condition.put("project_id", application.getProjectId());
+                    return (List<Project>) projectService.getByCondition(condition).getData();
+                });
+
+                List<Project> lists = (List<Project>) projectFuture.get();
                 Project project = lists.iterator().next();
-                Data data = new Data()
-                        .setUserId(project.getUserId())
-                                .setProjectName(project.getProjectName());
-                projectService.deleteProject(data);
-                //删除redis首页缓存
-                if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))){
-                    redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
+                group.next().submit(()->{
+                    Data data = new Data()
+                            .setUserId(project.getUserId())
+                            .setProjectName(project.getProjectName());
+                    projectService.deleteProject(data);
+                    //删除redis首页缓存
+                    if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))) {
+                        redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
+                         }
+                    });
                 }
             }
-        }
+
         // TODO 更新message表中的handle为1
-        Message message = new Message()
-                .setHandle(application.getHandle())
-                        .setApplicationId(application.getApplicationId())
-                                .setUserId(application.getUserId());
-        messageService.update(message);
+        group.next().submit(()->{
+            Message message = new Message()
+                    .setHandle(application.getHandle())
+                    .setApplicationId(application.getApplicationId())
+                    .setUserId(application.getUserId());
+            messageService.update(message);
+        });
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 

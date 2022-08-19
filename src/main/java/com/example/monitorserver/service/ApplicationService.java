@@ -6,6 +6,7 @@ import com.example.monitorserver.po.Application;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @program: monitor server
@@ -20,14 +21,14 @@ public interface ApplicationService extends IService<Application> {
      * @param application 申请对象
      * @return 申请处理结果
      */
-    Result releaseApp(Application application);
+    Result releaseApp(Application application) throws ExecutionException, InterruptedException;
 
     /**
      * 根据application_id  更新申请状态 , 用户点击同意在status -1
      * @param application 申请实例化对象
      * @return 返回结果集
      */
-    Result updateApp(Application application);
+    Result updateApp(Application application) throws ExecutionException, InterruptedException;
 
     /**
      * 搜索相关申请信息

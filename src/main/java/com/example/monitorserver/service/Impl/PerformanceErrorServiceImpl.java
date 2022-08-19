@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.mapper.PerformanceErrorMapper;
 import com.example.monitorserver.po.Data;
+import com.example.monitorserver.po.ResourceError;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.PerformanceErrorService;
 import com.example.monitorserver.po.PerformanceError;
@@ -50,4 +51,5 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
         Long AvgTime = performanceError.getConsumeTime()/count;
         return new Result(ResultEnum.REQUEST_SUCCESS,AvgTime);
     }
+
 }

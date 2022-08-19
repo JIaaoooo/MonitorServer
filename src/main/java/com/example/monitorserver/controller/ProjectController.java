@@ -20,6 +20,7 @@ import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @program: monitor server
@@ -146,7 +147,7 @@ public class ProjectController {
 
     @PostMapping("/delete")
     @Secret
-    public Result delProject(@RequestBody Data data){
+    public Result delProject(@RequestBody Data data) throws ExecutionException, InterruptedException {
         String token = request.getHeader("Authorization");
         // TODO 1.遍历已存的token，获取权限
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);

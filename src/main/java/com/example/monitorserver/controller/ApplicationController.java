@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @program: monitor server
@@ -57,7 +58,7 @@ public class ApplicationController {
      */
     @PostMapping("/releaseApp")
     @Secret
-    public Result releaseApp(@RequestBody Application application){
+    public Result releaseApp(@RequestBody Application application) throws ExecutionException, InterruptedException {
 
         String number = application.getNumber();
         application.setType(Integer.parseInt(number));
@@ -80,7 +81,7 @@ public class ApplicationController {
      */
     @PostMapping("/update")
     @Secret
-    public Result  updateApp(@RequestBody Application application){
+    public Result  updateApp(@RequestBody Application application) throws ExecutionException, InterruptedException {
         String token = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
         User user = (User) MapBeanUtil.map2Object(entries, User.class);

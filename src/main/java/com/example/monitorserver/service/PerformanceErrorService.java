@@ -24,4 +24,5 @@ public interface PerformanceErrorService extends IService<PerformanceError> {
      * @return 返回截至这段时间的平均值
      */
     Result select(Data data);
+
 }

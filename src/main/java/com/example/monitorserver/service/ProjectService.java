@@ -7,6 +7,7 @@ import com.example.monitorserver.po.Project;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -62,6 +63,6 @@ public interface ProjectService extends IService<Project> {
      * @param projectId  项目id
      * @return 返回结果集
      */
-    Result deleteProject(Data data);
+    Result deleteProject(Data data) throws ExecutionException, InterruptedException;
 
 }

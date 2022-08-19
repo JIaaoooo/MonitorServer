@@ -13,6 +13,9 @@ import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserProjectService;
 import com.example.monitorserver.mapper.ProjectMapper;
+import com.example.monitorserver.utils.NettyEventGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,6 +28,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @program: monitor server
@@ -166,15 +171,24 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     }
 
     @Override
-    public Result deleteProject(Data data) {
-        LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Project::getProjectName,data.getProjectName());
-        // TODO 获取项目id ，删除userproject、application相关信息（message相关信息）
-        Project project = projectMapper.selectOne(wrapper);
-        UserProject userProject = new UserProject()
-                .setUserId(data.getUserId())
+    public Result deleteProject(Data data) throws ExecutionException, InterruptedException {
+        /*NioEventLoopGroup group = NettyEventGroup.group;
+
+        Future<Project> projectFuture = group.next().submit(() -> {
+            LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Project::getProjectName, data.getProjectName());
+            // TODO 获取项目id ，删除userproject、application相关信息（message相关信息）
+            return projectMapper.selectOne(wrapper);
+        });
+
+        Project project = projectFuture.get();
+        group.next().submit(()->{
+            UserProject userProject = new UserProject()
+                        .setUserId(data.getUserId())
                         .setProjectId(project.getProjectId());
-        userProjectService.delete(userProject);
+            userProjectService.delete(userProject);
+        });
+
         Map<String,Object> condition = new HashMap<>();
         condition.put("project_id",project.getProjectId());
         Result result= applicationService.selectApp(condition);
@@ -187,7 +201,8 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
         deleteMap.put("application_id",application.getApplicationId());
         messageService.delete(deleteMap);
         projectMapper.delete(wrapper);
-        return new Result(ResultEnum.DELETE_SUCCESS);
+        return new Result(ResultEnum.DELETE_SUCCESS);*/
+        return  null;
     }
 
 }

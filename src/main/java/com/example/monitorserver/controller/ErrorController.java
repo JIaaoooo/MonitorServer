@@ -13,12 +13,17 @@ import com.example.monitorserver.service.apiErrorService;
 import com.example.monitorserver.service.PerformanceErrorService;
 import com.example.monitorserver.service.ResourceErrorService;
 
+import com.example.monitorserver.utils.NettyEventGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @program: monitor server
@@ -93,13 +98,22 @@ public class ErrorController {
      */
     @PostMapping("/JsRate")
     @Secret
-    public Result JsRate(@RequestBody Data data){
-        Long jsCount = jsErrorService.getJsErrorCount(data.getProjectName());
-        Long apiCount = apiErrorService.getApiCount(data.getProjectName());
-        Long blankCount = blankErrorService.getBlankCount(data.getProjectName());
-        Long resourceCount = resourceErrorService.getResourceCount(data.getProjectName());
+    public Result JsRate(@RequestBody Data data) throws ExecutionException, InterruptedException {
+        NioEventLoopGroup group = NettyEventGroup.group;
+
+        Future<Long> JsFuture = group.next().submit(() -> jsErrorService.getJsErrorCount(data.getProjectName()));
+        Future<Long> ApiFuture = group.next().submit(() -> apiErrorService.getApiCount(data.getProjectName()));
+        Future<Long> BlankFuture = group.next().submit(() -> blankErrorService.getBlankCount(data.getProjectName()));
+        Future<Long> ResFuture = group.next().submit(() -> resourceErrorService.getResourceCount(data.getProjectName()));
+
+        Long jsCount = JsFuture.get();
+        Long apiCount = ApiFuture.get();
+        Long blankCount = ApiFuture.get();
+        Long resourceCount = ResFuture.get();
         Long whole = apiCount + blankCount + resourceCount;
         double rate = 1.000*jsCount / whole;
+        String  str = String.format("%.2f",rate );
+        rate = Double.parseDouble(str);
         return new Result(ResultEnum.REQUEST_SUCCESS,rate);
     }
 
