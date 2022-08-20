@@ -47,13 +47,8 @@ public class ProjectController {
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
+/*
 
-    /**
-     * 获取项目信息（在用户登陆后，展示已经审批、未冻结通过的项目）
-     * @param current 当前页
-     * @param position 当前用户的权限 若为0，普通用户，不能查看审核未通过项目   若为9，超级管理员，则可以全部显示  （如果不传position也可以直接传整个user信息）
-     * @return
-     */
     @GetMapping("/pageProject/{current}/{position}")
     @Secret
     public Result getPageProject(@PathVariable("current") int current, @PathVariable("position") int position){
@@ -65,7 +60,7 @@ public class ProjectController {
             return new Result(ResultEnum.SELECT_PAGE,projects);
         }
         return projectService.getPageProject(current, 10, position);
-    }
+    }*/
 
     /**
      *获取所有项目信息
@@ -83,7 +78,7 @@ public class ProjectController {
 
     /**
      * 模糊、条件查询项目信息
-     * @param data 前端信息集合
+     * @param data 项目名projectName
      * @return 返回项目信息
      */
     @PostMapping("/getByCondition")
@@ -96,7 +91,7 @@ public class ProjectController {
 
     /**
      * 存储项目信息（可是项目仍需要管理员的审批）
-     * @param project  传入项目信息
+     * @param project  项目名projectName 项目描述projectDesc 项目地址projectUrl
      * @return 返回操作结果
      */
     @PostMapping("/saveProject")
@@ -114,7 +109,7 @@ public class ProjectController {
 
     /**
      * 更新项目信息 （管理员更新项目的审批情况，以及发布者自己修改项目时使用）
-     * @param project 根据项目URL，更新
+     * @param project 根据项目URL: projectUrl，更新
      * @return 返回操作结果
      */
     @PostMapping("/update")
@@ -145,6 +140,13 @@ public class ProjectController {
         return projectService.updateProject(next,position);
     }
 
+    /**
+     * 删除项目
+     * @param data 项目名
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     @PostMapping("/delete")
     @Secret
     public Result delProject(@RequestBody Data data) throws ExecutionException, InterruptedException {

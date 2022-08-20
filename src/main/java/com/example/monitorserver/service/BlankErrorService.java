@@ -21,7 +21,7 @@ public interface BlankErrorService extends IService<BlankError> {
      * @param projectName 通过项目名查询
      * @return 返回白屏次数
      */
-    Long getBlankCount(String projectName);
+    Result getBlankCount(String projectName);
 
     Result getBlankErrByType(String projectName,String type);
 }

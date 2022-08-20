@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: monitor server
@@ -103,13 +105,13 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
         switch (dataType) {
             //日
             case "1":
-                 performanceErrors = selectHourType(projectName, type,field);
+                 performanceErrors = selectHourType(projectName,field);
                 break;
             case "2":
-                performanceErrors = selectDayType(projectName, type,field);
+                performanceErrors = selectDayType(projectName,field);
                 break;
             case "3":
-                performanceErrors = selectMonthType(projectName, type,field);
+                performanceErrors = selectMonthType(projectName,field);
                 break;
             default:
                 break;
@@ -121,7 +123,47 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
 
     }
 
-    private List<PerformanceError> selectHourType(String projectName, String type,String field) {
+    @Override
+    public Result getFP(String projectName) {
+        QueryWrapper<PerformanceError> qw = new QueryWrapper<>();
+        LocalDateTime time = LocalDateTime.now();
+        qw.eq("project_name",projectName)
+                .le("date", time)
+                .ge("date", time.plusDays(-7));
+        Long ThisWeekCount = performanceErrorMapper.selectCount(qw);
+        qw.select("SUM(first_paint) AS first_paint");
+        PerformanceError performanceError = performanceErrorMapper.selectOne(qw);
+        Long ThisWeekFirstPaint = performanceError.getFirstPaint();
+        double ThisWeekAvgTime = 1.000*ThisWeekFirstPaint/ThisWeekCount;
+        String  str = String.format("%.2f",ThisWeekAvgTime);
+        ThisWeekAvgTime = Double.parseDouble(str);
+
+        QueryWrapper<PerformanceError> qw1 = new QueryWrapper<>();
+        qw1.eq("project_name",projectName)
+                .le("date", time.plusDays(-7))
+                .ge("date", time.plusDays(-14));
+        Long LastWeekCount = performanceErrorMapper.selectCount(qw1);
+        qw1.select("SUM(first_paint) AS first_paint");
+        PerformanceError performanceError1 = performanceErrorMapper.selectOne(qw1);
+        Long LastWeekFirstPaint = 0L ;
+        if (performanceError1!=null){
+            LastWeekFirstPaint = performanceError1.getFirstPaint();
+        }
+        double LastWeekAvgTime = 1.000*LastWeekFirstPaint/LastWeekCount;
+
+
+        Map<String,Object> result = new HashMap<>();
+        result.put("ThisWeekAvgTime",ThisWeekAvgTime);
+        result.put("LastWeekAvgTime",LastWeekAvgTime);
+        Double rate = 1.0  * 100;
+        if(LastWeekFirstPaint!=0){
+            rate = (double) ((ThisWeekFirstPaint - LastWeekFirstPaint) / LastWeekFirstPaint * 100);
+        }
+        result.put("rate",rate);
+        return new Result(ResultEnum.REQUEST_SUCCESS,result);
+    }
+
+    private List<PerformanceError> selectHourType(String projectName,String field) {
 
 
         String pattern = "yyyy-MM-dd HH";
@@ -140,7 +182,7 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
         //这是每日,分为4个时段
 
 
-        Long sum = performanceErrorMapper.selectCount(qw);
+        Long sum = 0L;
         Long count = null;
 
         //往前查询
@@ -179,13 +221,12 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
             time  = time.plusHours(-6);
         }
 
-        System.out.println("111111111111111111111111111"+data);
 
         return data;
 
     }
 
-    private List<PerformanceError> selectDayType(String projectName, String type,String field) {
+    private List<PerformanceError> selectDayType(String projectName,String field) {
         String pattern = "yyyy-MM-dd";
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         //需要查询24小时,所以需要查询到个数据进行返回
@@ -226,7 +267,7 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
 
     }
 
-    private List<PerformanceError> selectMonthType(String projectName, String type,String field) {
+    private List<PerformanceError> selectMonthType(String projectName,String field) {
 
         String pattern = "yyyy-MM";
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);

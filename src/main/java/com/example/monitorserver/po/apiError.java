@@ -26,6 +26,8 @@ import java.time.LocalDateTime;
 @TableName("t_apiError")
 public class apiError extends HttpSecretCode{
 
+    @TableId
+    private Integer id;
 
     /** 访问者的ip  **/
     private String ip;
@@ -77,11 +79,11 @@ public class apiError extends HttpSecretCode{
 
     /** 平均延迟时间 **/
     @TableField(exist = false)
-    private double AvgResponseTime;
+    private Double AvgResponseTime;
 
     /** 错误率 **/
     @TableField(exist = false)
-    private double rate;
+    private Double rate;
 
     /** 报错数 **/
     @TableField(exist = false)
@@ -99,4 +101,10 @@ public class apiError extends HttpSecretCode{
 
     @TableField(exist = false)
     private String dateType;
+
+    @TableField(exist = false)
+    private Long PV;
+
+    @TableField(exist = false)
+    private Long UV;
 }

@@ -137,18 +137,6 @@ class MonitorServerApplicationTests {
     }
 
 
-    @Autowired
-    private ApplicationService applicationService;
-    @Test
-    void Test2() throws ExecutionException, InterruptedException {
-        Application application = new Application()
-                .setUserId("f43a2b4581444a88a4fa51fb3a254b5a")
-                        .setProjectId("217b3c3c76cf42f1bad3d36a551774bd")
-                                .setApplicantId("f43a2b4581444a88a4fa51fb3a254b5a")
-                                        .setType(1);
-        applicationService.releaseApp(application);
-    }
-
 
 //
 //    @Test

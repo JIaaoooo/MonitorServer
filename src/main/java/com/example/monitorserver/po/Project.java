@@ -81,4 +81,12 @@ public class Project extends HttpSecretCode{
     @TableField(exist = false)
     private String appiUser;
 
+    @TableField(exist = false)
+    private Long PV;
+
+    @TableField(exist = false)
+    private Long UV;
+
+    @TableField(exist = false)
+    private double rate;
 }

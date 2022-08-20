@@ -36,7 +36,7 @@ public class UserProjectController {
 
     /**
      * 查询该项目下的监控者
-      * @param data 内套项目名
+      * @param data 项目名projectName
      * @return 返回用户名
      */
 
@@ -69,7 +69,7 @@ public class UserProjectController {
 
     /**
      *查询自己监控\发布的项目
-     * @param data 向前端获取用户id
+     * @param data 向前端获取用户id :userID
      * @return 返回project实体类
      */
     @PostMapping("/MyProject")
@@ -105,7 +105,7 @@ public class UserProjectController {
 
     /**
      * 删除用户的监控权限
-     * @param data 封装项目名，用户名
+     * @param data 封装projectName项目名，username用户名
      * @return 返回执行结果
      */
     @PostMapping("/updatePermission")

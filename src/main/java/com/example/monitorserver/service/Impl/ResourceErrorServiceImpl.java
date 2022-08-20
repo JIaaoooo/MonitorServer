@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: monitor server
@@ -252,11 +254,23 @@ public class ResourceErrorServiceImpl extends ServiceImpl<ResourceErrorMapper, R
     }
 
     @Override
-    public Long getResourceCount(String projectName) {
+    public Result getResourceCount(String projectName) {
         QueryWrapper<ResourceError> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("project_name",projectName);
+        LocalDateTime time = LocalDateTime.now();
+        queryWrapper.eq("project_name",projectName)
+                .le("date", time)
+                .ge("date", time.plusDays(-7));
+        Long ThisWeek = resourceErrorMapper.selectCount(queryWrapper);
 
-        return resourceErrorMapper.selectCount(queryWrapper);
+        queryWrapper.clear();
+        queryWrapper.eq("project_name",projectName)
+                .le("date", time.plusDays(-7))
+                .ge("date", time.plusDays(-14));
+        Long LastWeek = resourceErrorMapper.selectCount(queryWrapper);
+        Map<String,Object> result = new HashMap<>();
+        result.put("ThisWeek",ThisWeek);
+        result.put("LastWeek",LastWeek);
+        return new Result(result);
     }
 
 

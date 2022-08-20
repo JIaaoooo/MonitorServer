@@ -8,6 +8,7 @@ import com.example.monitorserver.mapper.JsErrorMapper;
 import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.JsError;
 import com.example.monitorserver.po.Result;
+import com.example.monitorserver.po.apiError;
 import com.example.monitorserver.service.JsErrorService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: monitor server
@@ -228,9 +231,35 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
     }
 
     @Override
-    public Long getJsErrorCount(String projectName) {
+    public Result getJsErrorCount(String projectName) {
         QueryWrapper<JsError> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("project_name",projectName);
-        return jsErrorMapper.selectCount(queryWrapper);
+        LocalDateTime time = LocalDateTime.now();
+        queryWrapper.eq("project_name",projectName)
+                .le("date", time)
+                .ge("date", time.plusDays(-7));
+        Long ThisWeek = jsErrorMapper.selectCount(queryWrapper);
+
+        queryWrapper.clear();
+        queryWrapper.eq("project_name",projectName)
+                .le("date", time.plusDays(-7))
+                .ge("date", time.plusDays(-14));
+        Long LastWeek = jsErrorMapper.selectCount(queryWrapper);
+        Map<String,Object> result = new HashMap<>();
+        result.put("ThisWeek",ThisWeek);
+        result.put("LastWeek",LastWeek);
+        return new Result(result);
     }
+/*
+    @Override
+    public Result getLastWeekData(String projectName) {
+        QueryWrapper<JsError> queryWrapper = new QueryWrapper<>();
+        LocalDateTime time = LocalDateTime.now();
+
+        queryWrapper.clear();
+        queryWrapper.eq("project_name",projectName)
+                .le("visit_date", time)
+                .ge("visit_date", time.plusDays(-7));
+        Long deafCount = jsErrorMapper.selectCount(queryWrapper);
+        return new Result(deafCount);
+    }*/
 }

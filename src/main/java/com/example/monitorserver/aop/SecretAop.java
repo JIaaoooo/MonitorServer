@@ -74,7 +74,6 @@ public class SecretAop {
 
         //http请求方法  post get
         String httpMethod = request.getMethod().toLowerCase();
-        System.out.println("httpMethod = " + httpMethod);
 
         //方法的形参参数
         Object[] args = pjp.getArgs();
@@ -94,53 +93,13 @@ public class SecretAop {
         //如果是get方法,直接放行
         if (HttpMethod.GET.toString().equalsIgnoreCase(httpMethod) || HttpMethod.DELETE.toString().equalsIgnoreCase(httpMethod)) {
         } else {
-            //注释掉没用的代码
-            {//            //获取前端传进来的参数
-//            InputStreamReader inputStreamReader = new InputStreamReader(request.getInputStream(), "UTF-8");
-//            StringBuilder stringBuilder;
-//            try (BufferedReader br = new BufferedReader(inputStreamReader)) {
-//                String line;
-//                stringBuilder = new StringBuilder();
-//                while ((line = br.readLine()) != null) {
-//                    stringBuilder.append(line);
-//                }
-//            }
-//            String oriData = stringBuilder.toString();
-//
-//            System.out.println(oriData);
-//
-//            httpSecretCode = JSON.parseObject(oriData, HttpSecretCode.class);
-
-
-//            // 获取被代理方法
-//            Method pointMethod = target.getClass().getMethod(signature.getName(), signature.getParameterTypes());
-//            // 获取被代理方法上面的注解@Secret
-//            Secret secret = pointMethod.getAnnotation(Secret.class);
-//
-//            Class clazz = secret.value();
-//
-//            Object cast = clazz.cast(args[0]);      //将args[i]转换为clazz表示的类对象
-//            // 通过反射，执行getEncryptStr()方法，获取加密数据
-//            Method method1 = clazz.getMethod(getMethedName("encryptStr"));
-//            Method method2 = clazz.getMethod(getMethedName("encryptKey"));
-//            // 执行方法，获取加密数据
-//            String encryptStr = (String) method1.invoke(cast);
-//            String encryptKey = (String) method2.invoke(cast);
-//
-//            httpSecretCode.setEncryptStr(encryptStr);
-//            httpSecretCode.setEncryptKey(encryptKey);
-            }
-
 
             for (String s : paramMap.keySet()) {
-                System.out.println("paramMaps = " + paramMap.get(s));
                 httpSecretCode = (HttpSecretCode) paramMap.get(s);
             }
 
             //开始解密
             aesKey = getAesKey(httpSecretCode);
-
-            System.out.println("aesKey = " + aesKey);
 
             String json = check(httpSecretCode, aesKey);
             //在这里进行转义
@@ -151,7 +110,6 @@ public class SecretAop {
         }
 
         log.debug(httpSecretCode.toString());
-        System.out.println(httpSecretCode);
 
 
         Object o = pjp.proceed(args);
@@ -192,7 +150,6 @@ public class SecretAop {
             //表示解密失败
             throw new SystemException(ResultEnum.HTTP_EX_1);
         }
-
         return aesKey;
     }
 
@@ -203,7 +160,6 @@ public class SecretAop {
         }
 
         //有一个东西为空,表示你传进来的数据是没用的
-        System.out.println(httpSecretCode);
         if (ObjectUtils.isEmpty(httpSecretCode) || StringUtils.isBlank(httpSecretCode.getEncryptStr()) || StringUtils.isBlank(httpSecretCode.getEncryptKey())) {
             throw new SystemException(ResultEnum.HTTP_EX_1);
         }
@@ -213,7 +169,7 @@ public class SecretAop {
         } catch (Exception e) {
             throw new SystemException(ResultEnum.HTTP_EX_1);
         }
-
+        log.debug(json);
         return json;
     }
 }

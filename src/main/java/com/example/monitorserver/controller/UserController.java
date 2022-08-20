@@ -53,7 +53,7 @@ public class UserController {
 
     /**
      * 登录
-     * @param user 传递user对象（通过用户名和密码进行校验）
+     * @param user username password
      * @return 返回除了密码之后的信息
      */
     @PostMapping("/login")
@@ -80,7 +80,7 @@ public class UserController {
 
     /**
      * 注册
-     * @param user 传递user对象
+     * @param user username password phone
      * @return
      */
     @PostMapping("/register")
@@ -109,7 +109,7 @@ public class UserController {
 
     /**
      * 用户修改个人信息，根据ID去存储新的值
-     * @param user 用户信息
+     * @param user username password phone 用户信息
      * @return 返回更新结果
      */
     @PutMapping
@@ -120,7 +120,7 @@ public class UserController {
 
     /**
      * 模糊、条件查询用户   可根据任何值 (在邀请发布者需要调用)
-     * @param data  前端数据封装
+     * @param data  需要username
      * @return 返回该用户（可能为集合）
      */
     @PostMapping("/getUser")
@@ -134,7 +134,7 @@ public class UserController {
 
     /**
      * 管理员冻结用户
-     * @param data  接受信息的封装类
+     * @param data  需要username date时间戳
      * @return 返回操作执行结果
      */
     @PostMapping("/freezeUser")

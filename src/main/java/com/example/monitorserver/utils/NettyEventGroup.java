@@ -7,5 +7,5 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class NettyEventGroup {
 
-    public  static NioEventLoopGroup group = new NioEventLoopGroup(10);
+    public  static NioEventLoopGroup group = new NioEventLoopGroup(20);
 }

@@ -33,11 +33,11 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport {
     protected void addInterceptors(InterceptorRegistry registry) {
         //配置拦截器,要监控的接口
         registry.addInterceptor(monitorInterceptor).addPathPatterns(monitorConfig.getPathPatterns());
-        /*registry.addInterceptor(new LoginInterceptor(redisTemplate))
+        registry.addInterceptor(new LoginInterceptor(redisTemplate))
                 .excludePathPatterns(
                         "/user/login",
                         "/user/register",
                         "/SDK"
-                );*/
+                );
     }
 }

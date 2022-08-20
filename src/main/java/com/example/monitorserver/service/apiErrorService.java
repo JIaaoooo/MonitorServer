@@ -49,7 +49,7 @@ public interface apiErrorService extends IService<apiError> {
      * @param projectName 项目名
      * @return 返回js错误数
      */
-    Long getApiCount(String projectName);
+    Result getApiCount(String projectName);
 
     /**
      * 获取服务段所有包下的访问量，访问人次，异常数，成功率
@@ -65,10 +65,19 @@ public interface apiErrorService extends IService<apiError> {
     Result getMethodInfor(String packageName);
 
     /**
-     * 根据年月日返回项目的 成功数，错误数，成功率
-     * @param projectName
-     * @param type
-     * @return
+     * 根据年月日返回项目的 成功数，错误数，成功率，访问量，访问人次
+     * @param projectName 项目名
+     * @param type 时间段选择
+     * @return 返回结果集
      */
     Result getApiErrByType(String projectName,String type) throws ExecutionException, InterruptedException;
+
+
+    /**
+     * 获取服务端，该方法下的详细日志信息
+     * @param method 方法名
+     * @return 返回详细日志信息
+     */
+    Result getDetail(String method);
+
 }

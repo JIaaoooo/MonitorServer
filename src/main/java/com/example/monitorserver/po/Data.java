@@ -44,6 +44,9 @@ public class Data extends HttpSecretCode {
 
     private String packageName;
 
+    private String dateType;
+
+    private String method;
 
     private Object data;
 

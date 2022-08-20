@@ -39,5 +39,7 @@ public interface JsErrorService extends IService<JsError> {
      * @param projectName 项目名
      * @return 返回总项目数
      */
-    Long getJsErrorCount(String projectName);
+    Result getJsErrorCount(String projectName);
+
+   /* Result getLastWeekData(String projectName);*/
 }

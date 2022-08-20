@@ -30,4 +30,10 @@ public interface PerformanceErrorService extends IService<PerformanceError> {
 
     Result getAvgByTypeAndDate(String projectName, String type, String dataType) ;
 
+    /**
+     * 获得首次渲染时间的平均值，本周与上周数据
+     * @param projectName 项目名
+     * @return 返回本周与上周的数据
+     */
+    Result getFP(String projectName);
 }

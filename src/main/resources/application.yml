@@ -16,6 +16,10 @@ spring:
   main:
     allow-circular-references: true
 
+  proxy:
+    target:
+      class: true
+
   monitor:
       #监控数据流向的服务器地址,默认为localhost
       host: 39.98.41.126

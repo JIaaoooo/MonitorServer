@@ -35,14 +35,17 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
     @Override
     public Result selectMethod(String projectName) {
         QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("project_name",projectName);
+        queryWrapper.eq("project_name",projectName)
+                .select("DISTINCT method , uri");
         List<apiError> list = apiErrorMapper.selectList(queryWrapper);
         Iterator<apiError> iterator = list.iterator();
         List<apiError> results = new ArrayList<>();
         while(iterator.hasNext()){
             apiError apiError = iterator.next();
             //查询方法的总访问量
-            queryWrapper.eq("method",apiError.getMethod());
+            queryWrapper.clear();
+            queryWrapper.eq("project_name",projectName)
+                .eq("method",apiError.getMethod());
             Long sum = apiErrorMapper.selectCount(queryWrapper);
             if (sum==0){
                 continue;
@@ -58,9 +61,15 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
             Long responseTime = apiError1.getResponseTime();
             //平均耗时
             double AvgTime = 1.000 *responseTime / sum;
+            String  str = String.format("%.2f",AvgTime);
+            AvgTime = Double.parseDouble(str);
             // 错误率
             double percent = 1.000 * defeat / sum ;
+            String  str1 = String.format("%.2f",percent);
+            percent = Double.parseDouble(str1);
             apiError result = new apiError()
+                    .setMethod(apiError.getMethod())
+                    .setUri(apiError.getUri())
                     .setRate(percent)
                     .setAvgResponseTime(AvgTime);
             results.add(result);
@@ -83,15 +92,20 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
         // TODO 1.获取访问量
         queryWrapper.eq("project_name",project_name);
         Long count = apiErrorMapper.selectCount(queryWrapper);
-        // TODO 2.获取异常量
-        queryWrapper.ne("exception",null);
-        Long exception = apiErrorMapper.selectCount(queryWrapper);
-        // TODO 3.计算成功率
-        double deaRate  = 1.0*exception/count;
-        double rate = 1 - deaRate;
+        // TODO 2.获取访问人次
+        queryWrapper.select("DISTINCT ip");
+        Long uv = apiErrorMapper.selectCount(queryWrapper);
+        queryWrapper.clear();
+        queryWrapper.eq("project_name",project_name)
+                .isNotNull("exception");
+        Long defeat = apiErrorMapper.selectCount(queryWrapper);
+        double percent =( 1 - 1.00 * defeat / count) * 100;
+        String  str = String.format("%.2f",percent);
+        percent = Double.parseDouble(str);
         apiError apiError = new apiError()
-                .setRate(rate)
-                .setDefeatCount(exception);
+                .setPV(count)
+                .setRate(percent)
+                .setUV(uv);
         return new Result(ResultEnum.REQUEST_FALSE,apiError);
     }
 
@@ -110,7 +124,7 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
             String method = error.getMethod();
             QueryWrapper<apiError> qw = new QueryWrapper<>();
             qw.eq("method",method);
-            // 计算错误率  获取该接口的api总信息梁
+            // 计算错误率  获取该接口的api总信息量
             Long count = apiErrorMapper.selectCount(qw);
             // 获取接口异常数
             qw.ne("exception",null);
@@ -124,7 +138,7 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
             apiError apiError = apiErrorMapper.selectOne(qw2);
             Long responseTime = apiError.getResponseTime();
             // 计算平均耗时
-            Long AvgResponseTime = responseTime / count;
+            Double AvgResponseTime = (double) (responseTime / count);
             apiError TheError = new apiError()
                     .setRate(deaRate)
                     .setAvgResponseTime(AvgResponseTime);
@@ -136,10 +150,25 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
     }
 
     @Override
-    public Long getApiCount(String projectName) {
+    public Result getApiCount(String projectName) {
         QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("project_name",projectName);
-        return apiErrorMapper.selectCount(queryWrapper);
+        LocalDateTime time = LocalDateTime.now();
+        queryWrapper.eq("project_name",projectName)
+                .isNotNull("exception")
+                .le("visit_date", time)
+                .ge("visit_date", time.plusDays(-7));
+        Long ThisWeek = apiErrorMapper.selectCount(queryWrapper);
+
+        queryWrapper.clear();
+        queryWrapper.eq("project_name",projectName)
+                .isNotNull("exception")
+                .le("visit_date", time.plusDays(-7))
+                .ge("visit_date", time.plusDays(-14));
+        Long LastWeek = apiErrorMapper.selectCount(queryWrapper);
+        Map<String,Object> result = new HashMap<>();
+        result.put("ThisWeek",ThisWeek);
+        result.put("LastWeek",LastWeek);
+        return new Result(result);
     }
 
     @Override
@@ -150,6 +179,7 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
         List<apiError> logs = apiErrorMapper.selectList(queryWrapper);
         Iterator<apiError> iterator = logs.iterator();
         List<apiError> result = new ArrayList<>();
+        int i = 1;
         // TODO 获取的到服务器所有的包名
         while (iterator.hasNext()){
             String packageName = iterator.next().getPackageName();
@@ -164,14 +194,30 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
             QueryWrapper<apiError> qw2 = new QueryWrapper<>();
             qw2.eq("project_url","www.monitorServer.com")
                     .eq("package_name",packageName)
-                    .ne("exception",null);
+                    .isNotNull("exception");
             Long defeatCount = apiErrorMapper.selectCount(qw2);
-            double rate = 1.0 * defeatCount / visits;
+            //计算平均耗时
+            qw2.clear();
+            qw2.eq("project_url","www.monitorServer.com")
+                    .eq("package_name",packageName);
+            Long count = apiErrorMapper.selectCount(qw2);
+            qw2.select("SUM(response_time) AS response_time");
+            apiError one = apiErrorMapper.selectOne(qw2);
+            Long responseTime = one.getResponseTime();
+            Double AvgTime = responseTime* 1.000 / count;
+            String  str = String.format("%.2f",AvgTime);
+            AvgTime = Double.parseDouble(str);
+
+            double rate =  1 - 1.000 * defeatCount / visits;
+            String  str1 = String.format("%.2f",rate);
+            rate = Double.parseDouble(str1);
             apiError apiError = new apiError()
+                    .setId(i++)
                     .setPackageName(packageName)
                     .setDefeatCount(defeatCount)
                     .setRate(rate)
                     .setVisits(visits)
+                    .setAvgResponseTime(AvgTime)
                     .setVisits_people(visits_people);
             result.add(apiError);
         }
@@ -189,6 +235,7 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
         List<apiError> logs = apiErrorMapper.selectList(queryWrapper);
         Iterator<apiError> iterator = logs.iterator();
         List<apiError> result = new ArrayList<>();
+        int i =0;
         // TODO 得到该包下的各个接口信息
         while (iterator.hasNext()){
             String uri = iterator.next().getUri();
@@ -204,19 +251,46 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
             qw2.eq("project_url","www.monitorServer.com")
                     .eq("package_name",packageName)
                     .eq("package_name",packageName)
-                    .ne("exception",null);
+                    .isNotNull("exception");
             Long defeatCount = apiErrorMapper.selectCount(qw2);
-            double rate = 1.0 * defeatCount / visits;
+            //计算平均耗时
+            qw2.clear();
+            qw2.eq("project_url","www.monitorServer.com")
+                    .eq("package_name",packageName);
+            Long count = apiErrorMapper.selectCount(qw2);
+            qw2.select("SUM(response_time) AS response_time");
+            apiError one = apiErrorMapper.selectOne(qw2);
+            Long responseTime = one.getResponseTime();
+            Double AvgTime = responseTime* 1.000 / count;
+            String  str = String.format("%.2f",AvgTime);
+            AvgTime = Double.parseDouble(str);
+
+            double rate =  1 - 1.0000 * defeatCount / visits;
+            String  str1 = String.format("%.2f",rate);
+            rate = Double.parseDouble(str1);
             apiError apiError = new apiError()
+                    .setId(i++)
                     .setPackageName(packageName)
                     .setUri(uri)
                     .setDefeatCount(defeatCount)
                     .setRate(rate)
                     .setVisits(visits)
+                    .setAvgResponseTime(AvgTime)
                     .setVisits_people(visits_people);
             result.add(apiError);
         }
         return new Result(ResultEnum.REQUEST_SUCCESS,result);
+    }
+
+    @Override
+    public Result getDetail(String method) {
+        QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("project_url","www.monitorServer.com")
+                .eq("uri",method)
+                .orderByDesc("visit_date")
+                .last("limit 1");
+        apiError apiError = apiErrorMapper.selectOne(queryWrapper);
+        return new Result(ResultEnum.REQUEST_SUCCESS,apiError);
     }
 
     @Override
@@ -239,6 +313,9 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
                 return null;
         }
     }
+
+
+
 
     private List<apiError> getApiErrHourCount(String projectName)  {
         String pattern = "yyyy-MM-dd HH";
@@ -263,23 +340,34 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
                     .ge(apiError::getVisitDate, time.plusHours(-6));
             Long count = apiErrorMapper.selectCount(lqw);
 
-            LambdaQueryWrapper<apiError> lqw1 =  new LambdaQueryWrapper<>();
-            lqw1.eq(apiError::getProjectName, projectName)
+            lqw.clear();
+            lqw.eq(apiError::getProjectName, projectName)
                     .isNotNull(apiError::getException)
                     .le(apiError::getVisitDate, time)
                     .ge(apiError::getVisitDate, time.plusHours(-6));
-            Long deafCount = apiErrorMapper.selectCount(lqw1);
+            Long deafCount = apiErrorMapper.selectCount(lqw);
+
+            QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("project_name", projectName)
+                    .select("DISTINCT ip")
+                    .le("visit_date", time)
+                    .ge("visit_date", time.plusHours(-6));
+            Long visit_people = apiErrorMapper.selectCount(queryWrapper);
+
             vo = new apiError()
                     .setCount(count)
-                    .setDefeatCount(deafCount);
+                    .setDefeatCount(deafCount)
+                    //访问量
+                    .setVisits(count+deafCount)
+                    //访问人次
+                    .setVisits_people(visit_people);
             vo.setDateStr(time.plusHours(-6).getHour() + "时-" +time.getHour()+"时");
             data.add(vo);
-            visitsSum += count;
 
             time  = time.plusHours(-6);
         }
 
-        return getPercent(data, visitsSum);
+        return getPercent(data);
 
     }
 
@@ -314,17 +402,29 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
                     .le(apiError::getVisitDate, time)
                     .ge(apiError::getVisitDate, time.plusDays(-7));
             Long deafCount = apiErrorMapper.selectCount(lqw1);
+
+            QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("project_name", projectName)
+                    .select("DISTINCT ip")
+                    .le("visit_date", time)
+                    .ge("visit_date", time.plusDays(-7));
+            Long visit_people = apiErrorMapper.selectCount(queryWrapper);
+
             vo = new apiError()
                     .setCount(count)
-                    .setDefeatCount(deafCount);
+                    .setDefeatCount(deafCount)
+                    //访问量
+                    .setVisits(count+deafCount)
+                    //访问人次
+                    .setVisits_people(visit_people);
             vo.setDateStr(time.plusDays(-7).getDayOfMonth() + "日-" +time.getDayOfMonth()+"日");
             data.add(vo);
-            visitsSum += count;
+
 
             time  = time.plusDays(-7);
         }
 
-        return getPercent(data, visitsSum);
+        return getPercent(data);
 
     }
 
@@ -348,36 +448,58 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
                     .isNull(apiError::getException)
                     .le(apiError::getVisitDate, time)
                     .ge(apiError::getVisitDate, time.plusMonths(-3));
+            //正确数
             Long count = apiErrorMapper.selectCount(lqw);
 
-            LambdaQueryWrapper<apiError> lqw1 =  new LambdaQueryWrapper<>();
-            lqw1.eq(apiError::getProjectName, projectName)
+            lqw.clear();
+            lqw.eq(apiError::getProjectName, projectName)
                     .isNotNull(apiError::getException)
                     .le(apiError::getVisitDate, time)
                     .ge(apiError::getVisitDate, time.plusMonths(-3));
-            Long deafCount = apiErrorMapper.selectCount(lqw1);
+            //访问量
+            Long deafCount = apiErrorMapper.selectCount(lqw);
+            QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("project_name", projectName)
+                    .select("DISTINCT ip")
+                    .le("visit_date", time)
+                    .ge("visit_date", time.plusMonths(-3));
+            Long visit_people = apiErrorMapper.selectCount(queryWrapper);
+
             vo = new apiError()
                     .setCount(count)
-                    .setDefeatCount(deafCount);
+                    .setDefeatCount(deafCount)
+                            //访问量
+                            .setVisits(count+deafCount)
+                                    //访问人次
+                                    .setVisits_people(visit_people);
             vo.setDateStr(time.plusMonths(-3).getMonthValue() + "月-" + time.getMonthValue() + "月");
             data.add(vo);
-            visitsSum += count;
+            //visitsSum += count;
 
             time = time.plusMonths(-3);
         }
 
-        return getPercent(data, visitsSum);
+        return getPercent(data);
     }
 
-        private List<apiError> getPercent(List<apiError> data, Long sum) {
+        private List<apiError> getPercent(List<apiError> data) {
         double percent;
+        Long PV = 0L;
+        Long UV = 0L;
         for (apiError datum : data) {
-            percent = 1 - datum.getCount() * 100.0 / sum ;
+            //成功率
+            percent =   datum.getCount() * 1.000 / datum.getVisits() *100;
+            UV += datum.getVisits_people();
+            PV += datum.getVisits();
             String  str = String.format("%.2f",percent);
             percent = Double.parseDouble(str);
             datum.setPercent(percent);
         }
-        return data;
+            apiError error = new apiError()
+                    .setPV(PV)
+                    .setUV(UV);
+            data.add(error);
+            return data;
     }
 
 }

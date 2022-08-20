@@ -37,13 +37,13 @@ public class ApiErrorController {
     }
 
     /**
-     * @param apiError  封装dateType 日1 月2 年3 ， 项目名
+     * @param data  封装dateType 日1 月2 年3 ， 项目名
      * @return 返回该时间段下的Js错误信息
      */
     @PostMapping("/err")
     @Secret
-    public Result getApiErrorByType(@RequestBody apiError apiError) throws ExecutionException, InterruptedException {
-        return apiErrorService.getApiErrByType(apiError.getProjectName(),apiError.getDateType());
+    public Result getApiErrorByType(@RequestBody Data data) throws ExecutionException, InterruptedException {
+        return apiErrorService.getApiErrByType(data.getProjectName(),data.getDateType());
     }
 
     /**
@@ -55,5 +55,17 @@ public class ApiErrorController {
     @Secret
     public Result getMethodError(@RequestBody Data data){
         return apiErrorService.selectMethod(data.getProjectName());
+    }
+
+
+    /**
+     * 查看服务端日志
+     * @param data method接口名
+     * @return 返回该接口最近的一条日志信息
+     */
+    @PostMapping("/detail")
+    @Secret
+    public Result getDetail(@RequestBody Data data){
+        return apiErrorService.getDetail(data.getMethod());
     }
 }

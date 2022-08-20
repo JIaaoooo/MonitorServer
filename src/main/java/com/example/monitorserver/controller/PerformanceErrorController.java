@@ -1,6 +1,7 @@
 package com.example.monitorserver.controller;
 
 import com.example.monitorserver.annotation.Secret;
+import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.PerformanceError;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.PerformanceErrorService;
@@ -23,12 +24,23 @@ public class PerformanceErrorController {
 
     /**
      * 性能分析均值,通过性能字段和时间范围
-     * @param performanceError
+     * @param data 传项目名，时间段选择，性能类型选择
      * @return
      */
     @PostMapping
     @Secret
-    public Result getAvgByTypeAndDate(@RequestBody PerformanceError performanceError) {
-        return performanceErrorService.getAvgByTypeAndDate(performanceError.getProjectName(),performanceError.getType(),performanceError.getDateType());
+    public Result getAvgByTypeAndDate(@RequestBody Data data) {
+        return performanceErrorService.getAvgByTypeAndDate(data.getProjectName(),data.getType(),data.getDateType());
+    }
+
+    /**
+     *
+     * @param data
+     * @return
+     */
+    @PostMapping("/FP")
+    @Secret
+    public Result getAvgFP(@RequestBody Data data){
+        return performanceErrorService.getFP(data.getProjectName());
     }
 }

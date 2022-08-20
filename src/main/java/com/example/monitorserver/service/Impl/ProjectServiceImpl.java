@@ -8,10 +8,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.*;
-import com.example.monitorserver.service.ApplicationService;
-import com.example.monitorserver.service.MessageService;
-import com.example.monitorserver.service.ProjectService;
-import com.example.monitorserver.service.UserProjectService;
+import com.example.monitorserver.service.*;
+import com.example.monitorserver.service.apiErrorService;
 import com.example.monitorserver.mapper.ProjectMapper;
 import com.example.monitorserver.utils.NettyEventGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -24,10 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -59,6 +54,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
+    @Autowired
+    private apiErrorService apiErrorService;
+
     @Override
     public Result getPageProject(int currentPage, int maxMessage, int position) {
         Page<Project> page = new Page(currentPage, maxMessage);
@@ -83,9 +81,16 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
             queryWrapper.eq("status",1);
         }
         List<Project> projects = projectMapper.selectList(queryWrapper);
+        List<Project> projectList = new ArrayList<>();
         Iterator<Project> iterator = projects.iterator();
         while (iterator.hasNext()){
             Project project = iterator.next();
+            Result whole = apiErrorService.getWhole(project.getProjectName());
+            apiError apiError = (com.example.monitorserver.po.apiError) whole.getData();
+            project.setPV(apiError.getPV());
+            project.setUV(apiError.getUV());
+            project.setRate(apiError.getRate());
+            projectList.add(project);
             if (project.getStatus()==-1){
                 //判断是否已解冻
                 LocalDateTime unsealDate = project.getUnsealDate();
@@ -99,7 +104,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
                 }
             }
         }
-        return new Result(ResultEnum.REQUEST_SUCCESS,projectMapper.selectList(queryWrapper));
+        return new Result(ResultEnum.REQUEST_SUCCESS,projectList);
     }
 
     @Override
