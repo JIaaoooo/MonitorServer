@@ -22,7 +22,6 @@ public enum ResultEnum implements StatusCode{
     PARAMETER_NOT_VALID(400,"参数不合法"),
 
 
-
     USER_EXPIRE(400,"用户登录过期"),
     LOGIN_INFORMATION_FALSE(400,"登录信息错误"),
     LOGIN_USER_FROZEN(400,"用户被冻结"),
@@ -33,7 +32,7 @@ public enum ResultEnum implements StatusCode{
 
     REGISTER_SUCCESS(200,"注册成功"),
 
-    SELECT_BLANK(200,"查询为空"),
+    SELECT_BLANK(400,"查询为空"),
     LOGOUT_SUCCESS(200,"退出成功"),
 
     SELECT_PAGE(200,"分页查询"),

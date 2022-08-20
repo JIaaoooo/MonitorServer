@@ -79,6 +79,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
             condition2.put("project_id",application.getProjectId());
             Result byCondition = projectService.getByCondition(condition2);
             List<Project> projectsList = (List<Project>) byCondition.getData();
+            if (projectsList.isEmpty()){
+                return new Result(ResultEnum.SELECT_BLANK);
+            }
             Project project = projectsList.get(0);
             project.setAppliType(application.getType());
             project.setAppliId(application.getApplicationId());

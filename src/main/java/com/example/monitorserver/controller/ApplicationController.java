@@ -128,6 +128,9 @@ public class ApplicationController {
         condition.put("applicant_id",userId);
         Result result = applicationService.selectApp(condition);
         List<Application> lists = (List<Application>) result.getData();
+        if (lists.isEmpty()){
+            return new Result(ResultEnum.SELECT_BLANK);
+        }
         Iterator<Application> iterator = lists.iterator();
         // 结果集封装
         List<Application> ApplicationResult = new ArrayList<>();
