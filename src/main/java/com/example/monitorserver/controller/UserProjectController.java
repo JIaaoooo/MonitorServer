@@ -22,7 +22,7 @@ import java.util.*;
 @RestController
 @Slf4j
 @RequestMapping(value = "/userproject",produces = "application/json;charset=UTF-8")
-@CrossOrigin("http://localhost:3000")
+//@CrossOrigin("http://localhost:3000")
 public class UserProjectController {
 
     @Autowired

@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @Slf4j
 @RequestMapping(value="/message")
-@CrossOrigin("http://localhost:3000")
+//@CrossOrigin("http://localhost:3000")
 public class MessageController {
 
     @Autowired

@@ -36,7 +36,7 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/user",produces = "application/json;charset=UTF-8")
 @Slf4j
-@CrossOrigin("http://localhost:3000")
+//@CrossOrigin("http://localhost:3000")
 public class UserController {
     @Autowired
     HttpServletRequest request;

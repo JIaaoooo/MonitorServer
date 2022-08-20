@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  **/
 @RestController
 @RequestMapping("/jsError")
-@CrossOrigin("http://localhost:3000")
+//@CrossOrigin("http://localhost:3000")
 public class JsErrorController {
     @Autowired
     private JsErrorService jsErrorService;

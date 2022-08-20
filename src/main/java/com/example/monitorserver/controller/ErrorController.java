@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RestController
 @RequestMapping("/SDK")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 @Slf4j
 public class ErrorController {
 

@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  **/
 @RestController
 @RequestMapping("/resource")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class ResourceErrorController {
     @Autowired
     private ResourceErrorService resourceErrorService;

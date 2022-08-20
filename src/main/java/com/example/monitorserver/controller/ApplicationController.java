@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @Slf4j
 @RequestMapping(value = "/application",produces = "application/json;charset=UTF-8")
-@CrossOrigin("http://localhost:3000")
+//@CrossOrigin("http://localhost:3000")
 public class ApplicationController {
 
 

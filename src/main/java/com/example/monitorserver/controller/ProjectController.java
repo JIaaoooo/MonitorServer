@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
  */
 @RestController
 @RequestMapping(value = "/project",produces = "application/json;charset=UTF-8")
-@CrossOrigin("http://localhost:3000")
+//@CrossOrigin("http://localhost:3000")
 @Slf4j
 public class ProjectController {
 

@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/apiError")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class ApiErrorController {
 
     @Autowired

@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/blankError")
-@CrossOrigin("http://localhost:3000")
+//@CrossOrigin("http://localhost:3000")
 public class BlankErrorController {
 
     @Autowired

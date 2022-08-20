@@ -24,7 +24,7 @@ import java.util.Map;
  **/
 @RestController
 @RequestMapping("/performance")
-@CrossOrigin("http://localhost:3000")
+//@CrossOrigin("http://localhost:3000")
 public class PerformanceErrorController {
 
     @Autowired
