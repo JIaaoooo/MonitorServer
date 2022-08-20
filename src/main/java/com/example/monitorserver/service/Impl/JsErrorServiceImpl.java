@@ -185,13 +185,16 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
 
     @NotNull
     private List<JsError> getPercent(List<JsError> data, Long sum) {
-        double percent;
-        for (JsError datum : data) {
-            percent = datum.getCount() * 100.0 / sum ;
-            String  str = String.format("%.2f",percent);
-            percent = Double.parseDouble(str);
-            datum.setPercent(percent);
+        double percent = 0.0;
+        if (sum!=0){
+            for (JsError datum : data) {
+                percent = datum.getCount() * 100.0 / sum ;
+                String  str = String.format("%.2f",percent);
+                percent = Double.parseDouble(str);
+                datum.setPercent(percent);
+            }
         }
+
         return data;
     }
 
@@ -249,17 +252,5 @@ public class JsErrorServiceImpl extends ServiceImpl<JsErrorMapper, JsError> impl
         result.put("LastWeek",LastWeek);
         return new Result(result);
     }
-/*
-    @Override
-    public Result getLastWeekData(String projectName) {
-        QueryWrapper<JsError> queryWrapper = new QueryWrapper<>();
-        LocalDateTime time = LocalDateTime.now();
 
-        queryWrapper.clear();
-        queryWrapper.eq("project_name",projectName)
-                .le("visit_date", time)
-                .ge("visit_date", time.plusDays(-7));
-        Long deafCount = jsErrorMapper.selectCount(queryWrapper);
-        return new Result(deafCount);
-    }*/
 }

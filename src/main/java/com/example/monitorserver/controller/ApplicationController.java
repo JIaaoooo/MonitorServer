@@ -53,8 +53,8 @@ public class ApplicationController {
 
     /**
      * 一：申请监控（前端发送申请类型 1，项目名）  二：邀请发布者（前端发送申请类型 2 ，项目名） 三：删除项目（类型3 ， 项目名）
-     * @param application 申请信息
-     * @return 申请处理结果
+     * @param application number（1申请监控，2邀请发布者，3删除项目）userId接收方的用户id，projectId项目id
+     * @return 返回操作是否成功
      */
     @PostMapping("/releaseApp")
     @Secret
@@ -76,8 +76,8 @@ public class ApplicationController {
 
     /**
      * 用户登录处理信息，后执行,前端传值：applicationId status，根据status判断（1同意，-1拒绝，0待审核）
-     * @param application 申请对象
-     * @return 结果返回集
+     * @param application 申请Id: getApplicationId 处理结果：number（1同意，-1拒绝）
+     * @return 结果操作成功与否
      */
     @PostMapping("/update")
     @Secret
@@ -104,7 +104,7 @@ public class ApplicationController {
 
     /**
      * 查询获取申请信息
-     * @param applicationId 申请列表的id
+     * @param applicationId 申请列表的id  applicationId
      * @return 返回该申请信息
      */
     public Result selectApp(String applicationId){
@@ -114,7 +114,7 @@ public class ApplicationController {
 
     /**
      * 查看我发出的申请信息
-     * @return 返回接收者，项目名
+     * @return 返回各个我发出的申请信息，包装如下——项目名projectName，申请类型type(1申请监控，2邀请发布者，3删除项目)，handle处理结果(-1拒绝,0未处理,1同意),处理方名称username，申请表id applicationId
      */
     @GetMapping("/MySend")
     @Secret
@@ -170,7 +170,7 @@ public class ApplicationController {
     /**
      * 查出已处理信息，或撤回未读信息
      * @param data 传参application_id
-     * @return
+     * @return 返回执行成功与否
      */
     @PostMapping("/deleteMySend")
     @Secret

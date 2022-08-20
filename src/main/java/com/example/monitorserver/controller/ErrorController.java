@@ -3,6 +3,7 @@ package com.example.monitorserver.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.example.monitorserver.annotation.Secret;
+import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.*;
 import com.example.monitorserver.service.BlankErrorService;
@@ -14,7 +15,9 @@ import com.example.monitorserver.service.ResourceErrorService;
 import com.example.monitorserver.utils.NettyEventGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -23,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @program: monitor server
@@ -33,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @RequestMapping("/SDK")
 @CrossOrigin(origins = "*")
+@Slf4j
 public class ErrorController {
 
     @Autowired
@@ -57,11 +62,15 @@ public class ErrorController {
     @Autowired
     private PerformanceErrorService performanceErrorService;
 
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
+
 
 
     /**
      * 接受前端SDK信息分类处理
-     * @param data 接收信息封装
+     * @param data type：前端错误类型  data泛型类转各种错误类型
+     * @return 返回执行成功与否
      */
     @PostMapping
     public Result getSDK(@RequestBody SDK data){
@@ -90,17 +99,20 @@ public class ErrorController {
         return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
-   /* *//**
-     * js错误率
-     * @param data 封装项目名
-     * @return 返回比例
+    /**
+     * 总览信息
+     * @param data 项目名projectName
+     * @return 返回比例 ：xxxThisWeekCount错误数 xxxThisWeekDefeatRate错误率  xxxCountIncreRate同比增长率  xxCountIncre错误增长数
      */
     @PostMapping("/whole")
     @Secret
     public Result whole(@RequestBody Data data) throws ExecutionException, InterruptedException {
         NioEventLoopGroup group = NettyEventGroup.group;
         Map<String,Object> map = new HashMap<>();
-
+        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"whole")){
+            Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"whole");
+            return new Result(ResultEnum.REQUEST_SUCCESS,entries);
+        }
 
         Future<Result> JsFuture = group.next().submit(() -> jsErrorService.getJsErrorCount(data.getProjectName()));
         Future<Result> ApiFuture = group.next().submit(() -> apiErrorService.getApiCount(data.getProjectName()));
@@ -124,13 +136,19 @@ public class ErrorController {
         Long blankLastWeekCount = (Long) blank.get("LastWeek");
         Long resLastWeekCount = (Long) resource.get("LastWeek");
 
-        Long ThisWeekWhole = jsThisWeekCount + apiThisWeekCount + blankThisWeekCount + resThisWeekCount;
-        double JsThisWeekDefeatRate = 1.000*jsThisWeekCount / ThisWeekWhole;
-        String  str = String.format("%.2f",JsThisWeekDefeatRate);
-        JsThisWeekDefeatRate = Double.parseDouble(str);
-        double ApiThisWeekDefeatRate = 1.000* apiThisWeekCount / ThisWeekWhole;
-        String  str1 = String.format("%.2f",ApiThisWeekDefeatRate);
-        ApiThisWeekDefeatRate = Double.parseDouble(str1);
+        long ThisWeekWhole  = jsThisWeekCount + apiThisWeekCount + blankThisWeekCount + resThisWeekCount;
+        Double JsThisWeekDefeatRate = 0.0;
+        Double ApiThisWeekDefeatRate = 0.0;
+        if (ThisWeekWhole!=0){
+             JsThisWeekDefeatRate = 1.000*jsThisWeekCount / ThisWeekWhole;
+            String  str = String.format("%.2f",JsThisWeekDefeatRate);
+            JsThisWeekDefeatRate = Double.parseDouble(str);
+             ApiThisWeekDefeatRate = 1.000* apiThisWeekCount / ThisWeekWhole;
+            String  str1 = String.format("%.2f",ApiThisWeekDefeatRate);
+            ApiThisWeekDefeatRate = Double.parseDouble(str1);
+        }
+
+
 
         map.put("apiThisWeekCount",apiThisWeekCount);
         map.put("ApiThisWeekDefeatRate",ApiThisWeekDefeatRate);
@@ -138,19 +156,26 @@ public class ErrorController {
         map.put("JsThisWeekDefeatRate",JsThisWeekDefeatRate);
         map.put("resourceThisWeekCount",resThisWeekCount);
 
-        map.put("jsCountIncreRate",1.00*(jsThisWeekCount-jsLastWeekCount)/jsLastWeekCount*100);
-        map.put("apiCountIncreRate",1.00*(apiThisWeekCount-apiLastWeekCount)/apiLastWeekCount*100);
+        Double jsCountIncreRate = 0.0;
+        Double apiCountIncreRate = 0.0;
+        Double resourceCountIncreRate = 0.0;
+        if (jsLastWeekCount!=0){
+            jsCountIncreRate = 1.00*(jsThisWeekCount-jsLastWeekCount)/jsLastWeekCount*100;
+            apiCountIncreRate = 1.00*(apiThisWeekCount-apiLastWeekCount)/apiLastWeekCount*100;
+            resourceCountIncreRate = 1.00*(resThisWeekCount-resLastWeekCount)/apiLastWeekCount*100;
+        }
+        map.put("jsCountIncreRate",jsCountIncreRate);
+        map.put("apiCountIncreRate",apiCountIncreRate);
         map.put("jsCountIncre",jsThisWeekCount-jsLastWeekCount);
         map.put("apiCountIncre",apiThisWeekCount-apiLastWeekCount);
-        map.put("resourceCountIncreRate",1.00*(resThisWeekCount-resLastWeekCount)/apiLastWeekCount*100);
-        map.put("resourceCountIncre",resThisWeekCount-resLastWeekCount);
 
+
+        map.put("resourceCountIncreRate",resourceCountIncreRate);
+        map.put("resourceCountIncre",resThisWeekCount-resLastWeekCount);
+        redisTemplate.opsForHash().putAll(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"whole",map);
+        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"whole",1, TimeUnit.MINUTES);
         return new Result(ResultEnum.REQUEST_SUCCESS,map);
     }
 
-    @PostMapping("/FP")
-    @Secret
-    public Result getFp(@RequestBody Data data){
-        return performanceErrorService.getFP(data.getProjectName());
-    }
+
 }

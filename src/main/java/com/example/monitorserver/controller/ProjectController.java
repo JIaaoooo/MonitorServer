@@ -6,6 +6,7 @@ import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.*;
 import com.example.monitorserver.service.ApplicationService;
+import com.example.monitorserver.service.UserProjectService;
 import com.example.monitorserver.service.UserService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.utils.MapBeanUtil;
@@ -46,6 +47,9 @@ public class ProjectController {
     private ApplicationService applicationService;
 
     @Autowired
+    private UserProjectService userProjectService;
+
+    @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 /*
 
@@ -72,6 +76,12 @@ public class ProjectController {
         String token = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
         User user = (User) MapBeanUtil.map2Object(entries, User.class);
+        List<Project> projects = null;
+        if(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()) &&user.getPosition()==0){
+            //前端要获取首页并且，首页信息加载在缓存，直接再换存中获取
+            projects = (List<Project>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg());
+            return new Result(ResultEnum.SELECT_PAGE,projects);
+        }
         return projectService.getAllProject(user.getPosition());
     }
 
@@ -120,6 +130,7 @@ public class ProjectController {
         String token = request.getHeader("Authorization");
         // TODO 2.遍历已存的token，获取权限
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
+        redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
         User user = (User) MapBeanUtil.map2Object(entries, User.class);
         int position  = user.getPosition();
         Project next = new Project();
@@ -142,7 +153,7 @@ public class ProjectController {
 
     /**
      * 删除项目
-     * @param data 项目名
+     * @param data 项目名projectName
      * @return
      * @throws ExecutionException
      * @throws InterruptedException
@@ -151,6 +162,7 @@ public class ProjectController {
     @Secret
     public Result delProject(@RequestBody Data data) throws ExecutionException, InterruptedException {
         String token = request.getHeader("Authorization");
+        redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
         // TODO 1.遍历已存的token，获取权限
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
         User user = (User) MapBeanUtil.map2Object(entries, User.class);

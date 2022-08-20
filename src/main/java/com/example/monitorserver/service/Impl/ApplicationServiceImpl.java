@@ -218,7 +218,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
             queryWrapper.eq(key,value);
         }
         applicationMapper.delete(queryWrapper);
-        return null;
+        return new Result(ResultEnum.REQUEST_SUCCESS);
     }
 
 

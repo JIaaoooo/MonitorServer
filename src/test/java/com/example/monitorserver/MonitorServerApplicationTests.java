@@ -136,6 +136,15 @@ class MonitorServerApplicationTests {
 
     }
 
+    @Test
+    void Test2(){
+        Set<String> keys = redisTemplate.keys(RedisEnum.INDEX_KEY.getMsg());
+        Iterator<String> iterator = keys.iterator();
+        while(iterator.hasNext()){
+            redisTemplate.delete(iterator.next());
+        }
+    }
+
 
 
 //

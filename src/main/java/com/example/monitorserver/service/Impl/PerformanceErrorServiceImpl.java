@@ -133,8 +133,15 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
         Long ThisWeekCount = performanceErrorMapper.selectCount(qw);
         qw.select("SUM(first_paint) AS first_paint");
         PerformanceError performanceError = performanceErrorMapper.selectOne(qw);
-        Long ThisWeekFirstPaint = performanceError.getFirstPaint();
-        double ThisWeekAvgTime = 1.000*ThisWeekFirstPaint/ThisWeekCount;
+        Long ThisWeekFirstPaint = 0L;
+        if(performanceError!=null){
+
+            ThisWeekFirstPaint = performanceError.getFirstPaint();
+        }
+        double ThisWeekAvgTime = 0;
+        if (ThisWeekCount != 0){
+             ThisWeekAvgTime = 1.000*ThisWeekFirstPaint/ThisWeekCount;
+        }
         String  str = String.format("%.2f",ThisWeekAvgTime);
         ThisWeekAvgTime = Double.parseDouble(str);
 
@@ -149,9 +156,13 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
         if (performanceError1!=null){
             LastWeekFirstPaint = performanceError1.getFirstPaint();
         }
-        double LastWeekAvgTime = 1.000*LastWeekFirstPaint/LastWeekCount;
+        double LastWeekAvgTime = 0L;
+        if (LastWeekCount != 0) {
+            LastWeekAvgTime = 1.000*LastWeekFirstPaint/LastWeekCount;
+        }
 
-
+        log.debug(ThisWeekAvgTime+"");
+        log.debug(LastWeekAvgTime+"");
         Map<String,Object> result = new HashMap<>();
         result.put("ThisWeekAvgTime",ThisWeekAvgTime);
         result.put("LastWeekAvgTime",LastWeekAvgTime);

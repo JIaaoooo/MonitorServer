@@ -31,4 +31,6 @@ public class UserProject extends HttpSecretCode {
 
     /**  用户对应这个项目的权限  1是发布者  2是监控者  **/
     private int type;
+
+    private int status;
 }

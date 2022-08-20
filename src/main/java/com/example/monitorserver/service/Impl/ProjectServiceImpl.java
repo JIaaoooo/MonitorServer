@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -59,7 +58,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
     @Override
     public Result getPageProject(int currentPage, int maxMessage, int position) {
-        Page<Project> page = new Page(currentPage, maxMessage);
+        Page<Project> page = new Page<>(currentPage, maxMessage);
         if (position!=0){
             //超级管理员，没有项目状态限制
             page = projectMapper.selectPage(page, null);
@@ -104,7 +103,10 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
                 }
             }
         }
-        return new Result(ResultEnum.REQUEST_SUCCESS,projectList);
+        Result result = new Result(ResultEnum.REQUEST_SUCCESS, projectList);
+        List<Project> projects1 = (List<Project>) result.getData();
+        redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg(), projects1);
+        return new Result(ResultEnum.REQUEST_SUCCESS,projects1);
     }
 
     @Override
@@ -133,6 +135,19 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
     public Result saveProject(Project project) {
         project.setRegisterDate(LocalDateTime.now());
         NioEventLoopGroup group = NettyEventGroup.group;
+        //同名判断
+        QueryWrapper<Project> queryWrapper =new QueryWrapper<>();
+        queryWrapper.eq("project_name",project.getProjectName());
+        Long count = projectMapper.selectCount(queryWrapper);
+        if (count!=0){
+            return new Result(ResultEnum.REGISTER_NAME_DOUBLE);
+        }
+        queryWrapper.clear();
+        queryWrapper.eq("project_url",project.getProjectUrl());
+        count = projectMapper.selectCount(queryWrapper);
+        if (count != 0){
+            return new Result(ResultEnum.REGISTER_NAME_DOUBLE);
+        }
         group.next().submit(()->{
             projectMapper.insert(project);
         });
@@ -180,6 +195,16 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
             }
         }
 
+        group.next().submit(()->{
+            UpdateWrapper<UserProject> queryWrapper = new UpdateWrapper<>();
+            queryWrapper.eq("project_id",project.getProjectId());
+            UserProject userProject = new UserProject()
+                    .setProjectId(project.getProjectId())
+                    .setUserId(project.getUserId())
+                    .setType(1)
+                    .setStatus(project.getStatus());
+            userProjectService.update(userProject,queryWrapper);
+        });
 
         group.next().submit(()->{
             LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();

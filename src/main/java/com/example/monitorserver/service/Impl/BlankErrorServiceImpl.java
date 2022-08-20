@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @program: monitor server
@@ -86,7 +83,7 @@ public class BlankErrorServiceImpl extends ServiceImpl<BlankErrorMapper,BlankErr
         String pattern = "yyyy-MM-dd HH";
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         //需要查询24小时,所以需要查询到个数据进行返回
-        List<BlankError> data = new LinkedList<>();
+        List<BlankError> data = new ArrayList<>();
         BlankError vo = null;
 
         //获得当前时间2021年6月9日14小时49分
@@ -122,7 +119,7 @@ public class BlankErrorServiceImpl extends ServiceImpl<BlankErrorMapper,BlankErr
         String pattern = "yyyy-MM-dd";
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         //需要查询24小时,所以需要查询到个数据进行返回
-        List<BlankError> data = new LinkedList<>();
+        List<BlankError> data = new ArrayList<>();
         BlankError vo = null;
 
         //获得当前时间2021年6月9日14小时49分
@@ -157,7 +154,7 @@ public class BlankErrorServiceImpl extends ServiceImpl<BlankErrorMapper,BlankErr
         String pattern = "yyyy-MM";
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         //需要查询24小时,所以需要查询到个数据进行返回
-        List<BlankError> data = new LinkedList<>();
+        List<BlankError> data = new ArrayList<>();
         BlankError vo = null;
 
         //获得当前时间2021年6月9日14小时49分
