@@ -160,10 +160,15 @@ public class ErrorController {
         Double apiCountIncreRate = 0.0;
         Double resourceCountIncreRate = 0.0;
         if (jsLastWeekCount!=0){
-            jsCountIncreRate = 1.00*(jsThisWeekCount-jsLastWeekCount)/jsLastWeekCount*100;
-            apiCountIncreRate = 1.00*(apiThisWeekCount-apiLastWeekCount)/apiLastWeekCount*100;
-            resourceCountIncreRate = 1.00*(resThisWeekCount-resLastWeekCount)/apiLastWeekCount*100;
+            jsCountIncreRate = 1.00*(jsThisWeekCount-jsLastWeekCount)/jsLastWeekCount;
         }
+        if(apiLastWeekCount!=0){
+            apiCountIncreRate = 1.00*(apiThisWeekCount-apiLastWeekCount)/apiLastWeekCount;
+        }
+        if (resLastWeekCount!=0){
+            resourceCountIncreRate = 1.00*(resThisWeekCount-resLastWeekCount)/apiLastWeekCount;
+        }
+
         map.put("jsCountIncreRate",jsCountIncreRate);
         map.put("apiCountIncreRate",apiCountIncreRate);
         map.put("jsCountIncre",jsThisWeekCount-jsLastWeekCount);
