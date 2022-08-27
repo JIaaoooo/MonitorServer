@@ -3,6 +3,7 @@ package com.example.monitorserver.service.Impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.JsError;
@@ -283,14 +284,20 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
     }
 
     @Override
-    public Result getDetail(String method) {
+    public Result getDetail(String method,String projectName,int currentPage) {
+        Page<apiError> page = new Page<>(currentPage,1);
         QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("project_url","www.monitorServer.com")
+        queryWrapper.eq("project_name",projectName)
                 .eq("uri",method)
-                .orderByDesc("visit_date")
-                .last("limit 1");
-        apiError apiError = apiErrorMapper.selectOne(queryWrapper);
-        return new Result(ResultEnum.REQUEST_SUCCESS,apiError);
+                .orderByDesc("visit_date");
+        page = apiErrorMapper.selectPage(page,queryWrapper);
+        List<apiError> records = page.getRecords();
+        for (apiError record : records) {
+            record.setCurrentPage(page.getCurrent());
+            record.setPageSize(page.getTotal());
+
+        }
+        return new Result(ResultEnum.REQUEST_SUCCESS,records);
     }
 
     @Override

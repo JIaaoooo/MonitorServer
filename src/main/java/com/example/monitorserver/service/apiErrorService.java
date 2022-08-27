@@ -78,6 +78,6 @@ public interface apiErrorService extends IService<apiError> {
      * @param method 方法名
      * @return 返回详细日志信息
      */
-    Result getDetail(String method);
+    Result getDetail(String method,String projectUrl,int currentPage);
 
 }

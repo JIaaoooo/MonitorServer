@@ -1,6 +1,7 @@
 package com.example.monitorserver.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.monitorserver.po.User;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,4 +14,5 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
+    Page<User> queryUsers(Page<User> page);
 }

@@ -15,6 +15,9 @@ import com.example.monitorserver.service.ResourceErrorService;
 import com.example.monitorserver.utils.NettyEventGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -38,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/SDK")
 @CrossOrigin(origins = "*")
 @Slf4j
+@Api(tags = "前端监控总览操作接口")
 public class ErrorController {
 
     @Autowired
@@ -73,7 +77,8 @@ public class ErrorController {
      * @return 返回执行成功与否
      */
     @PostMapping
-    public Result getSDK(@RequestBody SDK data){
+    @ApiOperation("前端SDK接受端口")
+    public Result getSDK(@ApiParam(name = "type,data",value = "前端错误类型(JsError,BlankError,ResourceError,PerformanceError),根据type转相关实体类",required = true) @RequestBody SDK data){
         String type = data.getType();
         System.out.println("data = " + data);
         switch (type){
@@ -106,7 +111,8 @@ public class ErrorController {
      */
     @PostMapping("/whole")
     @Secret
-    public Result whole(@RequestBody Data data) throws ExecutionException, InterruptedException {
+    @ApiOperation("总览信息js,api,resource信息获取")
+    public Result whole(@ApiParam(name = "projectName",value = "项目名",required = true)@RequestBody Data data) throws ExecutionException, InterruptedException {
         NioEventLoopGroup group = NettyEventGroup.group;
         Map<String,Object> map = new HashMap<>();
         if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"whole")){
@@ -161,12 +167,18 @@ public class ErrorController {
         Double resourceCountIncreRate = 0.0;
         if (jsLastWeekCount!=0){
             jsCountIncreRate = 1.00*(jsThisWeekCount-jsLastWeekCount)/jsLastWeekCount;
+            String  str = String.format("%.2f",jsCountIncreRate);
+            jsCountIncreRate = Double.parseDouble(str);
         }
         if(apiLastWeekCount!=0){
             apiCountIncreRate = 1.00*(apiThisWeekCount-apiLastWeekCount)/apiLastWeekCount;
+            String  str = String.format("%.2f",apiCountIncreRate);
+            apiCountIncreRate = Double.parseDouble(str);
         }
         if (resLastWeekCount!=0){
             resourceCountIncreRate = 1.00*(resThisWeekCount-resLastWeekCount)/apiLastWeekCount;
+            String  str = String.format("%.2f",resourceCountIncreRate);
+            resourceCountIncreRate = Double.parseDouble(str);
         }
 
         map.put("jsCountIncreRate",jsCountIncreRate);

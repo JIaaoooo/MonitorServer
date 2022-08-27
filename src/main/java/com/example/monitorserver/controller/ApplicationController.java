@@ -10,6 +10,9 @@ import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserService;
 import com.example.monitorserver.utils.MapBeanUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,6 +34,7 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 @RequestMapping(value = "/application",produces = "application/json;charset=UTF-8")
 @CrossOrigin("http://localhost:3000")
+@Api(tags = "申请操作接口")
 public class ApplicationController {
 
 
@@ -58,7 +62,8 @@ public class ApplicationController {
      */
     @PostMapping("/releaseApp")
     @Secret
-    public Result releaseApp(@RequestBody Application application) throws ExecutionException, InterruptedException {
+    @ApiOperation("申请监控")
+    public Result releaseApp(@ApiParam(name = "number,userId,projectId",value = "申请类型(1申请监控，2邀请发布者，3删除项目),接收方的用户id,项目id",required = true) @RequestBody Application application) throws ExecutionException, InterruptedException {
 
         String number = application.getNumber();
         application.setType(Integer.parseInt(number));
@@ -76,12 +81,13 @@ public class ApplicationController {
 
     /**
      * 用户登录处理信息，后执行,前端传值：applicationId status，根据status判断（1同意，-1拒绝，0待审核）
-     * @param application 申请Id: getApplicationId 处理结果：number（1同意，-1拒绝）
+     * @param application 申请Id: applicationId 处理结果：number（1同意，-1拒绝）
      * @return 结果操作成功与否
      */
     @PostMapping("/update")
     @Secret
-    public Result  updateApp(@RequestBody Application application) throws ExecutionException, InterruptedException {
+    @ApiOperation("更新申请表操作")
+    public Result  updateApp(@ApiParam(name = "applicationId,number",value = "申请Id,1同意，-1拒绝",required = true)@RequestBody Application application) throws ExecutionException, InterruptedException {
         String token = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
         User user = (User) MapBeanUtil.map2Object(entries, User.class);

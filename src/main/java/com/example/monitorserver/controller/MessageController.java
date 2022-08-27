@@ -9,6 +9,8 @@ import com.example.monitorserver.service.ApplicationService;
 import com.example.monitorserver.service.MessageService;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.utils.MapBeanUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -35,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 @RequestMapping(value="/message")
 @CrossOrigin("http://localhost:3000")
+@Api(tags = "用户信息接口")
 public class MessageController {
 
     @Autowired
@@ -53,6 +56,7 @@ public class MessageController {
      */
     @GetMapping("/watch")
     @Secret
+    @ApiOperation("查询当前登录用户的消息")
     public Result getApplication() throws ExecutionException, InterruptedException {
         //获取当前用户的id
         String token = request.getHeader("Authorization");

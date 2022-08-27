@@ -107,4 +107,11 @@ public class apiError extends HttpSecretCode{
 
     @TableField(exist = false)
     private Long UV;
+
+    @TableField(exist = false)
+    private Long currentPage;
+
+    @TableField(exist = false)
+    private Long pageSize;
+
 }

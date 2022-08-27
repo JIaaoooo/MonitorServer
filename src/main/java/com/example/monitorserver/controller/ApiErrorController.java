@@ -9,6 +9,9 @@ import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.apiError;
 import com.example.monitorserver.service.apiErrorService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/apiError")
 @CrossOrigin(origins = "*")
+@Api(tags = "后台监控接口")
 public class ApiErrorController {
 
     @Autowired
@@ -35,6 +39,7 @@ public class ApiErrorController {
      */
     @GetMapping("/serverPackage")
     @Secret
+    @ApiOperation("服务器日志")
     public Result getPackageInfor(){
         return  apiErrorService.getPackageInfor();
     }
@@ -46,7 +51,8 @@ public class ApiErrorController {
      */
     @PostMapping("/serverMethod")
     @Secret
-    public Result getMethodInfor(@RequestBody Data data){
+    @ApiOperation("服务器接口日志")
+    public Result getMethodInfor(@ApiParam(name = "projectName",value = "项目名",required = true) @RequestBody Data data){
         return apiErrorService.getMethodInfor(data.getPackageName());
     }
 
@@ -56,7 +62,8 @@ public class ApiErrorController {
      */
     @PostMapping("/err")
     @Secret
-    public Result getApiErrorByType(@RequestBody Data data) throws ExecutionException, InterruptedException {
+    @ApiOperation("获取不同时间段下的api监控信息")
+    public Result getApiErrorByType(@ApiParam(name = "projectName,dateType,type",value = "项目名,时间段选择,错误类型选择",required = true)@RequestBody Data data) throws ExecutionException, InterruptedException {
         if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"err")){
             List<apiError> apiError= (List<apiError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName() + "err");
             return new Result(ResultEnum.REQUEST_SUCCESS,apiError);
@@ -76,7 +83,8 @@ public class ApiErrorController {
      */
     @PostMapping("/methodError")
     @Secret
-    public Result getMethodError(@RequestBody Data data){
+    @ApiOperation("获取该项目下各个接口的统计错误数，错误率，平均耗时")
+    public Result getMethodError(@ApiParam(name = "projectName",value = "项目名",required = true)@RequestBody Data data){
 
         return apiErrorService.selectMethod(data.getProjectName());
     }
@@ -84,12 +92,14 @@ public class ApiErrorController {
 
     /**
      * 查看服务端日志
-     * @param data method接口名
+     * @param data method接口名 projectUrl项目名，currentPage当前页
      * @return 返回所有的api详细信息
      */
     @PostMapping("/detail")
     @Secret
-    public Result getDetail(@RequestBody Data data){
-        return apiErrorService.getDetail(data.getMethod());
+    @ApiOperation("获取该接口的详细日志信息")
+    public Result getDetail(@ApiParam(name = "method,projectName,currentPage",value = "接口名，项目名,当前页",required = true)@RequestBody Data data){
+        int currentPage = Integer.parseInt(data.getCurrentPage());
+        return apiErrorService.getDetail(data.getMethod(), data.getProjectName(),currentPage);
     }
 }

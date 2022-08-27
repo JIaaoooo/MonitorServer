@@ -24,6 +24,8 @@ public class Data extends HttpSecretCode {
 
     private String projectName;
 
+    private String projectUrl;
+
     private String userName;
 
     private String userId;
@@ -50,4 +52,5 @@ public class Data extends HttpSecretCode {
 
     private Object data;
 
+    private String currentPage;
 }

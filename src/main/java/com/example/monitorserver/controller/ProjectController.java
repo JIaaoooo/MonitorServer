@@ -10,6 +10,9 @@ import com.example.monitorserver.service.UserProjectService;
 import com.example.monitorserver.service.UserService;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.utils.MapBeanUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,6 +36,7 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping(value = "/project",produces = "application/json;charset=UTF-8")
 @CrossOrigin("http://localhost:3000")
 @Slf4j
+@Api(tags = "项目操作接口")
 public class ProjectController {
 
     @Autowired
@@ -51,20 +55,7 @@ public class ProjectController {
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
-/*
 
-    @GetMapping("/pageProject/{current}/{position}")
-    @Secret
-    public Result getPageProject(@PathVariable("current") int current, @PathVariable("position") int position){
-        //判断缓存是否存在首页
-        List<Project> projects = null;
-        if(current==1&& Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.TOKEN_EXITS.getMsg()))&&position==0){
-            //前端要获取首页并且，首页信息加载在缓存，直接再换存中获取
-            projects = (List<Project>) redisTemplate.opsForList().rightPop(RedisEnum.TOKEN_EXITS.getMsg());
-            return new Result(ResultEnum.SELECT_PAGE,projects);
-        }
-        return projectService.getPageProject(current, 10, position);
-    }*/
 
     /**
      *获取所有项目信息
@@ -72,6 +63,7 @@ public class ProjectController {
      */
     @GetMapping("/allProject")
     @Secret
+    @ApiOperation("查看所有项目")
     public Result getAllProject() throws ExecutionException, InterruptedException {
         String token = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.LOGIN_TOKEN.getMsg() + token);
@@ -93,7 +85,8 @@ public class ProjectController {
      */
     @PostMapping("/getByCondition")
     @Secret
-    public Result getByCondition(@RequestBody Data data){
+    @ApiOperation("模糊、条件查询项目信息")
+    public Result getByCondition(@ApiParam(name = "projectName",value = "项目名",required = true)@RequestBody Data data){
         Map<String,Object> map = new HashMap<>();
         map.put("project_name",data.getProjectName());
         return projectService.getByCondition(map);
@@ -106,7 +99,8 @@ public class ProjectController {
      */
     @PostMapping("/saveProject")
     @Secret
-    public Result saveProject(@RequestBody Project project){
+    @ApiOperation("发布项目")
+    public Result saveProject(@ApiParam(name = "projectName,projectDesc,projectUrl",value = "项目名,项目描述,项目地址",required = true)@RequestBody Project project){
         //生成唯一id
         String ID = IdUtil.simpleUUID();
         project.setProjectId(ID);
@@ -124,7 +118,8 @@ public class ProjectController {
      */
     @PostMapping("/update")
     @Secret
-    public Result Update(@RequestBody Project project) throws ExecutionException, InterruptedException {
+    @ApiOperation("更新项目信息")
+    public Result Update(@ApiParam(name = "projectUrl",value = "项目url",required = true)@RequestBody Project project) throws ExecutionException, InterruptedException {
         // TODO 两种，管理员为项目更新，用户给项目更新
         // TODO 1.获取当前操作对象的权限
         String token = request.getHeader("Authorization");
@@ -160,7 +155,8 @@ public class ProjectController {
      */
     @PostMapping("/delete")
     @Secret
-    public Result delProject(@RequestBody Data data) throws ExecutionException, InterruptedException {
+    @ApiOperation("删除项目")
+    public Result delProject(@ApiParam(name = "projectName",value = "项目名",required = true) @RequestBody Data data) throws ExecutionException, InterruptedException {
         String token = request.getHeader("Authorization");
         redisTemplate.delete(RedisEnum.INDEX_KEY.getMsg());
         // TODO 1.遍历已存的token，获取权限

@@ -9,6 +9,9 @@ import com.example.monitorserver.po.JsError;
 import com.example.monitorserver.po.PerformanceError;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.PerformanceErrorService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/performance")
 @CrossOrigin("http://localhost:3000")
+@Api(tags = "性能监控接口")
 public class PerformanceErrorController {
 
     @Autowired
@@ -40,7 +44,8 @@ public class PerformanceErrorController {
      */
     @PostMapping
     @Secret
-    public Result getAvgByTypeAndDate(@RequestBody Data data) {
+    @ApiOperation("通过性能字段和时间范围,获取性能分析数据")
+    public Result getAvgByTypeAndDate(@ApiParam(name = "projectName,dateType,type",value = "项目名,时间段选择,错误类型选择",required = true)@RequestBody Data data) {
         if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"per")){
             List<PerformanceError> performanceError = (List<PerformanceError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"per");
             return new Result(ResultEnum.REQUEST_SUCCESS,performanceError);
@@ -58,7 +63,8 @@ public class PerformanceErrorController {
      */
     @PostMapping("/FP")
     @Secret
-    public Result getAvgFP(@RequestBody Data data){
+    @ApiOperation("获取FP的平均数据，和周同比")
+    public Result getAvgFP(@ApiParam(name = "projectName",value = "项目名",required = true)@RequestBody Data data){
 
         return performanceErrorService.getFP(data.getProjectName());
     }

@@ -11,6 +11,9 @@ import com.example.monitorserver.utils.TokenUtil;
 import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.po.Data;
 import com.example.monitorserver.utils.MapBeanUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -37,6 +40,8 @@ import java.util.Map;
 @RequestMapping(value = "/user",produces = "application/json;charset=UTF-8")
 @Slf4j
 @CrossOrigin("http://localhost:3000")
+@Validated
+@Api(tags = "user接口")
 public class UserController {
     @Autowired
     HttpServletRequest request;
@@ -57,8 +62,9 @@ public class UserController {
      * @return 返回除了密码之后的信息
      */
     @PostMapping("/login")
+    @ApiOperation("登录")
     @Secret
-    public Result login(@RequestBody User user){
+    public Result login(@ApiParam(name="username,password",value="用户名，密码",required = true ) @RequestBody User user){
         //TODO 1.登录认证
         System.out.println("user = " + user);
         Result result = userService.login(user);
@@ -84,8 +90,9 @@ public class UserController {
      * @return
      */
     @PostMapping("/register")
+    @ApiOperation("注册")
     @Secret
-    public Result register(@RequestBody @Validated User user){
+    public Result register(@ApiParam(name="username,password,phone",value = "用户名，密码，电话号码",required = true)@RequestBody @Validated User user){
         //生成唯一id
         String ID = IdUtil.simpleUUID();
         user.setUserId(ID);
@@ -99,6 +106,7 @@ public class UserController {
      * @return 返回操作结果
      */
     @GetMapping("/logout")
+    @ApiOperation("登出")
     @Secret
     public Result logout(){
         String token = request.getHeader("Authorization");
@@ -113,8 +121,9 @@ public class UserController {
      * @return 返回更新结果
      */
     @PutMapping
+    @ApiOperation("更新用户")
     @Secret
-    public Result update(@RequestBody User user){
+    public Result update(@ApiParam(name = "userId,username,password,phone",value = "用户Id,用户名，密码，电话",required = true)@RequestBody User user){
         return userService.update(user);
     }
 
@@ -124,8 +133,9 @@ public class UserController {
      * @return 返回该用户（可能为集合）
      */
     @PostMapping("/getUser")
+    @ApiOperation("通过用户名查询用户")
     @Secret//用户邀请其他用户
-    public Result getUserByCondition(@RequestBody Data data){
+    public Result getUserByCondition(@ApiParam(name = "username",value = "用户名",required = true) @RequestBody Data data){
         Map<String,Object> condition = new HashMap<>();
         condition.put("username",data.getUserName());
         return userService.getByCondition(condition);
@@ -138,8 +148,9 @@ public class UserController {
      * @return 返回操作执行结果
      */
     @PostMapping("/freezeUser")
+    @ApiOperation("冻结用户")
     @Secret
-    public Result freezeUser(@RequestBody Data data){
+    public Result freezeUser(@ApiParam(name = "username,date",value = "用户名,时间戳",required = true)@RequestBody Data data){
         LocalDateTime dateTime = data.getDate().toInstant().atOffset(ZoneOffset.of("+8")).toLocalDateTime();
         return userService.freezeUser(data.getUserId(),dateTime);
     }
@@ -151,8 +162,9 @@ public class UserController {
      * @return 执行结果
      */
     @PostMapping("/forceLogout")
+    @ApiOperation("强制用户登出")
     @Secret
-    public Result forceLogout(@RequestBody Data data){
+    public Result forceLogout(@ApiParam(name = "username",value = "用户名",required = true)@RequestBody Data data){
         String userId = data.getUserId();
         //TODO 1.查询redis中已存在的key对应的user
         Iterator<String> iterator = redisTemplate.keys(RedisEnum.LOGIN_TOKEN.getMsg().concat("*")).iterator();
@@ -174,6 +186,7 @@ public class UserController {
      * @return 返回用户信息
      */
     @GetMapping("/getAllUser")
+    @ApiOperation("管理员权限：查看所有用户信息")
     @Secret
     public Result getAllUser(){
         log.debug("获取所有用户");

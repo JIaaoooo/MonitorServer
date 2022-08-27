@@ -7,6 +7,9 @@ import com.example.monitorserver.po.*;
 import com.example.monitorserver.service.UserProjectService;
 import com.example.monitorserver.service.UserService;
 import com.example.monitorserver.service.ProjectService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,7 @@ import java.util.*;
 @Slf4j
 @RequestMapping(value = "/userproject",produces = "application/json;charset=UTF-8")
 @CrossOrigin("http://localhost:3000")
+@Api(tags = "用户权限接口")
 public class UserProjectController {
 
     @Autowired
@@ -42,7 +46,8 @@ public class UserProjectController {
 
     @PostMapping("/viewPermission")
     @Secret
-    public Result viewPermission(@RequestBody Data data){
+    @ApiOperation("查询该项目下的监控者")
+    public Result viewPermission(@ApiParam(name = "projectName",value = "项目名",required = true)@RequestBody Data data){
         //TODO 前端给项目名称，获取项目名称对应的ID
         Map<String,Object> condition = new HashMap<>();
         condition.put("project_name",data.getProjectName());
@@ -74,7 +79,8 @@ public class UserProjectController {
      */
     @PostMapping("/MyProject")
     @Secret
-    public Result viewOwnProject(@RequestBody Data data){
+    @ApiOperation("查询自己监控\\发布的项目")
+    public Result viewOwnProject(@ApiParam(name = "userId",value = "用户Id",required = true) @RequestBody Data data){
         Map<String,Object> condition = new HashMap<>();
         condition.put("user_id",data.getUserId());
         Result select =  userProjectService.select(condition);
@@ -110,7 +116,8 @@ public class UserProjectController {
      */
     @PostMapping("/updatePermission")
     @Secret
-    public Result updatePermission(@RequestBody Data data){
+    @ApiOperation("删除用户的监控权限")
+    public Result updatePermission(@ApiParam(name = "projectName,username用户名",value = "项目名,用户名",required = true)@RequestBody Data data){
         // TODO 前端给予项目名称 ， 用户名称
         // TODO 1.获取项目名对应的项目ID
         Map<String,Object> condition1 = new HashMap<>();

@@ -9,6 +9,9 @@ import com.example.monitorserver.po.BlankError;
 import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.service.BlankErrorService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/blankError")
 @CrossOrigin("http://localhost:3000")
+@Api(tags = "白屏错误操作接口")
 public class BlankErrorController {
 
     @Autowired
@@ -43,7 +47,8 @@ public class BlankErrorController {
      */
     @PostMapping("/brr")
     @Secret
-    public Result getBlankErrByType(@RequestBody Data data){
+    @ApiOperation("根据不同的时间粒度获取白屏错误次数")
+    public Result getBlankErrByType(@ApiParam(name = "projectName,type",value = "项目名，时间粒度选择",required = true) @RequestBody Data data){
         if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"blank")){
             List<BlankError> blankError = (List<BlankError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"blank");
             return new Result(ResultEnum.REQUEST_SUCCESS,blankError);
