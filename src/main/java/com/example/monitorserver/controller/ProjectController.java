@@ -175,4 +175,11 @@ public class ProjectController {
                 .setType(3);
         return applicationService.releaseApp(application);
     }
+
+    @PostMapping("/unFreeze")
+    @ApiOperation("为冻结项目解冻")
+    @Secret
+    public Result unFreeze(@RequestBody Data data){
+        return projectService.unSealProject(data);
+    }
 }

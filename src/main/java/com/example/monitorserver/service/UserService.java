@@ -1,6 +1,7 @@
 package com.example.monitorserver.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
 import org.springframework.stereotype.Service;
@@ -68,8 +69,6 @@ public interface UserService extends IService<User> {
      */
     Result freezeUser(String userId, LocalDateTime endTime);
 
-    /**
-     * 自动更新用户信息（检测是否解冻，更新）
-     */
+    Result unFreezeUser(User user);
 
 }

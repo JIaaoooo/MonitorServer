@@ -10,6 +10,7 @@ import com.example.monitorserver.mapper.UserMapper;
 import com.example.monitorserver.po.Project;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.User;
+import com.example.monitorserver.po.UserProject;
 import com.example.monitorserver.service.ProjectService;
 import com.example.monitorserver.service.UserService;
 import com.example.monitorserver.utils.MapBeanUtil;
@@ -183,7 +184,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return new Result(ResultEnum.FREEZE_SUCCESS);
     }
 
-
+    @Override
+    public Result unFreezeUser(User user) {
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("username",user.getUsername());
+        User newUser = new User()
+                .setUnsealDate(null);
+        userMapper.update(newUser,updateWrapper);
+        return new Result(ResultEnum.UNFREEZE_SUCCESS);
+    }
 
 
 }

@@ -193,5 +193,11 @@ public class UserController {
         return userService.getAllUser();
     }
 
+    @PostMapping("/unFreeze")
+    @ApiOperation("解冻用户")
+    @Secret
+    public Result unFreeze(@RequestBody User user){
+        return userService.unFreezeUser(user);
+    }
 
 }

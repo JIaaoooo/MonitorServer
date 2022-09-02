@@ -143,9 +143,12 @@ class MonitorServerApplicationTests {
 
     @Test
     void Test2(){
-        Page<User> page = new Page<>(13,1);
-        page = userMapper.selectPage(page,null);
-        List<User> records = page.getRecords();
+        Map<String,Object> map1 = new HashMap<>();
+        map1.put("a","a");
+        Map<String,Object> map2 = new HashMap<>();
+        map2.put("a","b");
+        map1.putAll(map2);
+        System.out.println(map1.get("a"));
 
     }
 

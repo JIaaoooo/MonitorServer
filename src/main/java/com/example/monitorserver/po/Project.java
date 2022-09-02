@@ -1,5 +1,6 @@
 package com.example.monitorserver.po;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -12,6 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.apache.ibatis.type.JdbcType;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -69,6 +71,7 @@ public class Project extends HttpSecretCode{
     /** 解封日期 **/
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @TableField(updateStrategy = FieldStrategy.IGNORED,jdbcType = JdbcType.VARCHAR)  //可以修改为null值
     private LocalDateTime unsealDate;
 
     /** 在申请返回时使用，告知前端该项目下的申请是什么类型  **/

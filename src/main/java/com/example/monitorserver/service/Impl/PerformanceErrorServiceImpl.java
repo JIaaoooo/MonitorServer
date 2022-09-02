@@ -149,24 +149,17 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
         qw1.eq("project_name",projectName)
                 .le("date", time.plusDays(-7))
                 .ge("date", time.plusDays(-14));
-        Long LastWeekCount = performanceErrorMapper.selectCount(qw1);
+
         qw1.select("SUM(first_paint) AS first_paint");
         PerformanceError performanceError1 = performanceErrorMapper.selectOne(qw1);
         Long LastWeekFirstPaint = 0L ;
-        if (performanceError1!=null){
-            LastWeekFirstPaint = performanceError1.getFirstPaint();
-        }
-        double LastWeekAvgTime = 0L;
-        if (LastWeekCount != 0) {
-            LastWeekAvgTime = 1.000*LastWeekFirstPaint/LastWeekCount;
-        }
+        LastWeekFirstPaint = performanceError1.getFirstPaint();
 
-        log.debug(ThisWeekAvgTime+"");
-        log.debug(LastWeekAvgTime+"");
+
         Map<String,Object> result = new HashMap<>();
         result.put("ThisWeekAvgTime",ThisWeekAvgTime);
-        result.put("LastWeekAvgTime",LastWeekAvgTime);
-        Double rate = 1.0  * 100;
+        //计算同比上周增长率
+        Double rate = 0.0;
         if(LastWeekFirstPaint!=0){
             rate = (double) ((ThisWeekFirstPaint - LastWeekFirstPaint) / LastWeekFirstPaint * 100);
         }

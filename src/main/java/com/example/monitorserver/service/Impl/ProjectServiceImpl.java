@@ -208,7 +208,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
         group.next().submit(()->{
             LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(Project::getProjectUrl,project.getProjectUrl());
+            wrapper.eq(Project::getProjectId,project.getProjectId());
             projectMapper.update(project,wrapper);
             //删除redis首页缓存
             if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))){
@@ -288,6 +288,17 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
         return new Result(ResultEnum.DELETE_SUCCESS);
 
+    }
+
+    @Override
+    public Result unSealProject(Data data) {
+        UpdateWrapper<Project> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("project_name",data.getProjectName());
+        Project project = new Project()
+                .setStatus(1)
+                .setUnsealDate(null);
+        projectMapper.update(project,updateWrapper);
+        return new Result(ResultEnum.UNFREEZE_SUCCESS);
     }
 
 }

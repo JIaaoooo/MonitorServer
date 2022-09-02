@@ -60,9 +60,11 @@ public interface ProjectService extends IService<Project> {
 
     /**
      * 根据项目id删除
-     * @param projectId  项目id
+     * @param data 传入项目id
      * @return 返回结果集
      */
     Result deleteProject(Data data) throws ExecutionException, InterruptedException;
+
+    Result unSealProject(Data data);
 
 }

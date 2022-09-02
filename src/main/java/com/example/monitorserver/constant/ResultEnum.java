@@ -53,7 +53,7 @@ public enum ResultEnum implements StatusCode{
     CREATE_SUCCESS(200,"创建成功"),
     REQUEST_SUCCESS(200,"请求成功"),
 
-
+    UNFREEZE_SUCCESS(200,"解冻成功"),
     //异常
 
     //系统异常

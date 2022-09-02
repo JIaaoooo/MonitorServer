@@ -30,6 +30,11 @@ public class ManagerAop {
 
     @Around("execution(* com.example.monitorserver.controller.UserController.getAllUser()) ||"+
             "execution(* com.example.monitorserver.controller.UserController.freezeUser()) ||"+
+            "execution(* com.example.monitorserver.controller.UserController.forceLogout()) ||"+
+            "execution(* com.example.monitorserver.controller.UserController.unFreeze()) ||"+
+            "execution(* com.example.monitorserver.controller.ProjectController.unFreeze()) ||"+
+            "execution(* com.example.monitorserver.controller.UserController.getAllUser()) ||"+
+            "execution(* com.example.monitorserver.controller.UserController.forceLogout()) ||"+
             "execution(* com.example.monitorserver.controller.UserController.forceLogout())")
     public Result jurisdiction(ProceedingJoinPoint pjp) throws Throwable {
         String token = request.getHeader("Authorization");

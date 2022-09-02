@@ -26,7 +26,6 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         //ByteBuf是netty提供的，不是Nio的ByteBuffer
         ByteBuf buf = (ByteBuf) msg;
         String str = buf.toString(CharsetUtil.UTF_8);
-        //创建表
         Option.MessageHandle(str);
     }
 
