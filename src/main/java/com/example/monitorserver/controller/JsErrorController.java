@@ -45,14 +45,14 @@ public class JsErrorController {
     @Secret
     @ApiOperation("取某个项目的各个时间段下的js报错信息")
     public Result getJsErrByType(@ApiParam(name = "projectName,dateType,type",value = "项目名,时间段选择,错误类型选择",required = true)@RequestBody Data data) {
-        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"err")){
-            List<JsError> jsError  = (List<JsError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName() + "err");
+        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+"err")){
+            List<JsError> jsError  = (List<JsError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType() + "err");
             return new Result(ResultEnum.REQUEST_SUCCESS,jsError);
         }
         Result result = jsErrorService.getJsErrByType(data.getProjectName(), data.getType());
         List<JsError> jsError = (List<JsError>) result.getData();
-        redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"err", jsError );
-        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"err",1, TimeUnit.MINUTES);
+        redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+"err", jsError );
+        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+data.getDateType()+"err",1, TimeUnit.HOURS);
         return result;
     }
 
@@ -66,12 +66,13 @@ public class JsErrorController {
     public Result getUrlErrCountByName(@ApiParam(name = "projectName", value = "项目名")@RequestBody Data data) {
         if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"urlErr")){
             List<JsError> jsError= (List<JsError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName() + "urlErr");
+            redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"urlErr",1, TimeUnit.HOURS);
             return new Result(ResultEnum.REQUEST_SUCCESS,jsError);
         }
         Result result = jsErrorService.getUrlErrCountByName(data.getProjectName());
         List<JsError> jsError = (List<JsError>) result.getData();
         redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"urlErr", jsError );
-        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"urlErr",1, TimeUnit.MINUTES);
+        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"urlErr",1, TimeUnit.HOURS);
         return result;
     }
 

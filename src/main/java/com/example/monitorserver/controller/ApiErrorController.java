@@ -64,14 +64,14 @@ public class ApiErrorController {
     @Secret
     @ApiOperation("获取不同时间段下的api监控信息")
     public Result getApiErrorByType(@ApiParam(name = "projectName,dateType,type",value = "项目名,时间段选择,错误类型选择",required = true)@RequestBody Data data) throws ExecutionException, InterruptedException {
-        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"err")){
-            List<apiError> apiError= (List<apiError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName() + "err");
+        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+"err")){
+            List<apiError> apiError= (List<apiError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName() +data.getDateType()+ "err");
             return new Result(ResultEnum.REQUEST_SUCCESS,apiError);
         }
         Result result = apiErrorService.getApiErrByType(data.getProjectName(), data.getDateType());
         List<apiError> apiError = (List<apiError>) result.getData();
-        redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"err", apiError);
-        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"err",1, TimeUnit.MINUTES);
+        redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+"err", apiError);
+        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+data.getDateType()+"err",1, TimeUnit.MINUTES);
 
         return result;
     }

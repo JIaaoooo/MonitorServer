@@ -145,9 +145,7 @@ class MonitorServerApplicationTests {
     void Test2(){
         Map<String,Object> map1 = new HashMap<>();
         map1.put("a","a");
-        Map<String,Object> map2 = new HashMap<>();
-        map2.put("a","b");
-        map1.putAll(map2);
+        map1.put("a","b");
         System.out.println(map1.get("a"));
 
     }

@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @program: monitor server
@@ -124,7 +121,7 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
     }
 
     @Override
-    public Result getFP(String projectName) {
+    public Map<String,Object> getFP(String projectName) {
         QueryWrapper<PerformanceError> qw = new QueryWrapper<>();
         LocalDateTime time = LocalDateTime.now();
         qw.eq("project_name",projectName)
@@ -135,7 +132,6 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
         PerformanceError performanceError = performanceErrorMapper.selectOne(qw);
         Long ThisWeekFirstPaint = 0L;
         if(performanceError!=null){
-
             ThisWeekFirstPaint = performanceError.getFirstPaint();
         }
         double ThisWeekAvgTime = 0;
@@ -157,110 +153,106 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
 
 
         Map<String,Object> result = new HashMap<>();
+        result.put("count",ThisWeekCount);
         result.put("ThisWeekAvgTime",ThisWeekAvgTime);
+        result.put("ThisWeekFirstPaint",ThisWeekFirstPaint);
+        result.put("LastWeekFirstPaint",LastWeekFirstPaint);
         //计算同比上周增长率
-        Double rate = 0.0;
+        Double rate = 100.0;
         if(LastWeekFirstPaint!=0){
             rate = (double) ((ThisWeekFirstPaint - LastWeekFirstPaint) / LastWeekFirstPaint * 100);
         }
         result.put("rate",rate);
-        return new Result(ResultEnum.REQUEST_SUCCESS,result);
+        return result;
     }
 
     private List<PerformanceError> selectHourType(String projectName,String field) {
 
-
-        String pattern = "yyyy-MM-dd HH";
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
-        //需要查询24小时,所以需要查询到个数据进行返回
-        List<PerformanceError> data = new LinkedList<>();
+        List<PerformanceError> data = new ArrayList<>();
         PerformanceError vo = null;
-
 
         QueryWrapper<PerformanceError> qw = new QueryWrapper<>();
 
         //获得当前时间2021年6月9日14小时49分
         LocalDateTime time = LocalDateTime.now();
-        time = time.plusHours(1);
-
-        //这是每日,分为4个时段
 
 
-        Long sum = 0L;
         Long count = null;
 
         //往前查询
 
         for (int i = 0; i < 4; i++) {
-            qw.clear();
-            qw.select("sum("+field+") as consumeTime")
-                    .lambda().eq(PerformanceError::getProjectName,projectName)
+            vo = new PerformanceError();
+            qw = new QueryWrapper<>();
+            qw.eq("project_name",projectName)
+                    .isNotNull(field).lambda()
                     .le(PerformanceError::getDate,time)
                     .ge(PerformanceError::getDate,time.plusHours(-6));
-            PerformanceError performanceError = performanceErrorMapper.selectOne(qw);
-            if (null == performanceError) {
-                sum = 0L;
-            }else {
 
-                sum = performanceError.getConsumeTime();
-            }
-
-            qw.clear();
-            qw.eq("project_name",projectName)
-                    .le("date",time)
-                    .ge("date",time.plusHours(-6));
-
-            vo = new PerformanceError();
             count = performanceErrorMapper.selectCount(qw);
-            if (0L == count) {
-                vo.setConsumeTime(0L);
-            }else {
+            vo.setConsumeTime(count);
+            vo.setConsumeTime(0L);
 
-                vo.setConsumeTime(sum / count / 1000L);
+            if (count != 0){
+                qw.clear();
+                qw.eq("project_name",projectName)
+                        .isNotNull(field)
+                        .select("SUM("+field+") AS consumeTime")
+                        .le("date",time)
+                        .ge("date",time.plusHours(-6));
+                PerformanceError selectOne = performanceErrorMapper.selectOne(qw);
+                Long consumeTime = selectOne.getConsumeTime();
+                vo.setConsumeTime(consumeTime / count / 1000);
             }
 
-            vo.setDateStr(time.plusHours(-6).getHour() + "时-" + time.getHour()+"时");
+            vo.setDateStr(time.plusHours(-6).getHour() + "时-" + time.getHour() + "时");
             data.add(vo);
 
             time  = time.plusHours(-6);
         }
-
 
         return data;
 
     }
 
     private List<PerformanceError> selectDayType(String projectName,String field) {
-        String pattern = "yyyy-MM-dd";
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
-        //需要查询24小时,所以需要查询到个数据进行返回
-        List<PerformanceError> data = new LinkedList<>();
-        PerformanceError vo = null;
 
+        List<PerformanceError> data = new ArrayList<>();
+        PerformanceError vo = null;
 
         QueryWrapper<PerformanceError> qw = new QueryWrapper<>();
 
-        //获得当前时间2021年6月9日14小时49分
         LocalDateTime time = LocalDateTime.now();
-        time = time.plusHours(1);
 
-        //这是每月,分为4个星期
 
         Long count = null;
 
         //往前查询
 
         for (int i = 0; i < 4; i++) {
-
+            vo = new PerformanceError();
             qw = new QueryWrapper<>();
             qw.eq("project_name",projectName)
-                    .ne(field,null).lambda()
+                    .isNotNull(field).lambda()
                     .le(PerformanceError::getDate,time)
                     .ge(PerformanceError::getDate,time.plusDays(-7));
 
             count = performanceErrorMapper.selectCount(qw);
-            vo = new PerformanceError();
-            vo.setConsumeTime(count / 1000);
+            vo.setConsumeTime(count);
+            vo.setConsumeTime(0L);
+            if (count != 0){
+                qw.clear();
+                qw.eq("project_name",projectName)
+                        .isNotNull(field)
+                        .select("SUM("+field+") AS consumeTime")
+                        .le("date",time)
+                        .ge("date",time.plusDays(-7));
+                PerformanceError selectOne = performanceErrorMapper.selectOne(qw);
+                Long consumeTime = selectOne.getConsumeTime();
+                vo.setConsumeTime(consumeTime / count / 1000);
+            }
+
+
             vo.setDateStr(time.plusDays(-7).getDayOfMonth() + "日-" + time.getDayOfMonth() + "日");
             data.add(vo);
 
@@ -273,44 +265,51 @@ public class PerformanceErrorServiceImpl extends ServiceImpl<PerformanceErrorMap
 
     private List<PerformanceError> selectMonthType(String projectName,String field) {
 
-        String pattern = "yyyy-MM";
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
-        //需要查询24小时,所以需要查询到个数据进行返回
-        List<PerformanceError> data = new LinkedList<>();
+        List<PerformanceError> data = new ArrayList<>();
         PerformanceError vo = null;
-
 
         QueryWrapper<PerformanceError> qw = new QueryWrapper<>();
 
-        //获得当前时间2021年6月9日14小时49分
         LocalDateTime time = LocalDateTime.now();
-        time = time.plusHours(1);
 
-        //这是每月,分为4个星期
 
         Long count = null;
 
         //往前查询
 
         for (int i = 0; i < 4; i++) {
-
+            vo = new PerformanceError();
             qw = new QueryWrapper<>();
             qw.eq("project_name",projectName)
-                    .ne(field,null).lambda()
+                    .isNotNull(field).lambda()
                     .le(PerformanceError::getDate,time)
                     .ge(PerformanceError::getDate,time.plusMonths(-3));
 
             count = performanceErrorMapper.selectCount(qw);
-            vo = new PerformanceError();
-            vo.setConsumeTime(count / 1000);
-            vo.setDateStr(time.plusMonths(-3).getMonthValue() + "月-" + time.getMonthValue() + "月" );
+            vo.setConsumeTime(count);
+            vo.setConsumeTime(0L);
+            if (count != 0){
+                qw.clear();
+                qw.eq("project_name",projectName)
+                        .isNotNull(field)
+                        .select("SUM("+field+") AS consumeTime")
+                        .le("date",time)
+                        .ge("date",time.plusMonths(-3));
+                PerformanceError selectOne = performanceErrorMapper.selectOne(qw);
+                Long consumeTime = selectOne.getConsumeTime();
+                vo.setConsumeTime(consumeTime / count / 1000);
+            }
+
+
+            vo.setDateStr(time.plusMonths(-3).getMonthValue() + "月-" + time.getMonthValue() + "月");
             data.add(vo);
 
             time  = time.plusMonths(-3);
         }
-
         return data;
     }
+
+
 
 
 }

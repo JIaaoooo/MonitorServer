@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -81,7 +82,15 @@ public class ResourceErrorController {
     @Secret
     @ApiOperation("分时间段获得错误数")
     public Result getResErrByType(@ApiParam(name = "projectName,dateType,type",value = "项目名,时间段选择,错误类型选择",required = true)@RequestBody Data data) {
-        return resourceErrorService.getErrByType(data.getProjectName(), data.getDateType(),data.getType());
+        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType() + "ResErr")){
+            List<ResourceError> resourceErrors = (List<ResourceError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName() + data.getDateType() + "ResErr");
+            return new Result(resourceErrors);
+        }
+        Result errByType = resourceErrorService.getErrByType(data.getProjectName(), data.getDateType(), data.getType());
+        List<ResourceError> resourceErrors  = (List<ResourceError>) errByType.getData();
+        redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+"ResErr", resourceErrors);
+        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+data.getDateType()+"ResErr",1, TimeUnit.HOURS);
+        return errByType;
     }
 
     /**
@@ -94,7 +103,15 @@ public class ResourceErrorController {
     @ApiOperation("获得资源错误总数")
     public Result getResourceCount(@ApiParam(name = "projectName",value = "项目名",required = true)@RequestBody Data data){
 
+        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"ResTotal")){
+            Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName() + "ResTotal");
+            return new Result(entries);
+        }
         Map<String,Object> result   = (Map<String, Object>) resourceErrorService.getResourceCount(data.getProjectName()).getData();
+        Map<String,Object> map = new HashMap<>();
+        map.put("total",result.get("ThisWeek"));
+        redisTemplate.opsForHash().putAll(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"ResTotal",map);
+        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"ResTotal",1,TimeUnit.HOURS);
         return new Result(ResultEnum.REQUEST_SUCCESS,result.get("ThisWeek"));
     }
 }

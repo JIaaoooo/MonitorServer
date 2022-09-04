@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @program: MonitorServer
@@ -46,13 +47,14 @@ public class PerformanceErrorController {
     @Secret
     @ApiOperation("通过性能字段和时间范围,获取性能分析数据")
     public Result getAvgByTypeAndDate(@ApiParam(name = "projectName,dateType,type",value = "项目名,时间段选择,错误类型选择",required = true)@RequestBody Data data) {
-        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"per")){
-            List<PerformanceError> performanceError = (List<PerformanceError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"per");
+        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+data.getType()+"per")){
+            List<PerformanceError> performanceError = (List<PerformanceError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+data.getType()+"per");
             return new Result(ResultEnum.REQUEST_SUCCESS,performanceError);
         }
         Result result = performanceErrorService.getAvgByTypeAndDate(data.getProjectName(),data.getType(),data.getDateType());
         List<PerformanceError> performanceError = (List<PerformanceError>) result.getData();
-        redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"per", performanceError);
+        redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+data.getType()+"per", performanceError);
+        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+data.getDateType()+data.getType()+"per",1, TimeUnit.HOURS);
         return result;
     }
 
@@ -65,7 +67,12 @@ public class PerformanceErrorController {
     @Secret
     @ApiOperation("获取FP的平均数据，和周同比")
     public Result getAvgFP(@ApiParam(name = "projectName",value = "项目名",required = true)@RequestBody Data data){
-
-        return performanceErrorService.getFP(data.getProjectName());
+        if(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"FP")){
+            Map<Object, Object> result = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName() + "FP");
+            return new Result(result);
+        }
+        Map<String, Object> result = performanceErrorService.getFP(data.getProjectName());
+        redisTemplate.opsForHash().putAll(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"FP",result);
+        return new Result(result);
     }
 }

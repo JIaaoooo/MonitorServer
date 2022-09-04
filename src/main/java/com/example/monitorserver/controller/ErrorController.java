@@ -116,10 +116,31 @@ public class ErrorController {
                         map.putAll(result);
                     }
                 });
+                group.next().submit(()->{
+                    if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+resourceError.getProjectName()+"ResTotal")){
+                        Map<Object, Object> map = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + resourceError.getProjectName()+"ResTotal");
+                        //对缓存中的数据进行更新
+                        Long total = (Long) map.get("total");
+                        map.put("total",++total);
+                    }
+                });
                 break;
             case "PerformanceError":
                 PerformanceError performanceError = JSON.parseObject(data.getData(), PerformanceError.class);
-                performanceErrorService.insert(performanceError);
+                group.next().submit(()->performanceErrorService.insert(performanceError));
+                group.next().submit(()->{
+                    if (performanceError.getType().equals("first_paint")){
+                        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + performanceError.getProjectName()+"FP")){
+                            Map<Object, Object> result = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + performanceError.getProjectName() + "FP");
+                            Long count = (Long) result.get("count");
+                            Long thisWeekFirstPaint = (Long) result.get("ThisWeekFirstPaint");
+                            Long lastWeekFirstPaint = (Long) result.get("LastWeekFirstPaint");
+                            thisWeekFirstPaint += performanceError.getFirstPaint();
+                            Long ThisWeekAvgTime = thisWeekFirstPaint / ++count ;
+
+                        }
+                    }
+                });
                 break;
             default:
                 return new Result(ResultEnum.REQUEST_FALSE);

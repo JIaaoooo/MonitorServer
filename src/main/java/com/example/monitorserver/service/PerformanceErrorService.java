@@ -7,6 +7,8 @@ import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.PerformanceError;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 
 /**
  * @program: monitor server
@@ -35,5 +37,5 @@ public interface PerformanceErrorService extends IService<PerformanceError> {
      * @param projectName 项目名
      * @return 返回本周与上周的数据
      */
-    Result getFP(String projectName);
+    Map<String,Object> getFP(String projectName);
 }

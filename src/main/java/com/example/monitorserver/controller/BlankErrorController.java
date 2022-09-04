@@ -49,14 +49,14 @@ public class BlankErrorController {
     @Secret
     @ApiOperation("根据不同的时间粒度获取白屏错误次数")
     public Result getBlankErrByType(@ApiParam(name = "projectName,type",value = "项目名，时间粒度选择",required = true) @RequestBody Data data){
-        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"blank")){
-            List<BlankError> blankError = (List<BlankError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"blank");
+        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+"blank")){
+            List<BlankError> blankError = (List<BlankError>) redisTemplate.opsForList().rightPop(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+"blank");
             return new Result(ResultEnum.REQUEST_SUCCESS,blankError);
         }
         Result result = blankErrorService.getBlankErrByType(data.getProjectName(), data.getType());
         List<BlankError> blankError = (List<BlankError>) result.getData();
-        redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"blank", blankError);
-        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"blank",1, TimeUnit.MINUTES);
+        redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+"blank", blankError);
+        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+data.getDateType()+"blank",1, TimeUnit.HOURS);
 
         return result;
     }
