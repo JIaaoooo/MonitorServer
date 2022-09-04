@@ -95,6 +95,7 @@ public class ErrorController {
                         Map<String, Object> update = statistic((Long) map.get("total"), ++thisWeekCount, (Long) map.get("jsLastWeekCount"));
                         Map<String, Object> result = packageData(++thisWeekCount, (Long) map.get("jsLastWeekCount"), update.get("Rate"), update.get("IncrRate"), update.get("CountIncr"), "js");
                         map.putAll(result);
+                        redisTemplate.opsForHash().putAll(RedisEnum.INDEX_KEY.getMsg() + JsError.getProjectName()+"whole",map);
                     }
                 });
 
@@ -114,6 +115,7 @@ public class ErrorController {
                         Map<String, Object> update = statistic((Long) map.get("total"), ++thisWeekCount, (Long) map.get("resLastWeekCount"));
                         Map<String, Object> result = packageData(++thisWeekCount, (Long) map.get("resLastWeekCount"), null, update.get("IncrRate"), update.get("CountIncr"), "res");
                         map.putAll(result);
+                        redisTemplate.opsForHash().putAll(RedisEnum.INDEX_KEY.getMsg() + resourceError.getProjectName()+"whole",map);
                     }
                 });
                 group.next().submit(()->{
@@ -122,6 +124,7 @@ public class ErrorController {
                         //对缓存中的数据进行更新
                         Long total = (Long) map.get("total");
                         map.put("total",++total);
+                        redisTemplate.opsForHash().putAll(RedisEnum.INDEX_KEY.getMsg() + resourceError.getProjectName()+"ResTotal",map);
                     }
                 });
                 break;
@@ -137,7 +140,14 @@ public class ErrorController {
                             Long lastWeekFirstPaint = (Long) result.get("LastWeekFirstPaint");
                             thisWeekFirstPaint += performanceError.getFirstPaint();
                             Long ThisWeekAvgTime = thisWeekFirstPaint / ++count ;
-
+                            double rate = 100.0;
+                            if (lastWeekFirstPaint!=0){
+                                rate = 1.0*(thisWeekFirstPaint - lastWeekFirstPaint) / lastWeekFirstPaint *100;
+                            }
+                            result.put("count",count);
+                            result.put("ThisWeekAvgTime",ThisWeekAvgTime);
+                            result.put("rate",rate);
+                            redisTemplate.opsForHash().putAll(RedisEnum.INDEX_KEY.getMsg() + performanceError.getProjectName()+"FP",result);
                         }
                     }
                 });

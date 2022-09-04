@@ -25,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -141,12 +142,17 @@ class MonitorServerApplicationTests {
     @Autowired
     private UserMapper userMapper;
 
+
     @Test
     void Test2(){
         Map<String,Object> map1 = new HashMap<>();
         map1.put("a","a");
-        map1.put("a","b");
-        System.out.println(map1.get("a"));
+        redisTemplate.opsForHash().putAll("A",map1);
+        Map<Object, Object> a = redisTemplate.opsForHash().entries("A");
+        a.put("a","b");
+        redisTemplate.opsForHash().putAll("A",a);
+        Map<Object, Object> b = redisTemplate.opsForHash().entries("A");
+        System.out.println(b.get("a"));
 
     }
 
