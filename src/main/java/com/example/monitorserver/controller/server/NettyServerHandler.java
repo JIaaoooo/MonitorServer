@@ -1,4 +1,4 @@
-package com.example.monitorserver.server;
+package com.example.monitorserver.controller.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

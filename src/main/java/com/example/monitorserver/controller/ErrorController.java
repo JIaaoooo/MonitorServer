@@ -91,9 +91,9 @@ public class ErrorController {
                     if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+JsError.getProjectName()+"whole")){
                         Map<Object, Object> map = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + JsError.getProjectName()+"whole");
                         //对缓存中的数据进行更新
-                        Long thisWeekCount = (Long) map.get("jsThisWeekCount");
-                        Map<String, Object> update = statistic((Long) map.get("total"), ++thisWeekCount, (Long) map.get("jsLastWeekCount"));
-                        Map<String, Object> result = packageData(++thisWeekCount, (Long) map.get("jsLastWeekCount"), update.get("Rate"), update.get("IncrRate"), update.get("CountIncr"), "js");
+                        Long thisWeekCount = Long.valueOf(String.valueOf(map.get("jsThisWeekCount")));
+                        Map<String, Object> update = statistic(Long.valueOf(String.valueOf(map.get("total"))), ++thisWeekCount,Long.valueOf(String.valueOf(map.get("jsLastWeekCount"))) );
+                        Map<String, Object> result = packageData(++thisWeekCount, Long.valueOf(String.valueOf(map.get("jsLastWeekCount"))), update.get("Rate"), update.get("IncrRate"), update.get("CountIncr"), "js");
                         map.putAll(result);
                         redisTemplate.opsForHash().putAll(RedisEnum.INDEX_KEY.getMsg() + JsError.getProjectName()+"whole",map);
                     }
@@ -111,9 +111,9 @@ public class ErrorController {
                     if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+resourceError.getProjectName()+"whole")){
                         Map<Object, Object> map = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + resourceError.getProjectName()+"whole");
                         //对缓存中的数据进行更新
-                        Long thisWeekCount = (Long) map.get("resThisWeekCount");
-                        Map<String, Object> update = statistic((Long) map.get("total"), ++thisWeekCount, (Long) map.get("resLastWeekCount"));
-                        Map<String, Object> result = packageData(++thisWeekCount, (Long) map.get("resLastWeekCount"), null, update.get("IncrRate"), update.get("CountIncr"), "res");
+                        Long thisWeekCount = Long.valueOf(String.valueOf(map.get("resThisWeekCount")));
+                        Map<String, Object> update = statistic(Long.valueOf(String.valueOf(map.get("total"))), ++thisWeekCount, Long.valueOf(String.valueOf(map.get("resLastWeekCount"))));
+                        Map<String, Object> result = packageData(++thisWeekCount, Long.valueOf(String.valueOf(map.get("resLastWeekCount"))), null, update.get("IncrRate"), update.get("CountIncr"), "res");
                         map.putAll(result);
                         redisTemplate.opsForHash().putAll(RedisEnum.INDEX_KEY.getMsg() + resourceError.getProjectName()+"whole",map);
                     }
@@ -122,7 +122,7 @@ public class ErrorController {
                     if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+resourceError.getProjectName()+"ResTotal")){
                         Map<Object, Object> map = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + resourceError.getProjectName()+"ResTotal");
                         //对缓存中的数据进行更新
-                        Long total = (Long) map.get("total");
+                        Long total = Long.valueOf(String.valueOf(map.get("total")));
                         map.put("total",++total);
                         redisTemplate.opsForHash().putAll(RedisEnum.INDEX_KEY.getMsg() + resourceError.getProjectName()+"ResTotal",map);
                     }
@@ -135,9 +135,9 @@ public class ErrorController {
                     if (performanceError.getType().equals("first_paint")){
                         if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + performanceError.getProjectName()+"FP")){
                             Map<Object, Object> result = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + performanceError.getProjectName() + "FP");
-                            Long count = (Long) result.get("count");
-                            Long thisWeekFirstPaint = (Long) result.get("ThisWeekFirstPaint");
-                            Long lastWeekFirstPaint = (Long) result.get("LastWeekFirstPaint");
+                            Long count =Long.valueOf(String.valueOf(result.get("count")));
+                            Long thisWeekFirstPaint = Long.valueOf(String.valueOf(result.get("ThisWeekFirstPaint")));
+                            Long lastWeekFirstPaint = Long.valueOf(String.valueOf(result.get("LastWeekFirstPaint")));
                             thisWeekFirstPaint += performanceError.getFirstPaint();
                             Long ThisWeekAvgTime = thisWeekFirstPaint / ++count ;
                             double rate = 100.0;
@@ -168,10 +168,10 @@ public class ErrorController {
     @ApiOperation("总览信息js,api,resource信息获取")
     public Result whole(@ApiParam(name = "projectName",value = "项目名",required = true)@RequestBody Data data) throws ExecutionException, InterruptedException {
         NioEventLoopGroup group = NettyEventGroup.group;
-        if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"whole")){
+        /*if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+"whole")){
             Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+"whole");
             return new Result(ResultEnum.REQUEST_SUCCESS,entries);
-        }
+        }*/
 
         Future<Result> JsFuture = group.next().submit(() -> jsErrorService.getJsErrorCount(data.getProjectName()));
         Future<Result> ApiFuture = group.next().submit(() -> apiErrorService.getApiCount(data.getProjectName()));

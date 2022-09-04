@@ -1,6 +1,6 @@
 package com.example.monitorserver;
 
-import com.example.monitorserver.server.NettyServer;
+import com.example.monitorserver.controller.server.NettyServer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

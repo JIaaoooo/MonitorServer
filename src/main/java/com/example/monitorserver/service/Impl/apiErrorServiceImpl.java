@@ -1,10 +1,15 @@
 package com.example.monitorserver.service.Impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.map.MapUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.JsError;
 import com.example.monitorserver.po.Result;
@@ -15,18 +20,23 @@ import com.example.monitorserver.utils.NettyEventGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> implements apiErrorService {
 
     @Autowired
     private apiErrorMapper apiErrorMapper;
+
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
 
     @Override
     public void insert(apiError apiError) {
@@ -88,7 +98,11 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
     }
 
     @Override
-    public Result getWhole(String project_name) {
+    public apiError getWhole(String project_name) {
+        if(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+ project_name + "visits")){
+            Map<Object, Object> entries = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + project_name + "visits");
+            return BeanUtil.mapToBean(entries,apiError.class,false,new CopyOptions());
+        }
         QueryWrapper<apiError> queryWrapper = new QueryWrapper<>();
         // TODO 1.获取访问量
         queryWrapper.eq("project_name",project_name);
@@ -97,6 +111,7 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
         queryWrapper.select("DISTINCT ip");
         Long uv = apiErrorMapper.selectCount(queryWrapper);
         queryWrapper.clear();
+        // TODO 3.获取异常数
         queryWrapper.eq("project_name",project_name)
                 .isNotNull("exception");
         Long defeat = apiErrorMapper.selectCount(queryWrapper);
@@ -106,8 +121,11 @@ public class apiErrorServiceImpl extends ServiceImpl<apiErrorMapper, apiError> i
         apiError apiError = new apiError()
                 .setPV(count)
                 .setRate(percent)
+                .setCount(defeat)
                 .setUV(uv);
-        return new Result(ResultEnum.REQUEST_FALSE,apiError);
+        redisTemplate.opsForHash().putAll(RedisEnum.INDEX_KEY.getMsg()+ project_name + "visits", BeanUtil.beanToMap(apiError));
+        redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+ project_name + "visits",1, TimeUnit.HOURS);
+        return apiError;
     }
 
     @Override

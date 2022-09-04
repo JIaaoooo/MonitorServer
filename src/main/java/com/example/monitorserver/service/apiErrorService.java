@@ -35,7 +35,7 @@ public interface apiErrorService extends IService<apiError> {
      * @param project_name 项目名称
      * @return 返回成功率
      */
-    Result getWhole(String project_name);
+    apiError getWhole(String project_name);
 
     /**
      * 获取各个接口的错误率，平均耗时

@@ -84,8 +84,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
         Iterator<Project> iterator = projects.iterator();
         while (iterator.hasNext()){
             Project project = iterator.next();
-            Result whole = apiErrorService.getWhole(project.getProjectName());
-            apiError apiError = (com.example.monitorserver.po.apiError) whole.getData();
+            apiError apiError = apiErrorService.getWhole(project.getProjectName());
             project.setPV(apiError.getPV());
             project.setUV(apiError.getUV());
             project.setRate(apiError.getRate());
@@ -208,7 +207,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper,Project> imple
 
         group.next().submit(()->{
             LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(Project::getProjectId,project.getProjectId());
+            wrapper.eq(Project::getProjectId,project.getProjectUrl());
             projectMapper.update(project,wrapper);
             //删除redis首页缓存
             if(Boolean.TRUE.equals(redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()))){
