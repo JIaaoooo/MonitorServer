@@ -9,6 +9,7 @@ import com.example.monitorserver.po.Data;
 import com.example.monitorserver.po.Result;
 import com.example.monitorserver.po.apiError;
 import com.example.monitorserver.service.apiErrorService;
+import com.example.monitorserver.utils.GlobalWsMap;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -69,6 +70,9 @@ public class ApiErrorController {
             return new Result(ResultEnum.REQUEST_SUCCESS,apiError);
         }
         Result result = apiErrorService.getApiErrByType(data.getProjectName(), data.getDateType());
+
+//        GlobalWsMap.sendMessage(data.getProjectName(),result);
+
         List<apiError> apiError = (List<apiError>) result.getData();
         redisTemplate.opsForList().leftPush(RedisEnum.INDEX_KEY.getMsg() + data.getProjectName()+data.getDateType()+"err", apiError);
         redisTemplate.expire(RedisEnum.INDEX_KEY.getMsg()+data.getProjectName()+data.getDateType()+"err",1, TimeUnit.MINUTES);

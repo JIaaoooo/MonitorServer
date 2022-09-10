@@ -12,6 +12,7 @@ import com.example.monitorserver.service.apiErrorService;
 import com.example.monitorserver.service.PerformanceErrorService;
 import com.example.monitorserver.service.ResourceErrorService;
 
+import com.example.monitorserver.utils.GlobalWsMap;
 import com.example.monitorserver.utils.NettyEventGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
@@ -79,13 +80,22 @@ public class ErrorController {
     @PostMapping
     @ApiOperation("前端SDK接受端口")
     public Result getSDK(@ApiParam(name = "type,data",value = "前端错误类型(JsError,BlankError,ResourceError,PerformanceError),根据type转相关实体类",required = true) @RequestBody SDK data){
+        System.out.println("data = " + data);
         String type = data.getType();
         NioEventLoopGroup group = NettyEventGroup.group;
         switch (type){
             case "JsError":
 
                 JsError JsError = JSON.parseObject(data.getData(), JsError.class);
-                group.next().submit(()->jsErrorService.insert(JsError));
+
+                group.next().submit(()-> {
+
+                    //新增前端sdk信息,需要进行实时反馈
+                    jsErrorService.insert(JsError);
+
+                    log.debug("11111111111111发现js错误,ws实时发送");
+                    GlobalWsMap.sendMessage(JsError.getProjectName(),jsErrorService.getJsErrByType(JsError.getProjectName(), "1"),1);
+                });
 
                 group.next().submit(() -> {
                     if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+JsError.getProjectName()+"whole")){
@@ -103,10 +113,16 @@ public class ErrorController {
             case "BlankError":
                 BlankError blankError = JSON.parseObject(data.getData(), BlankError.class);
                 blankErrorService.insert(blankError);
+                log.debug("222222222222222发现白屏错误,ws实时发送");
+                GlobalWsMap.sendMessage(blankError.getProjectName(),blankErrorService.getBlankErrByType(blankError.getProjectName(), "1"),2);
                 break;
             case "ResourceError":
                 ResourceError resourceError = JSON.parseObject(data.getData(), ResourceError.class);
-                group.next().submit(()->resourceErrorService.insert(resourceError));
+                group.next().submit(()-> {
+                    resourceErrorService.insert(resourceError);
+                    log.debug("333333333333333333发现资源错误,ws实时发送");
+                    GlobalWsMap.sendMessage(resourceError.getProjectName(),resourceErrorService.getErrByType(resourceError.getProjectName(), "1","1"),3);
+                });
                 group.next().submit(()->{
                     if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+resourceError.getProjectName()+"whole")){
                         Map<Object, Object> map = redisTemplate.opsForHash().entries(RedisEnum.INDEX_KEY.getMsg() + resourceError.getProjectName()+"whole");
@@ -131,6 +147,9 @@ public class ErrorController {
             case "PerformanceError":
                 PerformanceError performanceError = JSON.parseObject(data.getData(), PerformanceError.class);
                 group.next().submit(()->performanceErrorService.insert(performanceError));
+                log.debug("4444444444444发现性能错误,ws实时发送");
+                //TODO 性能监控好多种情况
+                GlobalWsMap.sendMessage(performanceError.getProjectName(),performanceErrorService.getAvgByTypeAndDate(performanceError.getProjectName(), "1","1"),4);
                 group.next().submit(()->{
                     if (performanceError.getType().equals("first_paint")){
                         if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg() + performanceError.getProjectName()+"FP")){

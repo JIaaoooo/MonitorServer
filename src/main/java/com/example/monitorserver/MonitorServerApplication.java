@@ -2,6 +2,9 @@ package com.example.monitorserver;
 
 import com.example.monitorserver.controller.server.NettyServer;
 
+import io.github.yedaxia.apidocs.Docs;
+import io.github.yedaxia.apidocs.DocsConfig;
+import io.github.yedaxia.apidocs.plugin.markdown.MarkdownDocPlugin;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

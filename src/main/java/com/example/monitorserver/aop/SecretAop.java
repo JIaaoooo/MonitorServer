@@ -129,7 +129,7 @@ public class SecretAop {
             throw new SystemException(ResultEnum.HTTP_EX_0);
         }
 
-        System.out.println("加密后的result = " + result);
+//        System.out.println("加密后的result = " + result);
         return result;
     }
 
