@@ -4,6 +4,13 @@ spring:
     host: 106.13.18.48
     port: 6379
     password: 123456
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: stopyc@foxmail.com
+    password: xzvzmsloxrbwhgeb
+    default-encoding: utf-8
+
 
 
   datasource:
@@ -48,3 +55,6 @@ netty-websocket:
   workerLoopGroupThreads: 20
   userCompressionHandler: true
 
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl

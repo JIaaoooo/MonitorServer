@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @create: 2022-09-09 22:33
  **/
 public class GlobalWsMap {
-    public static final ConcurrentHashMap<String, List<Session>> WS_BY_USER_ID_AND_PRO_ID_MAP = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, List<Session>> WS_BY_USER_ID_AND_PRO_ID_MAP = null;
 
 
 
@@ -37,6 +37,11 @@ public class GlobalWsMap {
     }
 
     public static void onLine(String projectName,Session session) {
+
+        if (WS_BY_USER_ID_AND_PRO_ID_MAP == null) {
+            WS_BY_USER_ID_AND_PRO_ID_MAP = new ConcurrentHashMap<>();
+        }
+
         if (WS_BY_USER_ID_AND_PRO_ID_MAP.get(projectName) == null || WS_BY_USER_ID_AND_PRO_ID_MAP.get(projectName).isEmpty() ) {
             ArrayList<Session> sessions = new ArrayList<>();
             sessions.add(session);

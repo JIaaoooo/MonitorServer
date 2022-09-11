@@ -80,7 +80,6 @@ public class ErrorController {
     @PostMapping
     @ApiOperation("前端SDK接受端口")
     public Result getSDK(@ApiParam(name = "type,data",value = "前端错误类型(JsError,BlankError,ResourceError,PerformanceError),根据type转相关实体类",required = true) @RequestBody SDK data){
-        System.out.println("data = " + data);
         String type = data.getType();
         NioEventLoopGroup group = NettyEventGroup.group;
         switch (type){
