@@ -6,11 +6,7 @@ import com.example.monitorserver.annotation.Secret;
 import com.example.monitorserver.constant.RedisEnum;
 import com.example.monitorserver.constant.ResultEnum;
 import com.example.monitorserver.po.*;
-import com.example.monitorserver.service.BlankErrorService;
-import com.example.monitorserver.service.JsErrorService;
-import com.example.monitorserver.service.apiErrorService;
-import com.example.monitorserver.service.PerformanceErrorService;
-import com.example.monitorserver.service.ResourceErrorService;
+import com.example.monitorserver.service.*;
 
 import com.example.monitorserver.utils.GlobalWsMap;
 import com.example.monitorserver.utils.NettyEventGroup;
@@ -70,6 +66,12 @@ public class ErrorController {
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 
+//    @Autowired
+//    private GlobalWsMap globalWsMap;
+
+    @Autowired
+    private SendEmailService sendEmailService;
+
 
 
     /**
@@ -94,7 +96,12 @@ public class ErrorController {
 
                     log.debug("11111111111111发现js错误,ws实时发送");
                     GlobalWsMap.sendMessage(JsError.getProjectName(),jsErrorService.getJsErrByType(JsError.getProjectName(), "1"),1);
+//                    sendEmailService.addOneData(JsError.getProjectName(),1);
+                    sendEmailService.newAddOneData(JsError.getProjectName(),1);
                 });
+
+
+
 
                 group.next().submit(() -> {
                     if (redisTemplate.hasKey(RedisEnum.INDEX_KEY.getMsg()+JsError.getProjectName()+"whole")){
@@ -114,6 +121,7 @@ public class ErrorController {
                 blankErrorService.insert(blankError);
                 log.debug("222222222222222发现白屏错误,ws实时发送");
                 GlobalWsMap.sendMessage(blankError.getProjectName(),blankErrorService.getBlankErrByType(blankError.getProjectName(), "1"),2);
+                sendEmailService.newAddOneData(blankError.getProjectName(),2);
                 break;
             case "ResourceError":
                 ResourceError resourceError = JSON.parseObject(data.getData(), ResourceError.class);

@@ -8,4 +8,8 @@ package com.example.monitorserver.service;
  **/
 public interface SendEmailService {
      Boolean sendSimpleEmail(String subject,String text,String projectName);
+
+     void addOneData(String projectName,Integer type);
+
+     void newAddOneData(String projectName,Integer type);
 }

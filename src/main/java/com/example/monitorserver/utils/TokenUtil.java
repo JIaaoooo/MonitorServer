@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,7 +41,9 @@ public class TokenUtil {
                 String simpleUUID = IdUtil.simpleUUID();
                 sb.append(Md5Utils.getMD5(simpleUUID));
                 //将token只存入redis缓存,key的格式为： login:token:xxxxxxxx  value类型为map(存储的是user对象)
-                redisTemplate.opsForHash().putAll(RedisEnum.LOGIN_TOKEN.getMsg()+sb, BeanUtil.beanToMap(user));
+                Map<String, Object> map = BeanUtil.beanToMap(user);
+//                log.debug(map.toString());
+                redisTemplate.opsForHash().putAll(RedisEnum.LOGIN_TOKEN.getMsg()+sb, map);
                 redisTemplate.expire(RedisEnum.LOGIN_TOKEN.getMsg()+sb,RedisEnum.TOKEN_EXITS.getCode(),TimeUnit.DAYS);
 
                 //测试代码

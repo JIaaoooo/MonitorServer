@@ -67,6 +67,7 @@ public class UserController {
     public Result login(@ApiParam(name="username,password",value="用户名，密码",required = true ) @RequestBody User user){
         //TODO 1.登录认证
         System.out.println("user = " + user);
+        System.out.println("123333333333333333333333333333333333333");
         Result result = userService.login(user);
         if(result.getCode()==200){
             User resultData = (User) result.getData();

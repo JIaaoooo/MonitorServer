@@ -1,5 +1,6 @@
 package com.example.monitorserver.constant;
 
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,9 +20,20 @@ public class Constants implements InitializingBean {
     @Value("${constant.aes_key}")
     private String aesKey;
 
+    @Value("${constant.max_count_seconds}")
+    private Integer maxCountSeconds;
+
+    @Value("${constant.max_seconds}")
+    private Integer maxSeconds;
+
+    @Value("${constant.max_mail_duration_seconds}")
+    private Integer maxMailDurationOfSecond;
 
     public static String PRIVATE_KEY;
     public static String AES_KEY;
+    public static Integer MAX_COUNT_SECONDS;
+    public static Integer MAX_SECONDS;
+    public static Integer MAX_MAIL_DURATION_SECOND;
 
     public static final String REGEX_PWD = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$";
     public static final String REGEX_NAME = "^[\\u4e00-\\u9fa5a-zA-Z0-9]{4,20}$";
@@ -32,6 +44,9 @@ public class Constants implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         PRIVATE_KEY = private_key;
         AES_KEY = aesKey;
+        MAX_COUNT_SECONDS = maxCountSeconds;
+        MAX_SECONDS = maxSeconds;
+        MAX_MAIL_DURATION_SECOND = maxMailDurationOfSecond;
     }
 
 }

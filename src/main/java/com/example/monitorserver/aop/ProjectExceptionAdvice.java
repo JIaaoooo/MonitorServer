@@ -62,7 +62,7 @@ public class ProjectExceptionAdvice {
 
 //处理数据参数异常
 
-    @ExceptionHandler(value = {BindException.class, ValidationException.class, MethodArgumentNotValidException.class})
+    @ExceptionHandler(value = {BindException.class, ValidationException.class, MethodArgumentNotValidException.class,HttpMessageNotReadableException.class})
     public Result doMethodArgumentNotValidException(Exception  e){
 
         LOGGER.error("发生了异常:{}",(Throwable) e);
@@ -89,6 +89,8 @@ public class ProjectExceptionAdvice {
                     ex.getAllErrors().stream()
                             .map(ObjectError::getDefaultMessage)
                             .collect(Collectors.joining("; ")));
+        }else if (e instanceof HttpMessageNotReadableException) {
+            return new Result(ResultEnum.PARAMETER_NOT_VALID.getCode(),"没有请求参数");
         }
 
         return null;

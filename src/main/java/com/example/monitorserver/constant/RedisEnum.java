@@ -14,6 +14,10 @@ public enum RedisEnum {
     TOKEN_EXITS(1,"过期时间"),
 
     INDEX_KEY(2,"index"),
+
+    DATA(3,"monitorData"),
+
+    MONITOR_MAIL(4,"monitor:mail:")
     ;
 
 
