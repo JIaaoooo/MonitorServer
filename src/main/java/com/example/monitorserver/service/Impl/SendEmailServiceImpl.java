@@ -219,15 +219,18 @@ public class SendEmailServiceImpl implements SendEmailService {
 
             //6.判断发送邮件的间隔时间会不会太短
             log.debug("邮件发送相距时间为:{}秒",Duration.between(parse,LocalDateTime.now()).getSeconds());
-            if (Math.abs(Duration.between(parse,LocalDateTime.now()).getSeconds()) > MAX_MAIL_DURATION_SECOND) {
-                //不会太短,则进行发送邮件
-                chooseTypeSendEmail(projectName,new Statistics().setType(type).setCount(count));
-                //并对统计数据进行清空
-                redisTemplate.opsForHash().put(key,"count",0);
-                redisTemplate.opsForHash().put(key,"lastMailTime",LocalDateTime.now().toString());
-            }else {
-                //频率过高,则不进行发送邮件
-                log.debug("发送邮件过于频繁");
+            synchronized (this) {
+                if (Math.abs(Duration.between(parse,LocalDateTime.now()).getSeconds()) > MAX_MAIL_DURATION_SECOND) {
+                    redisTemplate.opsForHash().put(key,"lastMailTime",LocalDateTime.now().toString());
+                    //不会太短,则进行发送邮件
+                    chooseTypeSendEmail(projectName,new Statistics().setType(type).setCount(count));
+                    //并对统计数据进行清空
+                    redisTemplate.opsForHash().put(key,"count",0);
+
+                }else {
+                    //频率过高,则不进行发送邮件
+                    log.debug("发送邮件过于频繁");
+                }
             }
             redisTemplate.expire(RedisEnum.MONITOR_MAIL.getMsg() + projectName +":"+ type,Duration.ofSeconds(MAX_SECONDS));
         }
